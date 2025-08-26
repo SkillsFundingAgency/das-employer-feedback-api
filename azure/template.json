@@ -91,7 +91,7 @@
         "appServiceName": "[concat(variables('resourceNamePrefix'), '-as')]",
         "databaseName": "[concat(replace(variables('resourceNamePrefix'), 'api', ''), '-db')]",
         "privateLinkScopeName": "[toLower(concat('das-', parameters('resourceEnvironmentName'),'-shared-ampls'))]",
-        "configNames": "SFA.DAS.EmployerFeedback"
+        "configNames": "SFA.DAS.EmployerFeedback.Api"
     },
     "resources": [
         {
