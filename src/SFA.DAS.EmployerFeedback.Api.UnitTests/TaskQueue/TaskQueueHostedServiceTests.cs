@@ -9,7 +9,6 @@ using System.Threading.Tasks;
 using MediatR;
 using SFA.DAS.EmployerFeedback.Api.TaskQueue;
 
-
 namespace SFA.DAS.EmployerFeedback.Api.UnitTests.TaskQueue
 {
     [TestFixture]
