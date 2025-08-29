@@ -8,19 +8,24 @@ using SFA.DAS.EmployerFeedback.Domain.Configuration;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerFeedback.Data
 {
     [ExcludeFromCodeCoverage]
     public class EmployerFeedbackDataContext : DbContext,
-        IAttributeEntityContext
+        IAttributeContext,
+        IProviderRatingSummaryContext
+
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
         private readonly ChainedTokenCredential _chainedTokenCredentialProvider;
         public virtual DbSet<Attributes> Attributes { get; set; }
+        public virtual DbSet<ProviderRatingSummary> ProviderRatingSummary { get; set; } = null!;
 
-        DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes;
+        DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes; 
+        DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
 
         public EmployerFeedbackDataContext(IOptions<ApplicationSettings> config,
             DbContextOptions<EmployerFeedbackDataContext> options)
@@ -57,7 +62,28 @@ namespace SFA.DAS.EmployerFeedback.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new AttributeConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
             base.OnModelCreating(modelBuilder);
+        }
+
+        public async Task GenerateFeedbackSummaries()
+        {
+            var originalTimeout = Database.GetCommandTimeout();
+
+            try
+            {
+                Database.SetCommandTimeout(120);
+
+                await Database.ExecuteSqlRawAsync(
+                    "EXEC [dbo].[GenerateProviderAttributeResults]");
+
+                await Database.ExecuteSqlRawAsync(
+                    "EXEC [dbo].[GenerateProviderRatingResults]");
+            }
+            finally
+            {
+                Database.SetCommandTimeout(originalTimeout);
+            }
         }
     }
 }

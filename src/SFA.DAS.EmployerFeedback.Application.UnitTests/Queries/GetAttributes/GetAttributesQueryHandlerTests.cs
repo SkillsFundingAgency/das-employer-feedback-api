@@ -17,7 +17,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAttributes
         [Test, AutoData]
         public async Task Handle_ReturnsMappedAttributes(List<Attributes> entities)
         {
-            var mockContext = new Mock<IAttributeEntityContext>();
+            var mockContext = new Mock<IAttributeContext>();
             mockContext.Setup(x => x.GetAll()).ReturnsAsync(entities);
             var handler = new GetAttributesQueryHandler(mockContext.Object);
             var result = await handler.Handle(new GetAttributesQuery(), CancellationToken.None);
@@ -27,7 +27,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAttributes
         [Test]
         public async Task Handle_ReturnsEmptyList_WhenNoEntitiesExist()
         {
-            var mockContext = new Mock<IAttributeEntityContext>();
+            var mockContext = new Mock<IAttributeContext>();
             mockContext.Setup(x => x.GetAll()).ReturnsAsync(new List<Attributes>());
             var handler = new GetAttributesQueryHandler(mockContext.Object);
             var result = await handler.Handle(new GetAttributesQuery(), CancellationToken.None);
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAttributes
                 new Attributes { AttributeId = 1, AttributeName = "Name1" },
                 new Attributes { AttributeId = 2, AttributeName = "Name2" }
             };
-            var mockContext = new Mock<IAttributeEntityContext>();
+            var mockContext = new Mock<IAttributeContext>();
             mockContext.Setup(x => x.GetAll()).ReturnsAsync(entities);
             var handler = new GetAttributesQueryHandler(mockContext.Object);
             var result = await handler.Handle(new GetAttributesQuery(), CancellationToken.None);
@@ -56,7 +56,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAttributes
         [Test]
         public void Handle_ThrowsException_WhenContextThrows()
         {
-            var mockContext = new Mock<IAttributeEntityContext>();
+            var mockContext = new Mock<IAttributeContext>();
             mockContext.Setup(x => x.GetAll()).ThrowsAsync(new System.Exception("DB error"));
             var handler = new GetAttributesQueryHandler(mockContext.Object);
             Assert.ThrowsAsync<System.Exception>(async () =>

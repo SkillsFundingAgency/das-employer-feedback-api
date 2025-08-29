@@ -10,6 +10,7 @@ using SFA.DAS.Configuration.AzureTableStorage;
 using SFA.DAS.EmployerFeedback.Api.AppStart;
 using SFA.DAS.EmployerFeedback.Api.Authentication;
 using SFA.DAS.EmployerFeedback.Api.Authorization;
+using SFA.DAS.EmployerFeedback.Api.TaskQueue;
 using SFA.DAS.EmployerFeedback.Domain.Configuration;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
@@ -95,6 +96,7 @@ namespace SFA.DAS.EmployerFeedback.Api
 
             services.AddDatabaseRegistration(Configuration);
 
+            services.AddHostedService<TaskQueueHostedService>();
 
             services.AddHealthChecks()
                 .AddCheck<EmployerFeedbackHealthCheck>(nameof(EmployerFeedbackHealthCheck));

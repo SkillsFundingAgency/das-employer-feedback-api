@@ -8,9 +8,9 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes
 {
     public class GetAttributesQueryHandler : IRequestHandler<GetAttributesQuery, GetAttributesQueryResult>
     {
-        private readonly IAttributeEntityContext _attributeEntityContext;
+        private readonly IAttributeContext _attributeEntityContext;
 
-        public GetAttributesQueryHandler(IAttributeEntityContext attributeEntityContext)
+        public GetAttributesQueryHandler(IAttributeContext attributeEntityContext)
         {
             _attributeEntityContext = attributeEntityContext;
         }

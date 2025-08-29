@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
 {
-    public interface IAttributeEntityContext : IEntityContext<Attributes>
+    public interface IAttributeContext : IEntityContext<Attributes>
     {
         public async Task<List<Attributes>> GetAll()
                   => await Entities.ToListAsync();
