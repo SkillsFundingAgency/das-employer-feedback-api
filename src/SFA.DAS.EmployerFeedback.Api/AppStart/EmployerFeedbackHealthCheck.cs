@@ -10,9 +10,9 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
     public class EmployerFeedbackHealthCheck : IHealthCheck
     {
         private const string HealthCheckResultsDescription = "Request Employer Feedback API Health Check";
-        private readonly IAttributeEntityContext _attributeEntityContext;
+        private readonly IAttributeContext _attributeEntityContext;
 
-        public EmployerFeedbackHealthCheck(IAttributeEntityContext attributeEntityContext)
+        public EmployerFeedbackHealthCheck(IAttributeContext attributeEntityContext)
         {
             _attributeEntityContext = attributeEntityContext;
         }
