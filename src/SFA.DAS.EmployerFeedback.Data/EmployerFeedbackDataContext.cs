@@ -14,18 +14,34 @@ namespace SFA.DAS.EmployerFeedback.Data
 {
     [ExcludeFromCodeCoverage]
     public class EmployerFeedbackDataContext : DbContext,
+        IAccountContext,
         IAttributeContext,
+        IEmployerFeedbackResultContext,
+        IEmployerFeedbackTargetContext,
         IProviderRatingSummaryContext
 
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
         private readonly ChainedTokenCredential _chainedTokenCredentialProvider;
+        
+        public virtual DbSet<Account> Accounts { get; set; }
         public virtual DbSet<Attributes> Attributes { get; set; }
+        public virtual DbSet<EmployerFeedbackResult> EmployerFeedbackResults { get; set; } = null!;
+        public virtual DbSet<EmployerFeedbackTarget> EmployerFeedbackTargets { get; set; } = null!;
         public virtual DbSet<ProviderRatingSummary> ProviderRatingSummary { get; set; } = null!;
 
-        DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes; 
+        DbSet<Account> IEntityContext<Account>.Entities => Accounts;
+        DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes;
+        DbSet<EmployerFeedbackResult> IEntityContext<EmployerFeedbackResult>.Entities => EmployerFeedbackResults;
+        DbSet<EmployerFeedbackTarget> IEntityContext<EmployerFeedbackTarget>.Entities => EmployerFeedbackTargets;
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
+
+
+        public EmployerFeedbackDataContext(DbContextOptions<EmployerFeedbackDataContext> options) 
+            : base(options)
+        {
+        }
 
         public EmployerFeedbackDataContext(IOptions<ApplicationSettings> config,
             DbContextOptions<EmployerFeedbackDataContext> options)
@@ -61,7 +77,10 @@ namespace SFA.DAS.EmployerFeedback.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new AccountConfiguration());
             modelBuilder.ApplyConfiguration(new AttributeConfiguration());
+            modelBuilder.ApplyConfiguration(new EmployerFeedbackResultConfiguration());
+            modelBuilder.ApplyConfiguration(new EmployerFeedbackTargetConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
             base.OnModelCreating(modelBuilder);
         }

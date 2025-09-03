@@ -17,7 +17,10 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAttributesQuery).Assembly));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
+            services.AddScoped<IAccountContext>(s => s.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IAttributeContext>(s => s.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IEmployerFeedbackResultContext>(s => s.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IEmployerFeedbackTargetContext>(s => s.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderRatingSummaryContext>(s => s.GetRequiredService<EmployerFeedbackDataContext>());
 
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
