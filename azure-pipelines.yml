@@ -69,6 +69,7 @@ stages:
       SolutionBaseName: $(SolutionBaseName)
       ServiceConnection: SFA-DAS-DevTest-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+      DatabaseName: $(DatabaseName)
 
 - stage: Deploy_TEST
   dependsOn: Build
@@ -83,6 +84,7 @@ stages:
       SolutionBaseName: $(SolutionBaseName)
       ServiceConnection: SFA-DAS-DevTest-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+      DatabaseName: $(DatabaseName)
 
 - stage: Deploy_TEST2
   dependsOn: Build
@@ -97,6 +99,7 @@ stages:
       SolutionBaseName: $(SolutionBaseName)
       ServiceConnection: SFA-DAS-DevTest-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+      DatabaseName: $(DatabaseName)
 
 - stage: Deploy_PP
   dependsOn: Build
@@ -111,6 +114,7 @@ stages:
       SolutionBaseName: $(SolutionBaseName)
       ServiceConnection: SFA-DIG-PreProd-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+      DatabaseName: $(DatabaseName)
 
 # - stage: Deploy_PROD
 #   dependsOn: Build
@@ -126,6 +130,7 @@ stages:
 #       SolutionBaseName: $(SolutionBaseName)
 #       ServiceConnection: SFA-DIG-Prod-ARM
 #       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       DatabaseName: $(DatabaseName)
 
 # - stage: Deploy_MO
 #   dependsOn: Build
@@ -140,6 +145,7 @@ stages:
 #       SolutionBaseName: $(SolutionBaseName)
 #       ServiceConnection: SFA-ASM-ModelOffice-ARM
 #       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+#       DatabaseName: $(DatabaseName)
 
 - stage: Deploy_DEMO
   dependsOn: Build
@@ -154,3 +160,4 @@ stages:
       SolutionBaseName: $(SolutionBaseName)
       ServiceConnection: SFA-DAS-DevTest-ARM
       OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss  }}
+      DatabaseName: $(DatabaseName)

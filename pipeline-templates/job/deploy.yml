@@ -3,6 +3,7 @@ parameters:
   SolutionBaseName:
   Environment:
   OverrideBlockOnPossibleDataLoss:
+  DatabaseName:
 
 jobs:
 - deployment: DeployWebApp
@@ -57,7 +58,7 @@ jobs:
             ServerName: $(SharedSQLServerFQDN)
             SqlUsername: $(SharedSQLServerUsername)
             DacpacFile: $(Pipeline.Workspace)/DacpacArtifact/src/${{ parameters.SolutionBaseName }}.Database/bin/Output/${{ parameters.SolutionBaseName }}.Database.dacpac
-            DatabaseName: $(DatabaseName)
+            DatabaseName: ${{ parameters.DatabaseName }}
             OverrideBlockOnPossibleDataLoss: ${{ parameters.OverrideBlockOnPossibleDataLoss }}
             Environment: ${{ parameters.Environment }}
         - template: azure-pipelines-templates/deploy/step/app-deploy.yml@das-platform-building-blocks
