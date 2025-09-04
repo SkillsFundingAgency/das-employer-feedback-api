@@ -1,7 +1,9 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.EmployerFeedback.Api.TaskQueue;
 using SFA.DAS.EmployerFeedback.Application.Behaviours;
+using SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes;
 using SFA.DAS.EmployerFeedback.Data;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
@@ -15,10 +17,15 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
         public static void AddServices(this IServiceCollection services)
         {
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAttributesQuery).Assembly));
+
+            services.AddValidatorsFromAssemblyContaining<SubmitEmployerFeedbackCommand>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
-            services.AddScoped<IAttributeContext>(s => s.GetRequiredService<EmployerFeedbackDataContext>());
-            services.AddScoped<IProviderRatingSummaryContext>(s => s.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IEmployerFeedbackContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IEmployerFeedbackResultContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IProviderAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IProviderRatingSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
 
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
