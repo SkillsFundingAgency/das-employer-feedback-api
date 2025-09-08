@@ -12,8 +12,6 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
         {
             builder.ToTable("Attributes");
             builder.HasKey(e => e.AttributeId);
-            builder.Property(e => e.AttributeName).HasMaxLength(250).IsRequired();
-            builder.HasIndex(e => new { e.AttributeId, e.AttributeName });
         }
     }
 }

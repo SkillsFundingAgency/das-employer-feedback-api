@@ -11,17 +11,10 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
         public void Configure(EntityTypeBuilder<EmployerFeedbackResultEntity> entity)
         {
             entity.ToTable("EmployerFeedbackResult");
-            entity.HasKey(e => e.Id).IsClustered(false);
-            entity.Property(e => e.Id).HasDefaultValueSql("NEWSEQUENTIALID()");
-            entity.Property(e => e.FeedbackId).IsRequired();
-            entity.Property(e => e.DateTimeCompleted).IsRequired();
-            entity.Property(e => e.ProviderRating).HasMaxLength(20).IsRequired();
-            entity.Property(e => e.FeedbackSource).HasDefaultValue(1);
+            entity.HasKey(e => e.Id);
             entity.HasOne(e => e.EmployerFeedback)
                 .WithMany(f => f.FeedbackResults)
                 .HasForeignKey(e => e.FeedbackId);
-            entity.HasIndex(e => new { e.Id, e.FeedbackId }).IncludeProperties(e => new { e.DateTimeCompleted, e.ProviderRating });
-            entity.HasIndex(e => new { e.FeedbackId, e.DateTimeCompleted }).IsUnique();
         }
     }
 }

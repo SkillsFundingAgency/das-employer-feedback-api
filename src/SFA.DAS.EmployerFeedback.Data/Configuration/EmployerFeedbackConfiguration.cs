@@ -12,11 +12,6 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
         {
             builder.ToTable("EmployerFeedback");
             builder.HasKey(e => e.FeedbackId);
-            builder.HasIndex(e => new { e.UserRef, e.Ukprn, e.AccountId }).IsUnique(true);
-            builder.Property(e => e.UserRef).IsRequired();
-            builder.Property(e => e.Ukprn).IsRequired();
-            builder.Property(e => e.AccountId).IsRequired();
-            builder.Property(e => e.IsActive).IsRequired();
         }
     }
 }

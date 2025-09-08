@@ -6,10 +6,10 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback
     {
         public SubmitEmployerFeedbackCommandValidator()
         {
-            RuleFor(x => x.UserRef).NotEmpty().WithMessage("Employer Requests must not be empty.");
+            RuleFor(x => x.UserRef).NotEmpty().WithMessage("UserRef must not be empty.");
             RuleFor(x => x.Ukprn).GreaterThan(0).WithMessage("Ukprn must be greater than zero.");
             RuleFor(x => x.AccountId).GreaterThan(0).WithMessage("Account Id must be greater than zero.");
-            RuleFor(x => x.ProviderRating).IsInEnum().WithMessage("Request Type must be a valid enum value.");
+            RuleFor(x => x.ProviderRating).IsInEnum().WithMessage("ProviderRating must be a valid enum value.");
             RuleFor(x => x.FeedbackSource)
                 .InclusiveBetween(1, 2)
                 .WithMessage("FeedbackSource must be 1 or 2.");

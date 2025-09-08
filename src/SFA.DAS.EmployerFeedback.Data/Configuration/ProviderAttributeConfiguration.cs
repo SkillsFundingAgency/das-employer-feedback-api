@@ -11,8 +11,7 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
         public void Configure(EntityTypeBuilder<ProviderAttributeEntity> entity)
         {
             entity.ToTable("ProviderAttributes");
-            entity.HasKey(e => new { e.EmployerFeedbackResultId, e.AttributeId }).IsClustered(false);
-            entity.Property(e => e.AttributeValue).IsRequired();
+            entity.HasKey(e => new { e.EmployerFeedbackResultId, e.AttributeId });
             entity.HasOne(e => e.EmployerFeedbackResult)
                 .WithMany(r => r.ProviderAttributes)
                 .HasForeignKey(e => e.EmployerFeedbackResultId);
