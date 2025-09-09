@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
 {
     [TestFixture]
-    public class EmployerFeedbackTargetContextTests
+    public class EmployerFeedbackContextTests
     {
         private static EmployerFeedbackDataContext CreateContext()
         {
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             await using var ctx = CreateContext();
 
             // Act
-            var results = await ((IEmployerFeedbackTargetContext)ctx)
+            var results = await ((IEmployerFeedbackContext)ctx)
                 .GetLatestResultsPerAccount(accountId, userRef, CancellationToken.None);
 
             // Assert
@@ -66,33 +66,33 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             var account = new Account { Id = accountId, Name = "Widgets Ltd" };
             ctx.Set<Account>().Add(account);
 
-            var targetNoResults = new EmployerFeedbackTarget
+            var targetNoResults = new Domain.Entities.EmployerFeedback
             {
                 AccountId = accountId,
                 UserRef = userRef,
                 Ukprn = ukprnNoResults,
                 Account = account,
-                EmployerFeedbackResults = new List<EmployerFeedbackResult>() // none
+                FeedbackResults = new List<EmployerFeedbackResult>() // none
             };
 
-            var targetWithResults = new EmployerFeedbackTarget
+            var targetWithResults = new Domain.Entities.EmployerFeedback
             {
                 FeedbackId = 10,
                 AccountId = accountId,
                 UserRef = userRef,
                 Ukprn = ukprnWithResults,
                 Account = account,
-                EmployerFeedbackResults = new List<EmployerFeedbackResult>
+                FeedbackResults = new List<EmployerFeedbackResult>
                 {
                     new EmployerFeedbackResult { FeedbackId = 10, DateTimeCompleted = dt, ProviderRating = "Good", FeedbackSource = 1 }
                 }
             };
 
-            ctx.Set<EmployerFeedbackTarget>().AddRange(targetNoResults, targetWithResults);
+            ctx.Set<Domain.Entities.EmployerFeedback>().AddRange(targetNoResults, targetWithResults);
             await ctx.SaveChangesAsync();
 
             // Act
-            var results = await ((IEmployerFeedbackTargetContext)ctx)
+            var results = await ((IEmployerFeedbackContext)ctx)
                 .GetLatestResultsPerAccount(accountId, userRef, CancellationToken.None);
 
             // Assert
@@ -132,42 +132,42 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             ctx.Set<Account>().AddRange(accA, accB);
 
             // Matching pair (should be returned)
-            ctx.Set<EmployerFeedbackTarget>().Add(new EmployerFeedbackTarget
+            ctx.Set<Domain.Entities.EmployerFeedback>().Add(new Domain.Entities.EmployerFeedback
             {
                 FeedbackId = 1,
                 AccountId = accountA,
                 UserRef = userA,
                 Ukprn = ukprnA,
                 Account = accA,
-                EmployerFeedbackResults = new List<EmployerFeedbackResult>
+                FeedbackResults = new List<EmployerFeedbackResult>
                 {
                     new EmployerFeedbackResult { FeedbackId = 1, DateTimeCompleted = new DateTime(2025, 07, 01, 0, 0, 0, DateTimeKind.Utc), ProviderRating = "Good", FeedbackSource = 2 }
                 }
             });
 
             // Different account (should NOT be returned)
-            ctx.Set<EmployerFeedbackTarget>().Add(new EmployerFeedbackTarget
+            ctx.Set<Domain.Entities.EmployerFeedback>().Add(new Domain.Entities.EmployerFeedback
             {
                 FeedbackId = 2,
                 AccountId = accountB,
                 UserRef = userA,
                 Ukprn = ukprnB,
                 Account = accB,
-                EmployerFeedbackResults = new List<EmployerFeedbackResult>
+                FeedbackResults = new List<EmployerFeedbackResult>
                 {
                     new EmployerFeedbackResult { FeedbackId = 2, DateTimeCompleted = new DateTime(2025, 07, 02, 0, 0, 0, DateTimeKind.Utc), ProviderRating = "Excellent", FeedbackSource = 1 }
                 }
             });
 
             // Different user (should NOT be returned)
-            ctx.Set<EmployerFeedbackTarget>().Add(new EmployerFeedbackTarget
+            ctx.Set<Domain.Entities.EmployerFeedback>().Add(new Domain.Entities.EmployerFeedback
             {
                 FeedbackId = 3,
                 AccountId = accountA,
                 UserRef = userB,
                 Ukprn = 39999999L,
                 Account = accA,
-                EmployerFeedbackResults = new List<EmployerFeedbackResult>
+                FeedbackResults = new List<EmployerFeedbackResult>
                 {
                     new EmployerFeedbackResult { FeedbackId = 3, DateTimeCompleted = new DateTime(2025, 07, 03, 0, 0, 0, DateTimeKind.Utc), ProviderRating = "Poor", FeedbackSource = 2 }
                 }
@@ -176,7 +176,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             await ctx.SaveChangesAsync();
 
             // Act
-            var results = await ((IEmployerFeedbackTargetContext)ctx)
+            var results = await ((IEmployerFeedbackContext)ctx)
                 .GetLatestResultsPerAccount(accountA, userA, CancellationToken.None);
 
             // Assert
@@ -206,35 +206,35 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             var account = new Account { Id = accountId, Name = "Contoso" };
             ctx.Set<Account>().Add(account);
 
-            var target1 = new EmployerFeedbackTarget
+            var target1 = new Domain.Entities.EmployerFeedback
             {
                 AccountId = accountId,
                 UserRef = userRef,
                 Ukprn = ukprn,
                 Account = account,
-                EmployerFeedbackResults = new List<EmployerFeedbackResult>
+                FeedbackResults = new List<EmployerFeedbackResult>
                 {
                     new EmployerFeedbackResult { FeedbackId = 10, DateTimeCompleted = dtEarlier, ProviderRating = "Excellent", FeedbackSource = 1 }
                 }
             };
 
-            var target2 = new EmployerFeedbackTarget
+            var target2 = new Domain.Entities.EmployerFeedback
             {
                 AccountId = accountId,
                 UserRef = userRef,
                 Ukprn = ukprn,
                 Account = account,
-                EmployerFeedbackResults = new List<EmployerFeedbackResult>
+                FeedbackResults = new List<EmployerFeedbackResult>
                 {
                     new EmployerFeedbackResult { FeedbackId = 11, DateTimeCompleted = dtLater, ProviderRating = "Good", FeedbackSource = 2 }
                 }
             };
 
-            ctx.Set<EmployerFeedbackTarget>().AddRange(target1, target2);
+            ctx.Set<Domain.Entities.EmployerFeedback>().AddRange(target1, target2);
             await ctx.SaveChangesAsync();
 
             // Act
-            var results = await ((IEmployerFeedbackTargetContext)ctx)
+            var results = await ((IEmployerFeedbackContext)ctx)
                 .GetLatestResultsPerAccount(accountId, userRef, CancellationToken.None);
 
             // Assert

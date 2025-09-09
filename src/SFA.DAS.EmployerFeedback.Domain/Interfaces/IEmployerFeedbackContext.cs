@@ -1,5 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using SFA.DAS.EmployerFeedback.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using SFA.DAS.EmployerFeedback.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -9,8 +8,12 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
 {
-    public interface IEmployerFeedbackTargetContext : IEntityContext<EmployerFeedbackTarget>
+    public interface IEmployerFeedbackContext : IEntityContext<Entities.EmployerFeedback>
     {
+        Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
+        public async Task<Entities.EmployerFeedback> GetByUserUkprnAccountAsync(Guid userRef, long ukprn, long accountId, CancellationToken cancellationToken)
+            => await Entities.FirstOrDefaultAsync(x => x.UserRef == userRef && x.Ukprn == ukprn && x.AccountId == accountId, cancellationToken);
+
         public async Task<List<LatestEmployerFeedbackResults>> GetLatestResultsPerAccount(long accountId, Guid userRef, CancellationToken cancellationToken)
         {
             var pre = await Entities
@@ -20,7 +23,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                     eft.AccountId,
                     eft.Ukprn,
                     AccountName = eft.Account.Name,
-                    Latest = eft.EmployerFeedbackResults
+                    Latest = eft.FeedbackResults
                         .OrderByDescending(r => r.DateTimeCompleted)
                         .Select(r => new
                         {

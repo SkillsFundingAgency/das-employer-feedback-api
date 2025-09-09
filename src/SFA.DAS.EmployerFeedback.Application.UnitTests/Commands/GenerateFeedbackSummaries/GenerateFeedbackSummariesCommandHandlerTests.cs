@@ -12,7 +12,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.GenerateFeedba
     public class GenerateFeedbackSummariesCommandHandlerTests
     {
         [Test]
-        public async Task Handle_CallsGenerateFeedbackSummaries_CompletesSuccessfully()
+        public void Handle_CallsGenerateFeedbackSummaries_CompletesSuccessfully()
         {
             var mockContext = new Mock<IProviderRatingSummaryContext>();
             mockContext.Setup(x => x.GenerateFeedbackSummaries()).Returns(Task.CompletedTask);

@@ -108,6 +108,10 @@ namespace SFA.DAS.EmployerFeedback.Api
                     {
                         o.Filters.Add(new AuthorizeFilter(PolicyNames.Default));
                     }
+                })
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
                 });
 
             services.AddServices();

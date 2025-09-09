@@ -10,9 +10,8 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
         {
             builder.ToTable("Account");
             builder.HasKey(x => x.Id);
-            builder.Property(x => x.Name).IsRequired();
 
-            builder.HasMany(x => x.EmployerFeedbackTargets)
+            builder.HasMany(x => x.EmployerFeedbacks)
                    .WithOne()
                    .HasForeignKey(x => x.AccountId);
         }

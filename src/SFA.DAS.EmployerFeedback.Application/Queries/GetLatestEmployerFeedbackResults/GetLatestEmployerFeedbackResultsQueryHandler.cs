@@ -8,9 +8,9 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetLatestEmployerFeedback
 {
     public class GetLatestEmployerFeedbackResultsQueryHandler : IRequestHandler<GetLatestEmployerFeedbackResultsQuery, GetLatestEmployerFeedbackResultsQueryResult>
     {
-        private readonly IEmployerFeedbackTargetContext _entityContext;
+        private readonly IEmployerFeedbackContext _entityContext;
 
-        public GetLatestEmployerFeedbackResultsQueryHandler(IEmployerFeedbackTargetContext entityContext)
+        public GetLatestEmployerFeedbackResultsQueryHandler(IEmployerFeedbackContext entityContext)
         {
             _entityContext = entityContext;
         }

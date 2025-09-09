@@ -1,29 +1,20 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using SFA.DAS.EmployerFeedback.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using EmployerFeedbackResultEntity = SFA.DAS.EmployerFeedback.Domain.Entities.EmployerFeedbackResult;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerFeedback.Data.Configuration
 {
-    public class EmployerFeedbackResultConfiguration : IEntityTypeConfiguration<EmployerFeedbackResult>
+    [ExcludeFromCodeCoverage]
+    public class EmployerFeedbackResultConfiguration : IEntityTypeConfiguration<EmployerFeedbackResultEntity>
     {
-        public void Configure(EntityTypeBuilder<EmployerFeedbackResult> builder)
+        public void Configure(EntityTypeBuilder<EmployerFeedbackResultEntity> entity)
         {
-            builder.ToTable("EmployerFeedbackResult");
-            builder.HasKey(x => x.Id);
-            builder.Property(x => x.Id).ValueGeneratedOnAdd();
-            builder.Property(x => x.FeedbackId).IsRequired();
-            builder.Property(x => x.DateTimeCompleted).IsRequired();
-            builder.Property(x => x.ProviderRating).IsRequired().HasMaxLength(20).IsUnicode(false);
-
-            builder.HasOne(x => x.EmployerFeedbackTarget)
-                   .WithMany()
-                   .HasForeignKey(x => x.FeedbackId)
-                   .HasConstraintName("FK_EmployerFeedbackResult_EmployerFeedback_FeedbackId");
+            entity.ToTable("EmployerFeedbackResult");
+            entity.HasKey(e => e.Id);
+            entity.HasOne(e => e.EmployerFeedback)
+                .WithMany(f => f.FeedbackResults)
+                .HasForeignKey(e => e.FeedbackId);
         }
     }
 }

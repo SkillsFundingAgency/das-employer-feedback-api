@@ -17,7 +17,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
     {
         [Test, AutoData]
         public async Task And_NoResults_Then_NullReturned(
-         [Frozen] Mock<IEmployerFeedbackTargetContext> context)
+         [Frozen] Mock<IEmployerFeedbackContext> context)
         {
             // Arrange
             var accountId = 123L;
@@ -38,7 +38,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
 
         [Test, AutoData]
         public async Task And_ResultsExist_Then_MapsToDto_WithResultOnlyWhenCompletedDatePresent(
-            [Frozen] Mock<IEmployerFeedbackTargetContext> context)
+            [Frozen] Mock<IEmployerFeedbackContext> context)
         {
             // Arrange
             var accountId = 555L;
@@ -96,7 +96,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
 
         [Test, AutoData]
         public async Task And_ContextReturnsOrderedByUkprn_Then_HandlerPreservesOrder(
-            [Frozen] Mock<IEmployerFeedbackTargetContext> context)
+            [Frozen] Mock<IEmployerFeedbackContext> context)
         {
             // Arrange
             var accountId = 77L;
