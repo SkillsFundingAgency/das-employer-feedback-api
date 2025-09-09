@@ -10,7 +10,7 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
         public void Configure(EntityTypeBuilder<Domain.Entities.ProviderRatingSummary> builder)
         {
             builder.ToTable("ProviderRatingSummary");
-            builder.HasKey(x => new { x.Ukprn, x.Rating,x.TimePeriod });
+            builder.HasKey(x => new { x.Ukprn, x.Rating, x.TimePeriod });
         }
     }
 }

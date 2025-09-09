@@ -17,11 +17,11 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             var appSettings = configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
             if (configuration.IsLocalAcceptanceOrDev())
             {
-                services.AddDbContext<EmployerFeedbackDataContext>(options => options.UseSqlServer(appSettings.DbConnectionString).EnableSensitiveDataLogging(), ServiceLifetime.Transient);
+                services.AddDbContext<EmployerFeedbackDataContext>(options => options.UseSqlServer(appSettings.DbConnectionString).EnableSensitiveDataLogging());
             }
             else if (configuration.IsIntegrationTests())
             {
-                services.AddDbContext<EmployerFeedbackDataContext>(options => options.UseSqlServer("Server=localhost;Database=SFA.DAS.EmployerFeedback.IntegrationTests.Database;Trusted_Connection=True;MultipleActiveResultSets=true").EnableSensitiveDataLogging(), ServiceLifetime.Transient);
+                services.AddDbContext<EmployerFeedbackDataContext>(options => options.UseSqlServer("Server=localhost;Database=SFA.DAS.EmployerFeedback.IntegrationTests.Database;Trusted_Connection=True;MultipleActiveResultSets=true").EnableSensitiveDataLogging());
             }
             else
             {
@@ -30,8 +30,8 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
                     new AzureCliCredential(),
                     new VisualStudioCodeCredential(),
                     new VisualStudioCredential())
-            );
-                services.AddDbContext<EmployerFeedbackDataContext>(ServiceLifetime.Transient);
+                );
+                services.AddDbContext<EmployerFeedbackDataContext>(ServiceLifetime.Scoped);
             }
 
             services.AddTransient(provider => new Lazy<EmployerFeedbackDataContext>(provider.GetService<EmployerFeedbackDataContext>()));

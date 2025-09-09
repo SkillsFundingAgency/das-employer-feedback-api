@@ -1,0 +1,47 @@
+using System;
+using System.Threading.Tasks;
+using FluentValidation;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback;
+using SFA.DAS.EmployerFeedback.Application.Models;
+
+namespace SFA.DAS.EmployerFeedback.Api.Controllers
+{
+    [ApiController]
+    [Route("api/employerfeedbackresult")]
+    public class EmployerFeedbackResultController : ControllerBase
+    {
+        private readonly IMediator _mediator;
+        private readonly ILogger<EmployerFeedbackResultController> _logger;
+
+        public EmployerFeedbackResultController(IMediator mediator, ILogger<EmployerFeedbackResultController> logger)
+        {
+            _mediator = mediator;
+            _logger = logger;
+        }
+
+        [HttpPost("")]
+        public async Task<IActionResult> SubmitEmployerFeedback([FromBody] SubmitEmployerFeedbackRequest request)
+        {
+            try
+            {
+                var command = (SubmitEmployerFeedbackCommand)request;
+                await _mediator.Send(command);
+                return NoContent();
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed for employer feedback submission");
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unhandled error submitting employer feedback");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+    }
+}

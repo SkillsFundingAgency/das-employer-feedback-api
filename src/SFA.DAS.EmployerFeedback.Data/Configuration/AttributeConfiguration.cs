@@ -10,8 +10,8 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
     {
         public void Configure(EntityTypeBuilder<Attributes> builder)
         {
-            builder.ToTable(nameof(Attributes))
-                .HasKey(nameof(Attributes.AttributeId));
+            builder.ToTable("Attributes");
+            builder.HasKey(e => e.AttributeId);
         }
     }
 }
