@@ -100,5 +100,5 @@ namespace SFA.DAS.EmployerFeedback.Data
                 Database.SetCommandTimeout(originalTimeout);
             }
         }
-        }
+    }
 }

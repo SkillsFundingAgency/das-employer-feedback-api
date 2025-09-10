@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -27,7 +26,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpsertSettings([FromBody] List<SettingRequest> settings, CancellationToken cancellationToken)
+        public async Task<IActionResult> UpsertSettings([FromBody] List<SettingRequest> settings)
         {
             try
             {
@@ -35,7 +34,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
                 {
                     Settings = settings?.Select(s => new SettingDto { Name = s.Name, Value = s.Value }).ToList()
                 };
-                await _mediator.Send(command, cancellationToken);
+                await _mediator.Send(command);
                 return NoContent();
             }
             catch (ValidationException ex)
