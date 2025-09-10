@@ -36,16 +36,9 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             var req = new List<SettingRequest> { new SettingRequest { Name = "Test", Value = "Val" } };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
 
-            var result = await _controller.UpsertSettings(req, CancellationToken.None);
+            var result = await _controller.UpsertSettings(req);
             Assert.IsInstanceOf<NoContentResult>(result);
             _mediator.Verify(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>()), Times.Once);
-        }
-
-        [Test]
-        public async Task UpsertSettings_Should_Return_BadRequest_On_Invalid()
-        {
-            var result = await _controller.UpsertSettings(null, CancellationToken.None);
-            Assert.IsInstanceOf<BadRequestObjectResult>(result);
         }
 
         [Test]
@@ -53,7 +46,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         {
             var req = new List<SettingRequest> { new SettingRequest { Name = "Invalid Name!", Value = "Val" } };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new ValidationException("validation failed"));
-            var result = await _controller.UpsertSettings(req, CancellationToken.None);
+            var result = await _controller.UpsertSettings(req);
             var badRequest = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequest);
             Assert.AreEqual(StatusCodes.Status400BadRequest, badRequest.StatusCode);
@@ -65,7 +58,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         {
             var req = new List<SettingRequest> { new SettingRequest { Name = "Test", Value = "Val" } };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
-            var result = await _controller.UpsertSettings(req, CancellationToken.None);
+            var result = await _controller.UpsertSettings(req);
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
