@@ -12,6 +12,7 @@ using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Api.Controllers;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
 using SFA.DAS.EmployerFeedback.Application.Models;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetSettings;
 
 namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
 {
@@ -28,6 +29,33 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             _mediator = new Mock<IMediator>();
             _logger = new Mock<ILogger<SettingsController>>();
             _controller = new SettingsController(_mediator.Object, _logger.Object);
+        }
+
+        [Test]
+        public async Task GetSettings_Should_Return_Ok_With_Settings()
+        {
+            var settings = new List<Settings> { new Settings { Name = "Test", Value = "Val" } };
+            _mediator.Setup(x => x.Send(It.IsAny<GetSettingsQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new GetSettingsQueryResult { Settings = settings });
+
+            var result = await _controller.GetSettings();
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
+            Assert.AreEqual(settings, okResult.Value);
+            _mediator.Verify(x => x.Send(It.IsAny<GetSettingsQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetSettings_Should_Return_InternalServerError_On_Exception()
+        {
+            _mediator.Setup(x => x.Send(It.IsAny<GetSettingsQuery>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("fail"));
+            var result = await _controller.GetSettings();
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.AreEqual("An unexpected error occurred.", objectResult.Value);
         }
 
         [Test]
