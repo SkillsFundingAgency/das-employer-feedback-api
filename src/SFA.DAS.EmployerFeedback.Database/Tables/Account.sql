@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[Account]
 (
-    [Id] BIGINT NOT NULL PRIMARY KEY IDENTITY,
+    [Id] BIGINT NOT NULL PRIMARY KEY,
     [AccountName] NVARCHAR(255) NOT NULL,
     [CheckedOn] DATETIME2 NULL
 )
