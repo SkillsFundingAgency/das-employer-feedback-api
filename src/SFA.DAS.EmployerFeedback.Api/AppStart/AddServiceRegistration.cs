@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.EmployerFeedback.Api.TaskQueue;
 using SFA.DAS.EmployerFeedback.Application.Behaviours;
 using SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback;
+using SFA.DAS.EmployerFeedback.Application.Commands.UpsertAccounts;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes;
 using SFA.DAS.EmployerFeedback.Data;
@@ -21,6 +22,7 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
 
             services.AddValidatorsFromAssemblyContaining<SubmitEmployerFeedbackCommand>();
             services.AddValidatorsFromAssemblyContaining<UpsertSettingsCommand>();
+            services.AddValidatorsFromAssemblyContaining<UpsertAccountsCommand>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
             services.AddScoped<IEmployerFeedbackContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
@@ -29,6 +31,7 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddScoped<IAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderRatingSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<ISettingsContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IAccountContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
  
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }

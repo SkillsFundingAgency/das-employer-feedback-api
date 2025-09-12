@@ -19,7 +19,8 @@ namespace SFA.DAS.EmployerFeedback.Data
         IEmployerFeedbackContext,
         IEmployerFeedbackResultContext,
         IProviderAttributeContext,
-        ISettingsContext
+        ISettingsContext,
+        IAccountContext 
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -30,6 +31,7 @@ namespace SFA.DAS.EmployerFeedback.Data
         public virtual DbSet<EmployerFeedbackResult> EmployerFeedbackResult { get; set; }
         public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; }
         public virtual DbSet<Settings> Settings { get; set; }
+        public virtual DbSet<Account> Accounts { get; set; }
 
         DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes;
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
@@ -37,6 +39,7 @@ namespace SFA.DAS.EmployerFeedback.Data
         DbSet<EmployerFeedbackResult> IEntityContext<EmployerFeedbackResult>.Entities => EmployerFeedbackResult;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
         DbSet<Settings> IEntityContext<Settings>.Entities => Settings;
+        DbSet<Account> IEntityContext<Account>.Entities => Accounts;
 
         public EmployerFeedbackDataContext(IOptions<ApplicationSettings> config,
             DbContextOptions<EmployerFeedbackDataContext> options)
@@ -78,6 +81,7 @@ namespace SFA.DAS.EmployerFeedback.Data
             modelBuilder.ApplyConfiguration(new EmployerFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new SettingsConfiguration());
+            modelBuilder.ApplyConfiguration(new AccountConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 
