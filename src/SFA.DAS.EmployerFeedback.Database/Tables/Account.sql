@@ -1,7 +1,7 @@
 ﻿CREATE TABLE [dbo].[Account]
 (
     [Id] BIGINT NOT NULL PRIMARY KEY,
-    [AccountName] NVARCHAR(255) NOT NULL,
+    [AccountName] NVARCHAR(100) NOT NULL,
     [CheckedOn] DATETIME2 NULL
 )
 GO
