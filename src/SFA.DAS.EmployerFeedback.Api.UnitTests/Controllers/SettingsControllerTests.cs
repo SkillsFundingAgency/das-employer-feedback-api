@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentValidation;
@@ -33,8 +32,8 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task UpsertSettings_Should_Send_Command_And_Return_NoContent()
         {
-            var req = new List<SettingRequest> { new SettingRequest { Name = "Test", Value = DateTime.UtcNow } };
-            _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
+            var req = new SettingRequest { Value = DateTime.UtcNow };
+            _mediator.Setup(x => x.Send(It.Is<UpsertSettingsCommand>(c => c.Value == req.Value), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
 
             var result = await _controller.UpsertSettings(req);
             Assert.IsInstanceOf<NoContentResult>(result);
@@ -44,7 +43,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task UpsertSettings_Should_Return_BadRequest_On_ValidationException()
         {
-            var req = new List<SettingRequest> { new SettingRequest { Name = "Invalid Name!", Value = DateTime.UtcNow } };
+            var req = new SettingRequest { Value = DateTime.UtcNow };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new ValidationException("validation failed"));
             var result = await _controller.UpsertSettings(req);
             var badRequest = result as BadRequestObjectResult;
@@ -56,7 +55,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task UpsertSettings_Should_Return_InternalServerError_On_Exception()
         {
-            var req = new List<SettingRequest> { new SettingRequest { Name = "Test", Value = DateTime.UtcNow } };
+            var req = new SettingRequest { Value = DateTime.UtcNow };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
             var result = await _controller.UpsertSettings(req);
             var objectResult = result as ObjectResult;

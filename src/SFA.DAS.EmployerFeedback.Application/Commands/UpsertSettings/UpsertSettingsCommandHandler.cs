@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
 
@@ -23,18 +24,16 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings
         {
             try
             {
-                foreach (var req in request.Settings)
+                var name = SettingType.RefreshALELastRunDate.ToString();
+                var existing = await _settingsContext.GetByNameAsync(name, cancellationToken);
+                if (existing != null)
                 {
-                    var existing = await _settingsContext.GetByNameAsync(req.Name, cancellationToken);
-                    if (existing != null)
-                    {
-                        existing.Value = req.Value;
-                        _settingsContext.Update(existing);
-                    }
-                    else
-                    {
-                        _settingsContext.Add(new Settings { Name = req.Name, Value = req.Value });
-                    }
+                    existing.Value = request.Value;
+                    _settingsContext.Update(existing);
+                }
+                else
+                {
+                    _settingsContext.Add(new Settings { Name = name, Value = request.Value });
                 }
                 await _settingsContext.SaveChangesAsync(cancellationToken);
                 return Unit.Value;

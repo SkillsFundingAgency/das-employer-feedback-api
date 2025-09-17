@@ -12,7 +12,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Entities
         {
             var id = Guid.NewGuid();
             var name = "TestSetting";
-            DateTime value = DateTime.UtcNow;
+            var value = DateTime.UtcNow;
             var settings = new Settings
             {
                 Id = id,
