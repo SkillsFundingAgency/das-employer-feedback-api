@@ -1,6 +1,4 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
@@ -42,13 +40,13 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         }
 
         [HttpPost("RefreshALELastRunDate")]
-        public async Task<IActionResult> UpsertSettings([FromBody] List<SettingRequest> settings)
+        public async Task<IActionResult> UpsertSettings([FromBody] SettingRequest setting)
         {
             try
             {
                 var command = new UpsertSettingsCommand
                 {
-                    Settings = settings?.Select(s => new SettingDto { Name = s.Name, Value = s.Value }).ToList()
+                    Value = setting.Value
                 };
                 await _mediator.Send(command);
                 return NoContent();
