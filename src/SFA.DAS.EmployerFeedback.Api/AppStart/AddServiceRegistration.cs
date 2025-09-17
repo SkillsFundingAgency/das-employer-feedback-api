@@ -20,7 +20,6 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAttributesQuery).Assembly));
 
             services.AddValidatorsFromAssemblyContaining<SubmitEmployerFeedbackCommand>();
-            services.AddValidatorsFromAssemblyContaining<UpsertSettingsCommand>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
             services.AddScoped<IEmployerFeedbackContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
@@ -29,7 +28,7 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddScoped<IAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderRatingSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<ISettingsContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
- 
+
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
     }
