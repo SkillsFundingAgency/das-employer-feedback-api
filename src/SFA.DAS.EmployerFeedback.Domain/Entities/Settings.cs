@@ -6,6 +6,6 @@ namespace SFA.DAS.EmployerFeedback.Domain.Entities
     {
         public Guid Id { get; set; }
         public string Name { get; set; }
-        public string Value { get; set; }
+        public DateTime? Value { get; set; }
     }
 }

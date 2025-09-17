@@ -20,10 +20,6 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings
             RuleFor(x => x.Name)
                 .NotEmpty().WithMessage("Name must not be empty.")
                 .Matches("^[A-Za-z0-9_]+$").WithMessage("Name must be alphanumeric or underscore.");
-
-            RuleFor(x => x.Value)
-                .NotNull().WithMessage("Value must not be null.")
-                .Matches("^[\\w\\s\\-:.,/]+$").WithMessage("Value contains invalid characters.");
         }
     }
 }

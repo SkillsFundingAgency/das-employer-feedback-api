@@ -1,12 +1,13 @@
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
 {
@@ -30,7 +31,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         {
             var command = new UpsertSettingsCommand
             {
-                Settings = new List<SettingDto> { new SettingDto { Name = "Test", Value = "Val" } }
+                Settings = new List<SettingDto> { new SettingDto { Name = "Test", Value = DateTime.UtcNow } }
             };
             _settingsContext.Setup(x => x.GetByNameAsync("Test", It.IsAny<CancellationToken>())).ReturnsAsync((Settings)null);
             _settingsContext.Setup(x => x.Add(It.IsAny<Settings>())).Verifiable();
@@ -44,10 +45,10 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         [Test]
         public async Task Handle_Should_Update_Setting_If_Exists()
         {
-            var existing = new Settings { Name = "Test", Value = "OldVal" };
+            var existing = new Settings { Name = "Test", Value = DateTime.UtcNow };
             var command = new UpsertSettingsCommand
             {
-                Settings = new List<SettingDto> { new SettingDto { Name = "Test", Value = "NewVal" } }
+                Settings = new List<SettingDto> { new SettingDto { Name = "Test", Value = DateTime.UtcNow } }
             };
             _settingsContext.Setup(x => x.GetByNameAsync("Test", It.IsAny<CancellationToken>())).ReturnsAsync(existing);
             _settingsContext.Setup(x => x.Update(existing)).Verifiable();
@@ -63,7 +64,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         {
             var command = new UpsertSettingsCommand
             {
-                Settings = new List<SettingDto> { new SettingDto { Name = "Test", Value = "Val" } }
+                Settings = new List<SettingDto> { new SettingDto { Name = "Test", Value = DateTime.UtcNow } }
             };
             _settingsContext.Setup(x => x.GetByNameAsync("Test", It.IsAny<CancellationToken>())).ThrowsAsync(new System.Exception("DB error"));
 
