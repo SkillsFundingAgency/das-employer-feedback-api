@@ -25,7 +25,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             _logger = logger;
         }
 
-        [HttpPost]
+        [HttpPost("RefreshALELastRunDate")]
         public async Task<IActionResult> UpsertSettings([FromBody] List<SettingRequest> settings)
         {
             try
@@ -50,5 +50,5 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         }
     }
 
-   
+
 }

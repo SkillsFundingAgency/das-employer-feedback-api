@@ -1,7 +1,8 @@
-using System.Collections.Generic;
 using FluentValidation.TestHelper;
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
+using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
 {
@@ -37,21 +38,10 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         {
             var command = new UpsertSettingsCommand
             {
-                Settings = new List<SettingDto> { new SettingDto { Name = "Invalid Name!", Value = "ValidValue" } }
+                Settings = new List<SettingDto> { new SettingDto { Name = "Invalid Name!", Value = DateTime.UtcNow } }
             };
             var result = _validator.TestValidate(command);
             result.ShouldHaveValidationErrorFor("Settings[0].Name");
-        }
-
-        [Test]
-        public void Should_Have_Error_When_Value_Is_Invalid()
-        {
-            var command = new UpsertSettingsCommand
-            {
-                Settings = new List<SettingDto> { new SettingDto { Name = "ValidName", Value = "Invalid@Value" } }
-            };
-            var result = _validator.TestValidate(command);
-            result.ShouldHaveValidationErrorFor("Settings[0].Value");
         }
 
         [Test]
@@ -59,7 +49,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         {
             var command = new UpsertSettingsCommand
             {
-                Settings = new List<SettingDto> { new SettingDto { Name = "ValidName", Value = "Valid_Value-123" } }
+                Settings = new List<SettingDto> { new SettingDto { Name = "ValidName", Value = DateTime.UtcNow } }
             };
             var result = _validator.TestValidate(command);
             result.ShouldNotHaveAnyValidationErrors();

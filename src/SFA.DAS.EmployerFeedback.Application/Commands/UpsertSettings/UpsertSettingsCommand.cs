@@ -1,5 +1,6 @@
-using System.Collections.Generic;
 using MediatR;
+using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings
 {
@@ -11,6 +12,6 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings
     public class SettingDto
     {
         public string Name { get; set; }
-        public string Value { get; set; }
+        public DateTime? Value { get; set; }
     }
 }

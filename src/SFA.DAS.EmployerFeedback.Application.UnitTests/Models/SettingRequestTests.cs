@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Application.Models;
+using System;
 
 namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Models
 {
@@ -10,7 +11,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Models
         public void Properties_SetAndGet_ShouldReturnExpectedValues()
         {
             var name = "TestName";
-            var value = "TestValue";
+            DateTime value = DateTime.UtcNow;
             var request = new SettingRequest
             {
                 Name = name,

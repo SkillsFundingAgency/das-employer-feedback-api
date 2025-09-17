@@ -33,7 +33,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task UpsertSettings_Should_Send_Command_And_Return_NoContent()
         {
-            var req = new List<SettingRequest> { new SettingRequest { Name = "Test", Value = "Val" } };
+            var req = new List<SettingRequest> { new SettingRequest { Name = "Test", Value = DateTime.UtcNow } };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
 
             var result = await _controller.UpsertSettings(req);
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task UpsertSettings_Should_Return_BadRequest_On_ValidationException()
         {
-            var req = new List<SettingRequest> { new SettingRequest { Name = "Invalid Name!", Value = "Val" } };
+            var req = new List<SettingRequest> { new SettingRequest { Name = "Invalid Name!", Value = DateTime.UtcNow } };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new ValidationException("validation failed"));
             var result = await _controller.UpsertSettings(req);
             var badRequest = result as BadRequestObjectResult;
@@ -56,7 +56,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task UpsertSettings_Should_Return_InternalServerError_On_Exception()
         {
-            var req = new List<SettingRequest> { new SettingRequest { Name = "Test", Value = "Val" } };
+            var req = new List<SettingRequest> { new SettingRequest { Name = "Test", Value = DateTime.UtcNow } };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertSettingsCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
             var result = await _controller.UpsertSettings(req);
             var objectResult = result as ObjectResult;
