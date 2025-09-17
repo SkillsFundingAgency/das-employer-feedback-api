@@ -24,13 +24,13 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
+        [HttpGet("RefreshALELastRunDate")]
         public async Task<IActionResult> GetSettings()
         {
             try
             {
                 var result = await _mediator.Send(new GetSettingsQuery());
-                return Ok(result.Settings);
+                return Ok(result);
             }
             catch (Exception ex)
             {

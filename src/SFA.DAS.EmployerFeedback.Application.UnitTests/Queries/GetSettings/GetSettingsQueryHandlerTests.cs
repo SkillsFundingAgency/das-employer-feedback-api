@@ -2,65 +2,50 @@ using SFA.DAS.EmployerFeedback.Application.Queries.GetSettings;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
 using Moq;
 using FluentAssertions;
-using AutoFixture.NUnit3;
 using NUnit.Framework;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Linq;
+using System;
 
 namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetSettings
 {
     public class GetSettingsQueryHandlerTests
     {
-        [Test, AutoData]
-        public async Task Handle_ReturnsMappedSettings(List<Domain.Entities.Settings> entities)
+        private const string SettingName = "RefreshALELastRunDate";
+
+        [Test]
+        public async Task Handle_ReturnsMappedSetting()
         {
+            var now = DateTime.UtcNow;
+            var entity = new Domain.Entities.Settings { Name = SettingName, Value = now };
             var mockContext = new Mock<ISettingsContext>();
-            mockContext.Setup(x => x.GetAll()).ReturnsAsync(entities);
+            mockContext.Setup(x => x.GetByNameAsync(SettingName, It.IsAny<CancellationToken>())).ReturnsAsync(entity);
             var handler = new GetSettingsQueryHandler(mockContext.Object);
             var result = await handler.Handle(new GetSettingsQuery(), CancellationToken.None);
-            result.Settings.Should().BeEquivalentTo(entities.Select(e => new Settings { Name = e.Name, Value = e.Value }));
-            mockContext.Verify(x => x.GetAll(), Times.Once);
+            result.Value.Should().Be(now);
+            mockContext.Verify(x => x.GetByNameAsync(SettingName, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
-        public async Task Handle_ReturnsEmptyList_WhenNoEntitiesExist()
+        public async Task Handle_ReturnsNullValue_WhenNoEntityExists()
         {
             var mockContext = new Mock<ISettingsContext>();
-            mockContext.Setup(x => x.GetAll()).ReturnsAsync(new List<Domain.Entities.Settings>());
+            mockContext.Setup(x => x.GetByNameAsync(SettingName, It.IsAny<CancellationToken>())).ReturnsAsync((Domain.Entities.Settings)null);
             var handler = new GetSettingsQueryHandler(mockContext.Object);
             var result = await handler.Handle(new GetSettingsQuery(), CancellationToken.None);
-            result.Settings.Should().BeEmpty();
-        }
-
-        [Test]
-        public async Task Handle_MapsAllPropertiesCorrectly()
-        {
-            var entities = new List<Domain.Entities.Settings>
-            {
-                new Domain.Entities.Settings { Name = "Name1", Value = "Value1" },
-                new Domain.Entities.Settings { Name = "Name2", Value = "Value2" }
-            };
-            var mockContext = new Mock<ISettingsContext>();
-            mockContext.Setup(x => x.GetAll()).ReturnsAsync(entities);
-            var handler = new GetSettingsQueryHandler(mockContext.Object);
-            var result = await handler.Handle(new GetSettingsQuery(), CancellationToken.None);
-            result.Settings.Should().HaveCount(2);
-            result.Settings[0].Name.Should().Be("Name1");
-            result.Settings[0].Value.Should().Be("Value1");
-            result.Settings[1].Name.Should().Be("Name2");
-            result.Settings[1].Value.Should().Be("Value2");
+            Assert.IsNotNull(result);
+            Assert.IsNull(result.Value);
         }
 
         [Test]
         public void Handle_ThrowsException_WhenContextThrows()
         {
             var mockContext = new Mock<ISettingsContext>();
-            mockContext.Setup(x => x.GetAll()).ThrowsAsync(new System.Exception("DB error"));
+            mockContext.Setup(x => x.GetByNameAsync(SettingName, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("DB error"));
             var handler = new GetSettingsQueryHandler(mockContext.Object);
-            Assert.ThrowsAsync<System.Exception>(async () =>
+            var ex = Assert.ThrowsAsync<Exception>(async () =>
                 await handler.Handle(new GetSettingsQuery(), CancellationToken.None));
+            Assert.That(ex.Message, Is.EqualTo("DB error"));
         }
     }
 }

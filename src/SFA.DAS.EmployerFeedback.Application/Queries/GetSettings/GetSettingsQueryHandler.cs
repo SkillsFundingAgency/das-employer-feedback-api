@@ -1,9 +1,8 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using SFA.DAS.EmployerFeedback.Application.Models;
 
 namespace SFA.DAS.EmployerFeedback.Application.Queries.GetSettings
 {
@@ -18,11 +17,8 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetSettings
 
         public async Task<GetSettingsQueryResult> Handle(GetSettingsQuery request, CancellationToken cancellationToken)
         {
-            var settings = await _settingsContext.GetAll();
-            return new GetSettingsQueryResult
-            {
-                Settings = settings.Select(s => new Settings { Name = s.Name, Value = s.Value }).ToList()
-            };
+            var setting = await _settingsContext.GetByNameAsync(SettingType.RefreshALELastRunDate.ToString(), cancellationToken);
+            return new GetSettingsQueryResult { Value = setting?.Value };
         }
     }
 }
