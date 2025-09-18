@@ -2,36 +2,37 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
+using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
 using System;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
-using SFA.DAS.EmployerFeedback.Application.Models;
 
 namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
 {
     [TestFixture]
-    public class UpsertSettingsCommandHandlerTests
+    public class UpsertRefreshALELastRunDateSettingCommandHandlerTests
     {
         private Mock<ISettingsContext> _settingsContext;
-        private Mock<ILogger<UpsertSettingsCommandHandler>> _logger;
-        private UpsertSettingsCommandHandler _handler;
+        private Mock<ILogger<UpsertRefreshALELastRunDateSettingCommandHandler>> _logger;
+        private UpsertRefreshALELastRunDateSettingCommandHandler _handler;
 
         [SetUp]
         public void SetUp()
         {
             _settingsContext = new Mock<ISettingsContext>();
-            _logger = new Mock<ILogger<UpsertSettingsCommandHandler>>();
-            _handler = new UpsertSettingsCommandHandler(_settingsContext.Object, _logger.Object);
+            _logger = new Mock<ILogger<UpsertRefreshALELastRunDateSettingCommandHandler>>();
+            _handler = new UpsertRefreshALELastRunDateSettingCommandHandler(_settingsContext.Object, _logger.Object);
         }
 
         [Test]
         public async Task Handle_Should_Add_New_Setting_If_Not_Exists()
         {
-            var value = DateTime.UtcNow;
+            var value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             var name = SettingType.RefreshALELastRunDate.ToString();
-            var command = new UpsertSettingsCommand
+            var command = new UpsertRefreshALELastRunDateSettingCommand
             {
                 Value = value
             };
@@ -47,9 +48,9 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         [Test]
         public async Task Handle_Should_Update_Setting_If_Exists()
         {
-            var value = DateTime.UtcNow;
+            var value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             var name = SettingType.RefreshALELastRunDate.ToString();
-            var command = new UpsertSettingsCommand
+            var command = new UpsertRefreshALELastRunDateSettingCommand
             {
                 Value = value
             };
@@ -68,9 +69,9 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         public void Handle_Should_Log_And_Throw_On_Exception()
         {
             var name = SettingType.RefreshALELastRunDate.ToString();
-            var command = new UpsertSettingsCommand
+            var command = new UpsertRefreshALELastRunDateSettingCommand
             {
-                Value = DateTime.UtcNow
+                Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)
             };
             _settingsContext.Setup(x => x.GetByNameAsync(name, It.IsAny<CancellationToken>())).ThrowsAsync(new System.Exception("DB error"));
 

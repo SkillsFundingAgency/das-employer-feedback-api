@@ -24,11 +24,11 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         }
 
         [HttpPut("RefreshALELastRunDate")]
-        public async Task<IActionResult> UpsertSettings([FromBody] SettingRequest setting)
+        public async Task<IActionResult> UpsertRefreshALELastRunDateSetting([FromBody] SettingRequest setting)
         {
             try
             {
-                var command = new UpsertSettingsCommand
+                var command = new UpsertRefreshALELastRunDateSettingCommand
                 {
                     Value = setting.Value
                 };

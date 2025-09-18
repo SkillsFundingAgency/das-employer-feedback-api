@@ -1,9 +1,8 @@
-﻿using System;
-
+﻿#nullable enable
 namespace SFA.DAS.EmployerFeedback.Application.Models
 {
     public class SettingRequest
     {
-        public DateTime? Value { get; set; }
+        public string? Value { get; set; }
     }
 }
