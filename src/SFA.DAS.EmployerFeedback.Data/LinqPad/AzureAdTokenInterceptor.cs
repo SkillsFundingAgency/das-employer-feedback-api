@@ -3,9 +3,11 @@ using Azure.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Data.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SFA.DAS.EmployerFeedback.Data.LinqPad
 {
+    [ExcludeFromCodeCoverage]
     public class AzureAdTokenInterceptor : DbConnectionInterceptor
     {
         private readonly TokenCredential _credential = new DefaultAzureCredential();
