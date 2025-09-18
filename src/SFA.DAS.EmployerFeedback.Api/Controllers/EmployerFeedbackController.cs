@@ -26,13 +26,12 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         {
             try
             {
-                _logger.LogError("Get called");
                 var result = await _mediator.Send(new GetLatestEmployerFeedbackResultsQuery { AccountId = accountId, UserRef = userRef });
                 return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Server error while retrieving employer feedback");
+                _logger.LogError(ex, "Server error while retrieving latest employer feedback");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
