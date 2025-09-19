@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
@@ -12,7 +13,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Entities
         {
             var id = Guid.NewGuid();
             var name = "TestSetting";
-            var value = DateTime.UtcNow;
+            var value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             var settings = new Settings
             {
                 Id = id,

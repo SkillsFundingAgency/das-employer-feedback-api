@@ -9,18 +9,18 @@ using SFA.DAS.EmployerFeedback.Domain.Interfaces;
 
 namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings
 {
-    public class UpsertSettingsCommandHandler : IRequestHandler<UpsertSettingsCommand, Unit>
+    public class UpsertRefreshALELastRunDateSettingCommandHandler : IRequestHandler<UpsertRefreshALELastRunDateSettingCommand, Unit>
     {
         private readonly ISettingsContext _settingsContext;
-        private readonly ILogger<UpsertSettingsCommandHandler> _logger;
+        private readonly ILogger<UpsertRefreshALELastRunDateSettingCommandHandler> _logger;
 
-        public UpsertSettingsCommandHandler(ISettingsContext settingsContext, ILogger<UpsertSettingsCommandHandler> logger)
+        public UpsertRefreshALELastRunDateSettingCommandHandler(ISettingsContext settingsContext, ILogger<UpsertRefreshALELastRunDateSettingCommandHandler> logger)
         {
             _settingsContext = settingsContext;
             _logger = logger;
         }
 
-        public async Task<Unit> Handle(UpsertSettingsCommand request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(UpsertRefreshALELastRunDateSettingCommand request, CancellationToken cancellationToken)
         {
             try
             {
