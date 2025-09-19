@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 
 namespace SFA.DAS.EmployerFeedback.Domain.Entities
@@ -9,7 +9,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.Entities
         public long FeedbackId { get; set; }
         public DateTime DateTimeCompleted { get; set; }
         public string ProviderRating { get; set; }
-        public int FeedbackSource { get; set; }
+        public int? FeedbackSource { get; set; }
         public EmployerFeedback EmployerFeedback { get; set; }
         public ICollection<ProviderAttribute> ProviderAttributes { get; set; }
     }

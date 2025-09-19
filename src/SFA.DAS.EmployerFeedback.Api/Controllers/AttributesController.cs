@@ -26,7 +26,6 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         {
             try
             {
-                _logger.LogError("GetAttributes called");
                 var result = await _mediator.Send(new GetAttributesQuery());
                 return Ok(result.Attributes);
             }
