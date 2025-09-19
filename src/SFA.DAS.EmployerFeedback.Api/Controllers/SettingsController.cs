@@ -5,7 +5,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
+using SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting;
 using SFA.DAS.EmployerFeedback.Application.Models;
 
 namespace SFA.DAS.EmployerFeedback.Api.Controllers

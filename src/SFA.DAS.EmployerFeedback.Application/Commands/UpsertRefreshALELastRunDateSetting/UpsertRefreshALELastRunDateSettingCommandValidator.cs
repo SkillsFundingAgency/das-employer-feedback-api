@@ -2,7 +2,7 @@ using FluentValidation;
 using System;
 using System.Globalization;
 
-namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings
+namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting
 {
     public class UpsertRefreshALELastRunDateSettingCommandValidator : AbstractValidator<UpsertRefreshALELastRunDateSettingCommand>
     {

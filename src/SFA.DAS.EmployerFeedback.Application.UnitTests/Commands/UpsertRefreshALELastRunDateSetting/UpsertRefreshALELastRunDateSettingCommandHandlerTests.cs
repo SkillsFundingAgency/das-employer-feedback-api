@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
-using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
+using SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting;
 using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
@@ -10,7 +10,7 @@ using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
+namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertRefreshALELastRunDateSetting
 {
     [TestFixture]
     public class UpsertRefreshALELastRunDateSettingCommandHandlerTests
@@ -73,15 +73,15 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
             {
                 Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture)
             };
-            _settingsContext.Setup(x => x.GetByNameAsync(name, It.IsAny<CancellationToken>())).ThrowsAsync(new System.Exception("DB error"));
+            _settingsContext.Setup(x => x.GetByNameAsync(name, It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("DB error"));
 
-            Assert.ThrowsAsync<System.Exception>(async () => await _handler.Handle(command, CancellationToken.None));
+            Assert.ThrowsAsync<Exception>(async () => await _handler.Handle(command, CancellationToken.None));
             _logger.Verify(x => x.Log(
                 LogLevel.Error,
                 It.IsAny<EventId>(),
                 It.Is<It.IsAnyType>((v, t) => v.ToString().Contains("Error saving settings")),
-                It.IsAny<System.Exception>(),
-                It.IsAny<System.Func<It.IsAnyType, System.Exception, string>>()), Times.Once);
+                It.IsAny<Exception>(),
+                It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
         }
     }
 }

@@ -7,7 +7,7 @@ using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
 
-namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings
+namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting
 {
     public class UpsertRefreshALELastRunDateSettingCommandHandler : IRequestHandler<UpsertRefreshALELastRunDateSettingCommand, Unit>
     {

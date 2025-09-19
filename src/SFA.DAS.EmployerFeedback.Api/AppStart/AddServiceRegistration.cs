@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using SFA.DAS.EmployerFeedback.Api.TaskQueue;
 using SFA.DAS.EmployerFeedback.Application.Behaviours;
 using SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback;
-using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes;
 using SFA.DAS.EmployerFeedback.Data;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
