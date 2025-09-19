@@ -8,5 +8,6 @@ namespace SFA.DAS.EmployerFeedback.Domain.Entities
         public long AttributeId { get; set; }
         public int AttributeValue { get; set; }
         public EmployerFeedbackResult EmployerFeedbackResult { get; set; }
+        public Attributes Attribute { get; set; } 
     }
 }
