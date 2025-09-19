@@ -44,7 +44,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         [Test]
         public void Should_Have_Error_When_Value_Is_Invalid_Date()
         {
-            var command = new UpsertRefreshALELastRunDateSettingCommand { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
+            var command = new UpsertRefreshALELastRunDateSettingCommand { Value = "not-a-date" };
             var result = _validator.TestValidate(command);
             result.ShouldHaveValidationErrorFor(x => x.Value);
         }
