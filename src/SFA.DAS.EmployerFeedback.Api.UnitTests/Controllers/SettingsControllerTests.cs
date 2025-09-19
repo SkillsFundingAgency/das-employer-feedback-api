@@ -32,14 +32,14 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task GetSettings_Should_Return_Ok_With_Setting()
+        public async Task GetSetting_Should_Return_Ok_With_Setting()
         {
             var nowString = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             var setting = new GetRefreshALELastRunDateSettingQueryResult { Value = nowString };
             _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(setting);
 
-            var result = await _controller.GetSettings();
+            var result = await _controller.GetRefreshALELastRunDateSetting();
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
@@ -50,12 +50,12 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task GetSettings_Should_Return_Null_When_No_Record()
+        public async Task GetSetting_Should_Return_Null_When_No_Record()
         {
             var setting = new GetRefreshALELastRunDateSettingQueryResult { Value = null };
             _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(setting);
-            var result = await _controller.GetSettings();
+            var result = await _controller.GetRefreshALELastRunDateSetting();
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
@@ -65,11 +65,11 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task GetSettings_Should_Return_InternalServerError_On_Exception()
+        public async Task GetSetting_Should_Return_InternalServerError_On_Exception()
         {
             _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("fail"));
-            var result = await _controller.GetSettings();
+            var result = await _controller.GetRefreshALELastRunDateSetting();
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
             Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
@@ -77,7 +77,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task UpsertSettings_Should_Send_Command_And_Return_NoContent()
+        public async Task UpsertSetting_Should_Send_Command_And_Return_NoContent()
         {
             var req = new SettingRequest { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
             _mediator.Setup(x => x.Send(It.Is<UpsertRefreshALELastRunDateSettingCommand>(c => c.Value == req.Value), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
@@ -88,7 +88,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task UpsertSettings_Should_Return_BadRequest_On_ValidationException()
+        public async Task UpsertSetting_Should_Return_BadRequest_On_ValidationException()
         {
             var req = new SettingRequest { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertRefreshALELastRunDateSettingCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new ValidationException("validation failed"));
@@ -100,7 +100,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task UpsertSettings_Should_Return_InternalServerError_On_Exception()
+        public async Task UpsertSetting_Should_Return_InternalServerError_On_Exception()
         {
             var req = new SettingRequest { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertRefreshALELastRunDateSettingCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));

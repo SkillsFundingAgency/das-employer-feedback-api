@@ -25,7 +25,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         }
 
         [HttpGet("RefreshALELastRunDate")]
-        public async Task<IActionResult> GetSettings()
+        public async Task<IActionResult> GetRefreshALELastRunDateSetting()
         {
             try
             {
@@ -34,7 +34,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving settings");
+                _logger.LogError(ex, "Error retrieving setting");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
@@ -53,12 +53,12 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             }
             catch (ValidationException ex)
             {
-                _logger.LogWarning(ex, "Validation failed for settings upsert");
+                _logger.LogWarning(ex, "Validation failed for setting upsert");
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving settings");
+                _logger.LogError(ex, "Error saving setting");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
