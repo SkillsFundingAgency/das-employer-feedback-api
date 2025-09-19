@@ -1,10 +1,10 @@
 using FluentValidation.TestHelper;
 using NUnit.Framework;
-using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
+using SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting;
 using System;
 using System.Globalization;
 
-namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
+namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertRefreshALELastRunDateSetting
 {
     [TestFixture]
     public class UpsertRefreshALELastRunDateSettingCommandValidatorTests
@@ -44,7 +44,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertSettings
         [Test]
         public void Should_Have_Error_When_Value_Is_Invalid_Date()
         {
-            var command = new UpsertRefreshALELastRunDateSettingCommand { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
+            var command = new UpsertRefreshALELastRunDateSettingCommand { Value = "not-a-date" };
             var result = _validator.TestValidate(command);
             result.ShouldHaveValidationErrorFor(x => x.Value);
         }

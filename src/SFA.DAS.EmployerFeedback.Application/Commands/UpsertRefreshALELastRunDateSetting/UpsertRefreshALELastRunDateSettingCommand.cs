@@ -1,7 +1,7 @@
 #nullable enable
 using MediatR;
 
-namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings
+namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting
 {
     public class UpsertRefreshALELastRunDateSettingCommand : IRequest<Unit>
     {
