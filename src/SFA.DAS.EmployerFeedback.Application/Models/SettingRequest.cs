@@ -1,8 +1,8 @@
-﻿namespace SFA.DAS.EmployerFeedback.Application.Models
+﻿#nullable enable
+namespace SFA.DAS.EmployerFeedback.Application.Models
 {
     public class SettingRequest
     {
-        public string Name { get; set; }
-        public string Value { get; set; }
+        public string? Value { get; set; }
     }
 }

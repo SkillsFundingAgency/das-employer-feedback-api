@@ -1,15 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
+using SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting;
 using SFA.DAS.EmployerFeedback.Application.Models;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetSettings;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetRefreshALELastRunDateSetting;
 
 namespace SFA.DAS.EmployerFeedback.Api.Controllers
 {
@@ -26,41 +24,41 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             _logger = logger;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetSettings()
+        [HttpGet("RefreshALELastRunDate")]
+        public async Task<IActionResult> GetRefreshALELastRunDateSetting()
         {
             try
             {
-                var result = await _mediator.Send(new GetSettingsQuery());
-                return Ok(result.Settings);
+                var result = await _mediator.Send(new GetRefreshALELastRunDateSettingQuery());
+                return Ok(result);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error retrieving settings");
+                _logger.LogError(ex, "Error retrieving setting");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
 
-        [HttpPost]
-        public async Task<IActionResult> UpsertSettings([FromBody] List<SettingRequest> settings)
+        [HttpPut("RefreshALELastRunDate")]
+        public async Task<IActionResult> UpsertRefreshALELastRunDateSetting([FromBody] SettingRequest setting)
         {
             try
             {
-                var command = new UpsertSettingsCommand
+                var command = new UpsertRefreshALELastRunDateSettingCommand
                 {
-                    Settings = settings?.Select(s => new SettingDto { Name = s.Name, Value = s.Value }).ToList()
+                    Value = setting.Value
                 };
                 await _mediator.Send(command);
                 return NoContent();
             }
             catch (ValidationException ex)
             {
-                _logger.LogWarning(ex, "Validation failed for settings upsert");
+                _logger.LogWarning(ex, "Validation failed for setting upsert");
                 return BadRequest(ex.Message);
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error saving settings");
+                _logger.LogError(ex, "Error saving setting");
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }

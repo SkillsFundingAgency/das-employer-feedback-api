@@ -1,5 +1,7 @@
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Application.Models;
+using System;
+using System.Globalization;
 
 namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Models
 {
@@ -9,14 +11,11 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Models
         [Test]
         public void Properties_SetAndGet_ShouldReturnExpectedValues()
         {
-            var name = "TestName";
-            var value = "TestValue";
+            var value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
             var request = new SettingRequest
             {
-                Name = name,
                 Value = value
             };
-            Assert.That(request.Name, Is.EqualTo(name));
             Assert.That(request.Value, Is.EqualTo(value));
         }
     }
