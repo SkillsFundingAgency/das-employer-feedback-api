@@ -11,6 +11,5 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
 
         public async Task<Settings> GetByNameAsync(string name, CancellationToken cancellationToken)
             => await Entities.FirstOrDefaultAsync(x => x.Name == name, cancellationToken);
-
     }
 }

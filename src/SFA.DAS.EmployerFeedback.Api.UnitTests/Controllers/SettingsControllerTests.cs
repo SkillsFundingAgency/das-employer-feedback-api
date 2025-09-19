@@ -8,6 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Api.Controllers;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting;
 using SFA.DAS.EmployerFeedback.Application.Models;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetRefreshALELastRunDateSetting;
 using System;
 using System.Globalization;
 using System.Threading;
@@ -31,7 +32,52 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task UpsertSettings_Should_Send_Command_And_Return_NoContent()
+        public async Task GetRefreshALELastRunDateSetting_Should_Return_Ok_With_Setting()
+        {
+            var nowString = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
+            var setting = new GetRefreshALELastRunDateSettingQueryResult { Value = nowString };
+            _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(setting);
+
+            var result = await _controller.GetRefreshALELastRunDateSetting();
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
+            var returned = okResult.Value as GetRefreshALELastRunDateSettingQueryResult;
+            Assert.IsNotNull(returned);
+            Assert.AreEqual(nowString, returned.Value);
+            _mediator.Verify(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetRefreshALELastRunDateSetting_Should_Return_Null_When_No_Record()
+        {
+            var setting = new GetRefreshALELastRunDateSettingQueryResult { Value = null };
+            _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(setting);
+            var result = await _controller.GetRefreshALELastRunDateSetting();
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
+            var returned = okResult.Value as GetRefreshALELastRunDateSettingQueryResult;
+            Assert.IsNotNull(returned);
+            Assert.IsNull(returned.Value);
+        }
+
+        [Test]
+        public async Task GetRefreshALELastRunDateSetting_Should_Return_InternalServerError_On_Exception()
+        {
+            _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("fail"));
+            var result = await _controller.GetRefreshALELastRunDateSetting();
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.AreEqual("An unexpected error occurred.", objectResult.Value);
+        }
+
+        [Test]
+        public async Task UpsertSetting_Should_Send_Command_And_Return_NoContent()
         {
             var req = new SettingRequest { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
             _mediator.Setup(x => x.Send(It.Is<UpsertRefreshALELastRunDateSettingCommand>(c => c.Value == req.Value), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
@@ -42,7 +88,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task UpsertSettings_Should_Return_BadRequest_On_ValidationException()
+        public async Task UpsertRefreshALELastRunDateSetting_Should_Return_BadRequest_On_ValidationException()
         {
             var req = new SettingRequest { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertRefreshALELastRunDateSettingCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new ValidationException("validation failed"));
@@ -54,7 +100,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         }
 
         [Test]
-        public async Task UpsertSettings_Should_Return_InternalServerError_On_Exception()
+        public async Task UpsertRefreshALELastRunDateSetting_Should_Return_InternalServerError_On_Exception()
         {
             var req = new SettingRequest { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertRefreshALELastRunDateSettingCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
