@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 
 namespace SFA.DAS.EmployerFeedback.Domain.Entities
 {
@@ -7,5 +8,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.Entities
         public long Id { get; set; }
         public string AccountName { get; set; }
         public DateTime? CheckedOn { get; set; }
+
+        public ICollection<EmployerFeedback> EmployerFeedbacks { get; set; }
     }
 }

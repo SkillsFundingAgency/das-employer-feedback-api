@@ -11,7 +11,11 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
         public void Configure(EntityTypeBuilder<Account> builder)
         {
             builder.ToTable("Account");
-            builder.HasKey(a => a.Id);
+            builder.HasKey(x => x.Id);
+
+            builder.HasMany(x => x.EmployerFeedbacks)
+                   .WithOne()
+                   .HasForeignKey(x => x.AccountId);
         }
     }
 }

@@ -12,6 +12,12 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
         {
             builder.ToTable("EmployerFeedback");
             builder.HasKey(e => e.FeedbackId);
+
+            builder.HasOne(x => x.Account)
+                   .WithMany(x => x.EmployerFeedbacks);
+
+            builder.HasMany(x => x.FeedbackResults)
+                .WithOne(x => x.EmployerFeedback);
         }
     }
 }

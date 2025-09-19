@@ -23,10 +23,11 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddValidatorsFromAssemblyContaining<UpsertAccountsCommand>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
+            services.AddScoped<IAccountContext>(s => s.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IEmployerFeedbackContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IEmployerFeedbackResultContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
-            services.AddScoped<IAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderRatingSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<ISettingsContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IAccountContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());

@@ -14,32 +14,40 @@ namespace SFA.DAS.EmployerFeedback.Data
 {
     [ExcludeFromCodeCoverage]
     public class EmployerFeedbackDataContext : DbContext,
+        IAccountContext,
         IAttributeContext,
-        IProviderRatingSummaryContext,
         IEmployerFeedbackContext,
         IEmployerFeedbackResultContext,
         IProviderAttributeContext,
-        ISettingsContext,
-        IAccountContext 
+        IProviderRatingSummaryContext,
+        ISettingsContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
         private readonly ChainedTokenCredential _chainedTokenCredentialProvider;
-        public virtual DbSet<Attributes> Attributes { get; set; }
-        public virtual DbSet<ProviderRatingSummary> ProviderRatingSummary { get; set; } = null!;
-        public virtual DbSet<Domain.Entities.EmployerFeedback> EmployerFeedback { get; set; }
-        public virtual DbSet<EmployerFeedbackResult> EmployerFeedbackResult { get; set; }
-        public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; }
-        public virtual DbSet<Settings> Settings { get; set; }
+        
         public virtual DbSet<Account> Accounts { get; set; }
+        public virtual DbSet<Attributes> Attributes { get; set; }
+        public virtual DbSet<Domain.Entities.EmployerFeedback> EmployerFeedbacks { get; set; }
+        public virtual DbSet<EmployerFeedbackResult> EmployerFeedbackResults { get; set; } = null!;
+        
+        public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; }
+        public virtual DbSet<ProviderRatingSummary> ProviderRatingSummaries { get; set; } = null!;
+        public virtual DbSet<Settings> Settings { get; set; }
 
+        DbSet<Account> IEntityContext<Account>.Entities => Accounts;
         DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes;
-        DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummary;
-        DbSet<Domain.Entities.EmployerFeedback> IEntityContext<Domain.Entities.EmployerFeedback>.Entities => EmployerFeedback;
-        DbSet<EmployerFeedbackResult> IEntityContext<EmployerFeedbackResult>.Entities => EmployerFeedbackResult;
+        DbSet<Domain.Entities.EmployerFeedback> IEntityContext<Domain.Entities.EmployerFeedback>.Entities => EmployerFeedbacks;
+        DbSet<EmployerFeedbackResult> IEntityContext<EmployerFeedbackResult>.Entities => EmployerFeedbackResults;
+        DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummaries;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
         DbSet<Settings> IEntityContext<Settings>.Entities => Settings;
-        DbSet<Account> IEntityContext<Account>.Entities => Accounts;
+
+
+        public EmployerFeedbackDataContext(DbContextOptions<EmployerFeedbackDataContext> options) 
+            : base(options)
+        {
+        }
 
         public EmployerFeedbackDataContext(IOptions<ApplicationSettings> config,
             DbContextOptions<EmployerFeedbackDataContext> options)
@@ -75,13 +83,14 @@ namespace SFA.DAS.EmployerFeedback.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.ApplyConfiguration(new AccountConfiguration());
             modelBuilder.ApplyConfiguration(new AttributeConfiguration());
-            modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new EmployerFeedbackConfiguration());
             modelBuilder.ApplyConfiguration(new EmployerFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
             modelBuilder.ApplyConfiguration(new SettingsConfiguration());
-            modelBuilder.ApplyConfiguration(new AccountConfiguration());
+
             base.OnModelCreating(modelBuilder);
         }
 
