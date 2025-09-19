@@ -26,6 +26,7 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddScoped<IProviderAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderRatingSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<ISettingsContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
 
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
