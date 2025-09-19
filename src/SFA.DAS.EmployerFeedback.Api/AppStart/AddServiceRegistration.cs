@@ -5,7 +5,6 @@ using SFA.DAS.EmployerFeedback.Api.TaskQueue;
 using SFA.DAS.EmployerFeedback.Application.Behaviours;
 using SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertAccounts;
-using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes;
 using SFA.DAS.EmployerFeedback.Data;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
@@ -21,7 +20,6 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(GetAttributesQuery).Assembly));
 
             services.AddValidatorsFromAssemblyContaining<SubmitEmployerFeedbackCommand>();
-            services.AddValidatorsFromAssemblyContaining<UpsertSettingsCommand>();
             services.AddValidatorsFromAssemblyContaining<UpsertAccountsCommand>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
