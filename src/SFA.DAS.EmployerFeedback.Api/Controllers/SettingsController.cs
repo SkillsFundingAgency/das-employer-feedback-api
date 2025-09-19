@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
 using SFA.DAS.EmployerFeedback.Application.Models;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetSettings;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetRefreshALELastRunDateSetting;
 
 namespace SFA.DAS.EmployerFeedback.Api.Controllers
 {
@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         {
             try
             {
-                var result = await _mediator.Send(new GetSettingsQuery());
+                var result = await _mediator.Send(new GetRefreshALELastRunDateSettingQuery());
                 return Ok(result);
             }
             catch (Exception ex)

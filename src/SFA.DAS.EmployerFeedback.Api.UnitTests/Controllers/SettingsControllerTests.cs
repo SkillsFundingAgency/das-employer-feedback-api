@@ -8,7 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Api.Controllers;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertSettings;
 using SFA.DAS.EmployerFeedback.Application.Models;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetSettings;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetRefreshALELastRunDateSetting;
 using System;
 using System.Globalization;
 using System.Threading;
@@ -34,32 +34,32 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task GetSettings_Should_Return_Ok_With_Setting()
         {
-            var now = DateTime.UtcNow;
-            var setting = new GetSettingsQueryResult { Value = now };
-            _mediator.Setup(x => x.Send(It.IsAny<GetSettingsQuery>(), It.IsAny<CancellationToken>()))
+            var nowString = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture);
+            var setting = new GetRefreshALELastRunDateSettingQueryResult { Value = nowString };
+            _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(setting);
 
             var result = await _controller.GetSettings();
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
-            var returned = okResult.Value as GetSettingsQueryResult;
+            var returned = okResult.Value as GetRefreshALELastRunDateSettingQueryResult;
             Assert.IsNotNull(returned);
-            Assert.AreEqual(now, returned.Value);
-            _mediator.Verify(x => x.Send(It.IsAny<GetSettingsQuery>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.AreEqual(nowString, returned.Value);
+            _mediator.Verify(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
         public async Task GetSettings_Should_Return_Null_When_No_Record()
         {
-            var setting = new GetSettingsQueryResult { Value = null };
-            _mediator.Setup(x => x.Send(It.IsAny<GetSettingsQuery>(), It.IsAny<CancellationToken>()))
+            var setting = new GetRefreshALELastRunDateSettingQueryResult { Value = null };
+            _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(setting);
             var result = await _controller.GetSettings();
             var okResult = result as OkObjectResult;
             Assert.IsNotNull(okResult);
             Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
-            var returned = okResult.Value as GetSettingsQueryResult;
+            var returned = okResult.Value as GetRefreshALELastRunDateSettingQueryResult;
             Assert.IsNotNull(returned);
             Assert.IsNull(returned.Value);
         }
@@ -67,7 +67,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task GetSettings_Should_Return_InternalServerError_On_Exception()
         {
-            _mediator.Setup(x => x.Send(It.IsAny<GetSettingsQuery>(), It.IsAny<CancellationToken>()))
+            _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("fail"));
             var result = await _controller.GetSettings();
             var objectResult = result as ObjectResult;
