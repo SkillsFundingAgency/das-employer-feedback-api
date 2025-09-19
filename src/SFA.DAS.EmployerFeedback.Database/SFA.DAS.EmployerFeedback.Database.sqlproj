@@ -96,6 +96,7 @@
     <Build Include="Tables\ProviderStarsSummary.sql" />
     <Build Include="StoredProcedures\GenerateProviderAttributeResults.sql" />
     <Build Include="StoredProcedures\GenerateProviderRatingResults.sql" />
+    <Build Include="Tables\Settings.sql" />
     <Build Include="Tables\Account.sql" />
   </ItemGroup>
   <ItemGroup>

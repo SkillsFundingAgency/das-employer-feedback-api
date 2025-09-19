@@ -16,10 +16,11 @@ namespace SFA.DAS.EmployerFeedback.Data
     public class EmployerFeedbackDataContext : DbContext,
         IAccountContext,
         IAttributeContext,
-        IEmployerFeedbackResultContext,
         IEmployerFeedbackContext,
+        IEmployerFeedbackResultContext,
         IProviderAttributeContext,
-        IProviderRatingSummaryContext
+        IProviderRatingSummaryContext,
+        ISettingsContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -32,6 +33,7 @@ namespace SFA.DAS.EmployerFeedback.Data
         
         public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; }
         public virtual DbSet<ProviderRatingSummary> ProviderRatingSummaries { get; set; } = null!;
+        public virtual DbSet<Settings> Settings { get; set; }
 
         DbSet<Account> IEntityContext<Account>.Entities => Accounts;
         DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes;
@@ -39,6 +41,7 @@ namespace SFA.DAS.EmployerFeedback.Data
         DbSet<EmployerFeedbackResult> IEntityContext<EmployerFeedbackResult>.Entities => EmployerFeedbackResults;
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummaries;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
+        DbSet<Settings> IEntityContext<Settings>.Entities => Settings;
 
 
         public EmployerFeedbackDataContext(DbContextOptions<EmployerFeedbackDataContext> options) 
@@ -86,6 +89,8 @@ namespace SFA.DAS.EmployerFeedback.Data
             modelBuilder.ApplyConfiguration(new EmployerFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
+            modelBuilder.ApplyConfiguration(new SettingsConfiguration());
+
             base.OnModelCreating(modelBuilder);
         }
 

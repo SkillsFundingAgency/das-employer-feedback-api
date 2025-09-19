@@ -63,7 +63,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
 
             await using var ctx = CreateContext();
 
-            var account = new Account { Id = accountId, Name = "Widgets Ltd" };
+            var account = new Account { Id = accountId, AccountName = "Widgets Ltd" };
             ctx.Set<Account>().Add(account);
 
             var targetNoResults = new Domain.Entities.EmployerFeedback
@@ -127,8 +127,8 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
 
             await using var ctx = CreateContext();
 
-            var accA = new Account { Id = accountA, Name = "Account A" };
-            var accB = new Account { Id = accountB, Name = "Account B" };
+            var accA = new Account { Id = accountA, AccountName = "Account A" };
+            var accB = new Account { Id = accountB, AccountName = "Account B" };
             ctx.Set<Account>().AddRange(accA, accB);
 
             // Matching pair (should be returned)
@@ -203,7 +203,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
 
             await using var ctx = CreateContext();
 
-            var account = new Account { Id = accountId, Name = "Contoso" };
+            var account = new Account { Id = accountId, AccountName = "Contoso" };
             ctx.Set<Account>().Add(account);
 
             var target1 = new Domain.Entities.EmployerFeedback
