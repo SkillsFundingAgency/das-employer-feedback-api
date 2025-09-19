@@ -20,10 +20,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertAccounts
             RuleFor(x => x.AccountId).GreaterThan(0);
 
             RuleFor(x => x.AccountName)
-                .NotEmpty()
-                .MaximumLength(255)
-                .Matches(@"^[a-zA-Z0-9À-ž\s\-_&.,(){}'’`""!#|]+$")
-                .WithMessage("Account name can only contain letters, numbers, spaces, and these special characters: - _ & . , ( ) { } ' ’ ` \" ! # |");
+                .NotEmpty();
         }
     }
 }
