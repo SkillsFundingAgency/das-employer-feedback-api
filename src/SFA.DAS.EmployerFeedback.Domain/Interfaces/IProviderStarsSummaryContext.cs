@@ -18,13 +18,3 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
         }
     }
 }
-
-
-
-
-
-
-
-
-
-

@@ -13,8 +13,16 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
             builder.ToTable("ProviderAttributeSummary");
             builder.HasKey(e => new { e.Ukprn, e.AttributeId, e.TimePeriod });
             builder.HasOne(e => e.Attribute)
-                .WithMany(a => a.ProviderAttributeSummaries)
+                .WithMany()
                 .HasForeignKey(e => e.AttributeId);
         }
     }
 }
+
+
+
+
+
+
+
+
