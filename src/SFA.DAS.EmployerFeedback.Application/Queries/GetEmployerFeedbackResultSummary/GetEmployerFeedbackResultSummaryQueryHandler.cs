@@ -50,7 +50,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
 
             var providerAttribute = attributeSummaries.Select(x => new ProviderAttributeSummaryResult
             {
-                AttributeName = x.Attribute.AttributeName,
+                Name = x.Attribute.AttributeName,
                 Strength = x.Strength,
                 Weakness = x.Weakness
             }).ToList();

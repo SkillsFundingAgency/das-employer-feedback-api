@@ -12,7 +12,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.Models
     }
     public class ProviderAttributeSummaryResult
     {
-        public string AttributeName { get; set; }
+        public string Name { get; set; }
         public int Strength { get; set; }
         public int Weakness { get; set; }
     }
