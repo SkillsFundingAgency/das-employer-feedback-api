@@ -19,7 +19,9 @@ namespace SFA.DAS.EmployerFeedback.Data
         IEmployerFeedbackResultContext,
         IEmployerFeedbackContext,
         IProviderAttributeContext,
-        IProviderRatingSummaryContext
+        IProviderRatingSummaryContext,
+        IProviderStarsSummaryContext,
+        IProviderAttributeSummaryContext
     {
         private const string AzureResource = "https://database.windows.net/";
         private readonly ApplicationSettings _configuration;
@@ -32,6 +34,8 @@ namespace SFA.DAS.EmployerFeedback.Data
         
         public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; }
         public virtual DbSet<ProviderRatingSummary> ProviderRatingSummaries { get; set; } = null!;
+        public virtual DbSet<ProviderStarsSummary> ProviderStarsSummaries { get; set; }
+        public virtual DbSet<ProviderAttributeSummary> ProviderAttributeSummaries { get; set; }
 
         DbSet<Account> IEntityContext<Account>.Entities => Accounts;
         DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes;
@@ -39,6 +43,8 @@ namespace SFA.DAS.EmployerFeedback.Data
         DbSet<EmployerFeedbackResult> IEntityContext<EmployerFeedbackResult>.Entities => EmployerFeedbackResults;
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummaries;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
+        DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummaries;
+        DbSet<ProviderAttributeSummary> IEntityContext<ProviderAttributeSummary>.Entities => ProviderAttributeSummaries;
 
 
         public EmployerFeedbackDataContext(DbContextOptions<EmployerFeedbackDataContext> options) 
@@ -86,6 +92,8 @@ namespace SFA.DAS.EmployerFeedback.Data
             modelBuilder.ApplyConfiguration(new EmployerFeedbackResultConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration()); 
+            modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration()); 
             base.OnModelCreating(modelBuilder);
         }
 

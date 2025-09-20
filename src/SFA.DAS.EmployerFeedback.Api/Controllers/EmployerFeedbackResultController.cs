@@ -1,5 +1,3 @@
-using System;
-using System.Threading.Tasks;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -7,6 +5,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback;
 using SFA.DAS.EmployerFeedback.Application.Models;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummary;
+using System;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerFeedback.Api.Controllers
 {
@@ -40,6 +41,21 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Unhandled error submitting employer feedback");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+        [HttpGet("{ukprn}")]
+        public async Task<IActionResult> GetEmployerFeedbackResultSummary(long ukprn)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryQuery { Ukprn = ukprn });
+                return Ok(result.EmployerFeedbackResultSummary);
+            }
+            catch (Exception e)
+            {
+                var message = $"Unhandled error when attempting to get employer feedback result summary for UKPRN {ukprn}: {e.Message}";
+                _logger.LogError(message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
