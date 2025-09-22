@@ -17,5 +17,14 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                 .Where(x => x.Ukprn == ukprn && x.TimePeriod == timePeriod)
                 .ToListAsync(cancellationToken);
         }
+
+        public async Task<List<ProviderAttributeSummary>> GetProviderAttributeSummaryByUkprnAsync(long ukprn, CancellationToken cancellationToken)
+        {
+            return await Entities
+                .AsNoTracking()
+                .Include(x => x.Attribute)
+                .Where(x => x.Ukprn == ukprn)
+                .ToListAsync(cancellationToken);
+        }
     }
 }

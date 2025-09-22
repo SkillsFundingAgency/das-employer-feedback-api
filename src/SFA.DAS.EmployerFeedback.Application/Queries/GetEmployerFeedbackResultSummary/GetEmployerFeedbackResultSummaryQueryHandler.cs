@@ -40,7 +40,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
             {
                 return new GetEmployerFeedbackResultSummaryQueryResult
                 {
-                    EmployerFeedbackResultSummary = new EmployerFeedbackResultSummaryResult
+                    EmployerFeedbackResultSummary = new EmployerFeedbackSummaryResult
                     {
                         Ukprn = request.Ukprn,
                         ProviderAttribute = new List<ProviderAttributeSummaryResult>()
@@ -57,7 +57,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
 
             return new GetEmployerFeedbackResultSummaryQueryResult
             {
-                EmployerFeedbackResultSummary = new EmployerFeedbackResultSummaryResult
+                EmployerFeedbackResultSummary = new EmployerFeedbackSummaryResult
                 {
                     Ukprn = starsSummary.Ukprn,
                     Stars = starsSummary.Stars,

@@ -4,6 +4,6 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
 {
     public class GetEmployerFeedbackResultSummaryQueryResult
     {
-        public EmployerFeedbackResultSummaryResult EmployerFeedbackResultSummary { get; set; }
+        public EmployerFeedbackSummaryResult EmployerFeedbackResultSummary { get; set; }
     }
 }
