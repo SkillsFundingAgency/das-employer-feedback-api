@@ -8,6 +8,7 @@ using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummary;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummaryAnnual;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummaryForAcademicYear;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackStarsResultAnnual;
 using System;
 using System.Threading.Tasks;
 
@@ -82,13 +83,29 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         {
             try
             {
-                var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryForAcademicYearQuery { Ukprn = ukprn, TimePeriod =year});
+                var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryForAcademicYearQuery { Ukprn = ukprn, TimePeriod = year });
 
                 return Ok(result.AcademicYearEmployerFeedbackDetails);
             }
             catch (Exception e)
             {
                 var message = $"Unhandled error when attempting to get employer feedback result for academic year for UKPRN {ukprn}: {e.Message}";
+                _logger.LogError(message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+        [HttpGet("reviews")]
+        public async Task<IActionResult> GetEmployerFeedbackStarsResultAnnual(string timePeriod)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetEmployerFeedbackStarsResultAnnualQuery { TimePeriod = timePeriod });
+
+                return Ok(result.AnnualEmployerFeedbackStarsDetails);
+            }
+            catch (Exception e)
+            {
+                var message = $"Unhandled error when attempting to get employer feedback result for academic year {timePeriod}: {e.Message}";
                 _logger.LogError(message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
