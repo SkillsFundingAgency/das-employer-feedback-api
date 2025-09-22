@@ -7,6 +7,7 @@ using SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback;
 using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummary;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummaryAnnual;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummaryForAcademicYear;
 using System;
 using System.Threading.Tasks;
 
@@ -72,6 +73,22 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             catch (Exception e)
             {
                 var message = $"Unhandled error when attempting to get employer feedback result annual for UKPRN {ukprn}: {e.Message}";
+                _logger.LogError(message);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+        [HttpGet("{ukprn}/annual/{year}")]
+        public async Task<IActionResult> GetEmployerFeedbackResultForAcademicYear(long ukprn, string year)
+        {
+            try
+            {
+                var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryForAcademicYearQuery { Ukprn = ukprn, TimePeriod =year});
+
+                return Ok(result.AcademicYearEmployerFeedbackDetails);
+            }
+            catch (Exception e)
+            {
+                var message = $"Unhandled error when attempting to get employer feedback result for academic year for UKPRN {ukprn}: {e.Message}";
                 _logger.LogError(message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
