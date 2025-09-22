@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace SFA.DAS.EmployerFeedback.Api.Controllers
 {
     [ApiController]
-    [Route("api/employerfeedbackresult")]
+    [Route("api/[controller]")]
     public class EmployerFeedbackResultController : ControllerBase
     {
         private readonly IMediator _mediator;
@@ -55,6 +55,11 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
                 var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryQuery { Ukprn = ukprn });
                 return Ok(result.EmployerFeedbackResultSummary);
             }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed");
+                return BadRequest(ex.Message);
+            }
             catch (Exception e)
             {
                 var message = $"Unhandled error when attempting to get employer feedback result summary for UKPRN {ukprn}: {e.Message}";
@@ -70,6 +75,11 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
                 var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryAnnualQuery { Ukprn = ukprn });
 
                 return Ok(result);
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed");
+                return BadRequest(ex.Message);
             }
             catch (Exception e)
             {
@@ -87,6 +97,11 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
 
                 return Ok(result.AcademicYearEmployerFeedbackDetails);
             }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed");
+                return BadRequest(ex.Message);
+            }
             catch (Exception e)
             {
                 var message = $"Unhandled error when attempting to get employer feedback result for academic year for UKPRN {ukprn}: {e.Message}";
@@ -103,9 +118,14 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
 
                 return Ok(result.AnnualEmployerFeedbackStarsDetails);
             }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed");
+                return BadRequest(ex.Message);
+            }
             catch (Exception e)
             {
-                var message = $"Unhandled error when attempting to get employer feedback result for academic year {timePeriod}: {e.Message}";
+                var message = $"Unhandled error when attempting to get employer feedback stars result for period {timePeriod}: {e.Message}";
                 _logger.LogError(message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }

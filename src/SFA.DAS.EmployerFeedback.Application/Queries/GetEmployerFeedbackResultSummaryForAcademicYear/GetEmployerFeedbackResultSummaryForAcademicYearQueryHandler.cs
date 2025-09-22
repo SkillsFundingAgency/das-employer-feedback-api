@@ -31,36 +31,41 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
             var attributeSummaries = await _providerAttributeSummaryContext
                 .GetProviderAttributeSummaryByUkprnAndTimePeriodAsync(request.Ukprn, request.TimePeriod, cancellationToken);
 
-            var result = new List<EmployerFeedbackSummaryForAcademicYearResult>();
+            var starsSummary = starsSummaries.FirstOrDefault();
 
-            foreach (var stars in starsSummaries)
+            if (starsSummary == null || attributeSummaries == null || !attributeSummaries.Any())
             {
-                var attributesForPeriod = attributeSummaries
-                    .Where(a => a.Ukprn == stars.Ukprn && a.TimePeriod == stars.TimePeriod && a.Attribute?.AttributeName != null)
-                    .Select(a => new ProviderAttributeSummaryForAcademicYearResult
-                    {
-                        Name = a.Attribute.AttributeName,
-                        Strength = a.Strength,
-                        Weakness = a.Weakness
-                    })
-                    .ToList();
-
-                if (attributesForPeriod.Any())
+                return new GetEmployerFeedbackResultSummaryForAcademicYearQueryResult
                 {
-                    result.Add(new EmployerFeedbackSummaryForAcademicYearResult
+                    AcademicYearEmployerFeedbackDetails = new EmployerFeedbackSummaryForAcademicYearResult
                     {
-                        Ukprn = stars.Ukprn,
-                        Stars = stars.Stars,
-                        ReviewCount = stars.ReviewCount,
-                        TimePeriod = stars.TimePeriod,
-                        ProviderAttribute = attributesForPeriod
-                    });
-                }
+                        Ukprn = request.Ukprn,
+                        TimePeriod = request.TimePeriod,
+                        ProviderAttribute = new List<ProviderAttributeSummaryForAcademicYearResult>()
+                    }
+                };
             }
+
+            var attributesForPeriod = attributeSummaries
+                .Where(a => a.Ukprn == starsSummary.Ukprn && a.TimePeriod == starsSummary.TimePeriod && a.Attribute?.AttributeName != null)
+                .Select(a => new ProviderAttributeSummaryForAcademicYearResult
+                {
+                    Name = a.Attribute.AttributeName,
+                    Strength = a.Strength,
+                    Weakness = a.Weakness
+                })
+                .ToList();
 
             return new GetEmployerFeedbackResultSummaryForAcademicYearQueryResult
             {
-                AcademicYearEmployerFeedbackDetails = result
+                AcademicYearEmployerFeedbackDetails = new EmployerFeedbackSummaryForAcademicYearResult
+                {
+                    Ukprn = starsSummary.Ukprn,
+                    Stars = starsSummary.Stars,
+                    ReviewCount = starsSummary.ReviewCount,
+                    TimePeriod = starsSummary.TimePeriod,
+                    ProviderAttribute = attributesForPeriod
+                }
             };
         }
     }

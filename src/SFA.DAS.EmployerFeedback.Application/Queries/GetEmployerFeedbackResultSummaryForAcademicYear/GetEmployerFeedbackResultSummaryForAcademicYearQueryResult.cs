@@ -5,6 +5,6 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
 {
     public class GetEmployerFeedbackResultSummaryForAcademicYearQueryResult
     {
-        public List<EmployerFeedbackSummaryForAcademicYearResult> AcademicYearEmployerFeedbackDetails { get; set; }
+        public EmployerFeedbackSummaryForAcademicYearResult AcademicYearEmployerFeedbackDetails { get; set; }
     }
 }
