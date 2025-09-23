@@ -125,7 +125,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             }
             catch (Exception e)
             {
-                var message = $"Unhandled error when attempting to get employer feedback ratings result for period {timePeriod}: {e.Message}";
+                var message = $"Unhandled error when attempting to get employer feedback ratings : {e.Message}";
                 _logger.LogError(message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
