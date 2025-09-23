@@ -1,6 +1,6 @@
 ﻿CREATE TABLE [dbo].[ProviderAttributeSummary](
 	[Ukprn] [bigint] NOT NULL,
-	[AttributeId] [bigint] NOT NULL,
+	[AttributeId] BIGINT NOT NULL,
 	[Strength] [int] NOT NULL,
 	[Weakness] [int] NOT NULL,
 	[TimePeriod] NVARCHAR(50) NOT NULL DEFAULT 'All',

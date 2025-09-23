@@ -22,7 +22,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                 {
                     eft.AccountId,
                     eft.Ukprn,
-                    AccountName = eft.Account.Name,
+                    eft.Account.AccountName,
                     Latest = eft.FeedbackResults
                         .OrderByDescending(r => r.DateTimeCompleted)
                         .Select(r => new
