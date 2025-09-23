@@ -7,14 +7,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummary
+namespace SFA.DAS.EmployerFeedback.Application.Queries.GetOverallEmployerFeedbackResult
 {
-    public class GetEmployerFeedbackResultSummaryQueryHandler : IRequestHandler<GetEmployerFeedbackResultSummaryQuery, GetEmployerFeedbackResultSummaryQueryResult>
+    public class GetOverallEmployerFeedbackResultQueryHandler : IRequestHandler<GetOverallEmployerFeedbackResultQuery, GetOverallEmployerFeedbackResultQueryResult>
     {
         private readonly IProviderStarsSummaryContext _providerStarsSummaryContext;
         private readonly IProviderAttributeSummaryContext _providerAttributeSummaryContext;
 
-        public GetEmployerFeedbackResultSummaryQueryHandler(
+        public GetOverallEmployerFeedbackResultQueryHandler(
             IProviderStarsSummaryContext providerStarsSummaryContext,
             IProviderAttributeSummaryContext providerAttributeSummaryContext)
         {
@@ -22,8 +22,8 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
             _providerAttributeSummaryContext = providerAttributeSummaryContext;
         }
 
-        public async Task<GetEmployerFeedbackResultSummaryQueryResult> Handle(
-            GetEmployerFeedbackResultSummaryQuery request,
+        public async Task<GetOverallEmployerFeedbackResultQueryResult> Handle(
+            GetOverallEmployerFeedbackResultQuery request,
             CancellationToken cancellationToken)
         {
 
@@ -38,26 +38,26 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
 
             if (starsSummary == null || attributeSummaries == null || !attributeSummaries.Any())
             {
-                return new GetEmployerFeedbackResultSummaryQueryResult
+                return new GetOverallEmployerFeedbackResultQueryResult
                 {
-                    EmployerFeedbackResultSummary = new EmployerFeedbackSummaryResult
+                    OverallEmployerFeedback = new OverallEmployerFeedbackResult
                     {
                         Ukprn = request.Ukprn,
-                        ProviderAttribute = new List<ProviderAttributeSummaryResult>()
+                        ProviderAttribute = new List<OverallEmployerFeedbackResultProviderAttribute>()
                     }
                 };
             }
 
-            var providerAttribute = attributeSummaries.Select(x => new ProviderAttributeSummaryResult
+            var providerAttribute = attributeSummaries.Select(x => new OverallEmployerFeedbackResultProviderAttribute
             {
                 Name = x.Attribute.AttributeName,
                 Strength = x.Strength,
                 Weakness = x.Weakness
             }).ToList();
 
-            return new GetEmployerFeedbackResultSummaryQueryResult
+            return new GetOverallEmployerFeedbackResultQueryResult
             {
-                EmployerFeedbackResultSummary = new EmployerFeedbackSummaryResult
+                OverallEmployerFeedback = new OverallEmployerFeedbackResult
                 {
                     Ukprn = starsSummary.Ukprn,
                     Stars = starsSummary.Stars,

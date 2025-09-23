@@ -6,14 +6,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummaryForAcademicYear
+namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultForAcademicYear
 {
-    public class GetEmployerFeedbackResultSummaryForAcademicYearQueryHandler : IRequestHandler<GetEmployerFeedbackResultSummaryForAcademicYearQuery, GetEmployerFeedbackResultSummaryForAcademicYearQueryResult>
+    public class GetEmployerFeedbackResultForAcademicYearQueryHandler : IRequestHandler<GetEmployerFeedbackResultForAcademicYearQuery, GetEmployerFeedbackResultForAcademicYearQueryResult>
     {
         private readonly IProviderStarsSummaryContext _providerStarsSummaryContext;
         private readonly IProviderAttributeSummaryContext _providerAttributeSummaryContext;
 
-        public GetEmployerFeedbackResultSummaryForAcademicYearQueryHandler(
+        public GetEmployerFeedbackResultForAcademicYearQueryHandler(
             IProviderStarsSummaryContext providerStarsSummaryContext,
             IProviderAttributeSummaryContext providerAttributeSummaryContext)
         {
@@ -21,8 +21,8 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
             _providerAttributeSummaryContext = providerAttributeSummaryContext;
         }
 
-        public async Task<GetEmployerFeedbackResultSummaryForAcademicYearQueryResult> Handle(
-            GetEmployerFeedbackResultSummaryForAcademicYearQuery request,
+        public async Task<GetEmployerFeedbackResultForAcademicYearQueryResult> Handle(
+            GetEmployerFeedbackResultForAcademicYearQuery request,
             CancellationToken cancellationToken)
         {
             var starsSummaries = await _providerStarsSummaryContext
@@ -35,20 +35,20 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
 
             if (starsSummary == null || attributeSummaries == null || !attributeSummaries.Any())
             {
-                return new GetEmployerFeedbackResultSummaryForAcademicYearQueryResult
+                return new GetEmployerFeedbackResultForAcademicYearQueryResult
                 {
-                    AcademicYearEmployerFeedbackDetails = new EmployerFeedbackSummaryForAcademicYearResult
+                    EmployerFeedbackForAcademicYear = new EmployerFeedbackForAcademicYearResult
                     {
                         Ukprn = request.Ukprn,
                         TimePeriod = request.TimePeriod,
-                        ProviderAttribute = new List<ProviderAttributeSummaryForAcademicYearResult>()
+                        ProviderAttribute = new List<ProviderAttributeForAcademicYearResult>()
                     }
                 };
             }
 
             var attributesForPeriod = attributeSummaries
                 .Where(a => a.Ukprn == starsSummary.Ukprn && a.TimePeriod == starsSummary.TimePeriod && a.Attribute?.AttributeName != null)
-                .Select(a => new ProviderAttributeSummaryForAcademicYearResult
+                .Select(a => new ProviderAttributeForAcademicYearResult
                 {
                     Name = a.Attribute.AttributeName,
                     Strength = a.Strength,
@@ -56,9 +56,9 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
                 })
                 .ToList();
 
-            return new GetEmployerFeedbackResultSummaryForAcademicYearQueryResult
+            return new GetEmployerFeedbackResultForAcademicYearQueryResult
             {
-                AcademicYearEmployerFeedbackDetails = new EmployerFeedbackSummaryForAcademicYearResult
+                EmployerFeedbackForAcademicYear = new EmployerFeedbackForAcademicYearResult
                 {
                     Ukprn = starsSummary.Ukprn,
                     Stars = starsSummary.Stars,

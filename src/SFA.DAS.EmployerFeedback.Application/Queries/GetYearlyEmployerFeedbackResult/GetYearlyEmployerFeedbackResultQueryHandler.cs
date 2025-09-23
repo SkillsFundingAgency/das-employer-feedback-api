@@ -6,14 +6,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummaryAnnual
+namespace SFA.DAS.EmployerFeedback.Application.Queries.GetYearlyEmployerFeedbackResult
 {
-    public class GetEmployerFeedbackResultSummaryAnnualQueryHandler : IRequestHandler<GetEmployerFeedbackResultSummaryAnnualQuery, GetEmployerFeedbackResultSummaryAnnualQueryResult>
+    public class GetYearlyEmployerFeedbackResultQueryHandler : IRequestHandler<GetYearlyEmployerFeedbackResultQuery, GetYearlyEmployerFeedbackResultQueryResult>
     {
         private readonly IProviderStarsSummaryContext _providerStarsSummaryContext;
         private readonly IProviderAttributeSummaryContext _providerAttributeSummaryContext;
 
-        public GetEmployerFeedbackResultSummaryAnnualQueryHandler(
+        public GetYearlyEmployerFeedbackResultQueryHandler(
             IProviderStarsSummaryContext providerStarsSummaryContext,
             IProviderAttributeSummaryContext providerAttributeSummaryContext)
         {
@@ -21,8 +21,8 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
             _providerAttributeSummaryContext = providerAttributeSummaryContext;
         }
 
-        public async Task<GetEmployerFeedbackResultSummaryAnnualQueryResult> Handle(
-            GetEmployerFeedbackResultSummaryAnnualQuery request,
+        public async Task<GetYearlyEmployerFeedbackResultQueryResult> Handle(
+            GetYearlyEmployerFeedbackResultQuery request,
             CancellationToken cancellationToken)
         {
             var starsSummaries = await _providerStarsSummaryContext
@@ -31,13 +31,13 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
             var attributeSummaries = await _providerAttributeSummaryContext
                 .GetProviderAttributeSummaryByUkprnAsync(request.Ukprn, cancellationToken);
 
-            var result = new List<EmployerFeedbackSummaryAnnualResult>();
+            var result = new List<Domain.Models.GetYearlyEmployerFeedbackResult>();
 
             foreach (var stars in starsSummaries)
             {
                 var attributesForPeriod = attributeSummaries
                     .Where(a => a.Ukprn == stars.Ukprn && a.TimePeriod == stars.TimePeriod && a.Attribute?.AttributeName != null)
-                    .Select(a => new ProviderAttributeSummaryAnnualResult
+                    .Select(a => new GetYearlyEmployerFeedbackResultProviderAttribute
                     {
                         Name = a.Attribute.AttributeName,
                         Strength = a.Strength,
@@ -47,7 +47,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
 
                 if (attributesForPeriod.Any())
                 {
-                    result.Add(new EmployerFeedbackSummaryAnnualResult
+                    result.Add(new Domain.Models.GetYearlyEmployerFeedbackResult
                     {
                         Ukprn = stars.Ukprn,
                         Stars = stars.Stars,
@@ -58,7 +58,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResult
                 }
             }
 
-            return new GetEmployerFeedbackResultSummaryAnnualQueryResult
+            return new GetYearlyEmployerFeedbackResultQueryResult
             {
                 AnnualEmployerFeedbackDetails = result
             };

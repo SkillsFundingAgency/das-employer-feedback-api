@@ -1,7 +1,7 @@
 
 namespace SFA.DAS.EmployerFeedback.Domain.Models
 {
-    public class GetEmployerFeedbackStarsAnnualResult
+    public class EmployerFeedbackRatingsResult
     {
         public long Ukprn { get; set; }
 

@@ -6,37 +6,37 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackStarsResultAnnual
+namespace SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackRatingsResult
 {
-    public class GetEmployerFeedbackStarsResultAnnualQueryHandler : IRequestHandler<GetEmployerFeedbackStarsResultAnnualQuery, GetEmployerFeedbackStarsResultAnnualQueryResult>
+    public class GetEmployerFeedbackRatingsResultQueryHandler : IRequestHandler<GetEmployerFeedbackRatingsResultQuery, GetEmployerFeedbackRatingsResultQueryResult>
     {
         private readonly IProviderStarsSummaryContext _providerStarsSummaryContext;
 
-        public GetEmployerFeedbackStarsResultAnnualQueryHandler(
+        public GetEmployerFeedbackRatingsResultQueryHandler(
             IProviderStarsSummaryContext providerStarsSummaryContext)
         {
             _providerStarsSummaryContext = providerStarsSummaryContext;
         }
 
-        public async Task<GetEmployerFeedbackStarsResultAnnualQueryResult> Handle(
-            GetEmployerFeedbackStarsResultAnnualQuery request,
+        public async Task<GetEmployerFeedbackRatingsResultQueryResult> Handle(
+            GetEmployerFeedbackRatingsResultQuery request,
             CancellationToken cancellationToken)
         {
             var starsSummaries = await _providerStarsSummaryContext
                 .GetProviderStarsSummaryByTimePeriodAsync(request.TimePeriod, cancellationToken);
 
             var results = starsSummaries?
-           .Select(x => new GetEmployerFeedbackStarsAnnualResult
+           .Select(x => new EmployerFeedbackRatingsResult
            {
                Ukprn = x.Ukprn,
                ReviewCount = x.ReviewCount,
                Stars = x.Stars
            })
-           .ToList() ?? new List<GetEmployerFeedbackStarsAnnualResult>();
+           .ToList() ?? new List<EmployerFeedbackRatingsResult>();
 
-            return new GetEmployerFeedbackStarsResultAnnualQueryResult
+            return new GetEmployerFeedbackRatingsResultQueryResult
             {
-                AnnualEmployerFeedbackStarsDetails = results
+                EmployerFeedbackRatings = results
             };
         }
     }

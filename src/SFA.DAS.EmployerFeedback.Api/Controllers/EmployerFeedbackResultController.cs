@@ -5,10 +5,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback;
 using SFA.DAS.EmployerFeedback.Application.Models;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummary;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummaryAnnual;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultSummaryForAcademicYear;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackStarsResultAnnual;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackRatingsResult;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmployerFeedbackResultForAcademicYear;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetOverallEmployerFeedbackResult;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetYearlyEmployerFeedbackResult;
 using System;
 using System.Threading.Tasks;
 
@@ -48,12 +48,12 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             }
         }
         [HttpGet("{ukprn}")]
-        public async Task<IActionResult> GetEmployerFeedbackResultSummary(long ukprn)
+        public async Task<IActionResult> GetOverallEmployerFeedbackResult(long ukprn)
         {
             try
             {
-                var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryQuery { Ukprn = ukprn });
-                return Ok(result.EmployerFeedbackResultSummary);
+                var result = await _mediator.Send(new GetOverallEmployerFeedbackResultQuery { Ukprn = ukprn });
+                return Ok(result.OverallEmployerFeedback);
             }
             catch (ValidationException ex)
             {
@@ -62,17 +62,17 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             }
             catch (Exception e)
             {
-                var message = $"Unhandled error when attempting to get employer feedback result summary for UKPRN {ukprn}: {e.Message}";
+                var message = $"Unhandled error when attempting to get overall employer feedback result summary for UKPRN {ukprn}: {e.Message}";
                 _logger.LogError(message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
         [HttpGet("{ukprn}/annual")]
-        public async Task<IActionResult> GetEmployerFeedbackResultAnnual(long ukprn)
+        public async Task<IActionResult> GetYearlyEmployerFeedbackResult(long ukprn)
         {
             try
             {
-                var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryAnnualQuery { Ukprn = ukprn });
+                var result = await _mediator.Send(new GetYearlyEmployerFeedbackResultQuery { Ukprn = ukprn });
 
                 return Ok(result);
             }
@@ -83,7 +83,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             }
             catch (Exception e)
             {
-                var message = $"Unhandled error when attempting to get employer feedback result annual for UKPRN {ukprn}: {e.Message}";
+                var message = $"Unhandled error when attempting to get yearly employer feedback result for UKPRN {ukprn}: {e.Message}";
                 _logger.LogError(message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
@@ -93,9 +93,9 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         {
             try
             {
-                var result = await _mediator.Send(new GetEmployerFeedbackResultSummaryForAcademicYearQuery { Ukprn = ukprn, TimePeriod = year });
+                var result = await _mediator.Send(new GetEmployerFeedbackResultForAcademicYearQuery { Ukprn = ukprn, TimePeriod = year });
 
-                return Ok(result.AcademicYearEmployerFeedbackDetails);
+                return Ok(result.EmployerFeedbackForAcademicYear);
             }
             catch (ValidationException ex)
             {
@@ -110,13 +110,13 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             }
         }
         [HttpGet("reviews")]
-        public async Task<IActionResult> GetEmployerFeedbackStarsResultAnnual(string timePeriod)
+        public async Task<IActionResult> GetEmployerFeedbackRatingsResult(string timePeriod)
         {
             try
             {
-                var result = await _mediator.Send(new GetEmployerFeedbackStarsResultAnnualQuery { TimePeriod = timePeriod });
+                var result = await _mediator.Send(new GetEmployerFeedbackRatingsResultQuery { TimePeriod = timePeriod });
 
-                return Ok(result.AnnualEmployerFeedbackStarsDetails);
+                return Ok(result.EmployerFeedbackRatings);
             }
             catch (ValidationException ex)
             {
@@ -125,7 +125,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             }
             catch (Exception e)
             {
-                var message = $"Unhandled error when attempting to get employer feedback stars result for period {timePeriod}: {e.Message}";
+                var message = $"Unhandled error when attempting to get employer feedback ratings result for period {timePeriod}: {e.Message}";
                 _logger.LogError(message);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }

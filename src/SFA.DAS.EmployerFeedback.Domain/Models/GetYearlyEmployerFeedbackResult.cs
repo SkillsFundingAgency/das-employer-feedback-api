@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace SFA.DAS.EmployerFeedback.Domain.Models
 {
-    public class EmployerFeedbackSummaryAnnualResult
+    public class GetYearlyEmployerFeedbackResult
     {
         public long Ukprn { get; set; }
 
@@ -12,9 +12,9 @@ namespace SFA.DAS.EmployerFeedback.Domain.Models
 
         public string TimePeriod { get; set; }
 
-        public List<ProviderAttributeSummaryAnnualResult> ProviderAttribute { get; set; }
+        public List<GetYearlyEmployerFeedbackResultProviderAttribute> ProviderAttribute { get; set; }
     }
-    public class ProviderAttributeSummaryAnnualResult
+    public class GetYearlyEmployerFeedbackResultProviderAttribute
     {
         public string Name { get; set; }
         public int Strength { get; set; }
