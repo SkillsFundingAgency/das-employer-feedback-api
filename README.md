@@ -9,7 +9,7 @@
 [![Confluence Project](https://img.shields.io/badge/Confluence-Project-blue)](https://skillsfundingagency.atlassian.net/wiki/spaces/NDL/pages/3773497345/Employer+Feedback+-+QF)
 [![License](https://img.shields.io/badge/license-MIT-lightgrey.svg?longCache=true&style=flat-square)](https://en.wikipedia.org/wiki/MIT_License)
 
-This repository represents the Employer Feedback API code base. Employer Feedback is a service that allows employers to provide feedback on their training providers. The employer is able to submit feedback via the ad hoc journey, or an emailing journey. Either way, the UI code base is the `das-employer-feedback-web` repository, this repository is the inner API, and the outer API code base is in the `das-apim-endpoints` repository within the `EmployerFeedback` project.
+This repository represents the Employer Feedback API code base. Employer Feedback is a service that allows employer users to provide feedback on their employees apprenticeship training. The employer is able to submit feedback via the ad hoc journey, or an emailing journey. Either way, the UI code base is the `das-employer-feedback-web` repository, this repository is the inner API, and the outer API code base is in the `das-apim-endpoints` repository within the `EmployerFeedback` project.
 
 ## Developer Setup
 ### Requirements
@@ -19,7 +19,7 @@ In order to run this solution locally you will need the following:
 * A clone of this repository
 * **.NET 8.0 SDK** - [Download here](https://dotnet.microsoft.com/download/dotnet/8.0)
 * A code editor that supports .NET 8.0 (e.g., Visual Studio 2022, VS Code with C# Dev Kit)
-* **SQL Server** - Either Azure SQL DB or compatible local instance (e.g., SQL Server 2022 Developer Edition, SQL Server Express LocalDB)
+* **SQL Server** - Local SQL Server instance (e.g., SQL Server 2022 Developer Edition, SQL Server Express LocalDB)
 * **Azurite** - For local Azure Storage emulation ([Installation guide](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite))
 
 ### Environment setup
@@ -67,7 +67,7 @@ Data:
 
 ### Running
 
-* Start Azurite e.g. using a command `C:\Program Files (x86)\Microsoft SDKs\Azure\Storage Emulator>AzureStorageEmulator.exe start`
+* Start Azurite 
 * Run the solution
 * NB: You may need other applications running in conjunction with this, such as the backend API `das-apim-endpoints/EmployerFeedback` project and also the UI `das-employer-feedback-web` codebase for the UI journey.
 
@@ -77,7 +77,7 @@ This codebase includes unit tests, which are organized into separate projects. E
 
 #### Unit Tests
 
-There are several unit test projects in the solution built using C#, NUnit, Moq, FluentAssertions, .NET and AutoFixture.
+There are several unit test projects in the solution built using C#, NUnit, Moq, FluentAssertions and AutoFixture.
 * `SFA.DAS.EmployerFeedback.Api.UnitTests`
 * `SFA.DAS.EmployerFeedback.Application.UnitTests`
 * `SFA.DAS.EmployerFeedback.Domain.UnitTests`
