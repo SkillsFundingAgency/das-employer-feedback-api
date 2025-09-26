@@ -5,11 +5,11 @@ using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
 {
-    public interface IAttributeContext : IEntityContext<Attributes>
+    public interface IAttributeContext : IEntityContext<Attribute>
     {
-        public async Task<List<Attributes>> GetAll()
+        public async Task<List<Attribute>> GetAll()
                   => await Entities.ToListAsync();
-        public async Task<Attributes> GetFirstOrDefault()
+        public async Task<Attribute> GetFirstOrDefault()
             => await Entities
                 .FirstOrDefaultAsync();
     }
