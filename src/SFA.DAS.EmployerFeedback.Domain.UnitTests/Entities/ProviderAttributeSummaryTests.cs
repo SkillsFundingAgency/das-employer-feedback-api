@@ -9,7 +9,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Entities
         [Test]
         public void Properties_SetAndGet_ShouldReturnExpectedValues()
         {
-            var attr = new Attributes { AttributeId = 1, AttributeName = "test" };
+            var attr = new Domain.Entities.Attribute { AttributeId = 1, AttributeName = "test" };
             var summary = new ProviderAttributeSummary
             {
                 Ukprn = 12345678,

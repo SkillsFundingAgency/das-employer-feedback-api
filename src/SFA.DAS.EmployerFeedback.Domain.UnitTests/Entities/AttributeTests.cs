@@ -5,12 +5,12 @@ using NUnit.Framework;
 
 namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Entities
 {
-    public class AttributesTests
+    public class AttributeTests
     {
         [Test, AutoData]
         public void Properties_SetAndGet_ShouldReturnExpectedValues(long id, string name)
         {
-            var attributes = new Attributes
+            var attributes = new Attribute
             {
                 AttributeId = id,
                 AttributeName = name

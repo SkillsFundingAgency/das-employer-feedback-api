@@ -6,9 +6,9 @@ using System.Diagnostics.CodeAnalysis;
 namespace SFA.DAS.EmployerFeedback.Data.Configuration
 {
     [ExcludeFromCodeCoverage]
-    public class AttributeConfiguration : IEntityTypeConfiguration<Attributes>
+    public class AttributeConfiguration : IEntityTypeConfiguration<Attribute>
     {
-        public void Configure(EntityTypeBuilder<Attributes> builder)
+        public void Configure(EntityTypeBuilder<Attribute> builder)
         {
             builder.ToTable("Attributes");
             builder.HasKey(e => e.AttributeId);

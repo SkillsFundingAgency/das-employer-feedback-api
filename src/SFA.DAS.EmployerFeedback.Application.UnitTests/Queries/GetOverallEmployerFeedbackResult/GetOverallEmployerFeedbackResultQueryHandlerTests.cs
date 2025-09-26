@@ -17,7 +17,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetOverallEmplo
         {
             var ukprn = 1234L;
             var attributeSummaries = new List<ProviderAttributeSummary> {
-                new ProviderAttributeSummary { Attribute = new Domain.Entities.Attributes { AttributeName = "Quality" }, Strength = 2, Weakness = 1 }
+                new ProviderAttributeSummary { Attribute = new Domain.Entities.Attribute { AttributeName = "Quality" }, Strength = 2, Weakness = 1 }
             };
             var starsSummaries = new List<ProviderStarsSummary> {
                 new ProviderStarsSummary { Ukprn = ukprn, Stars = 4, ReviewCount = 10, TimePeriod = "All" }

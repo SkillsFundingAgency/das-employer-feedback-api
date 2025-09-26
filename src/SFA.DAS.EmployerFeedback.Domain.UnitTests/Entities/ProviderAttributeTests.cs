@@ -14,7 +14,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Entities
             var attributeId = 123L;
             var attributeValue = 1;
             var feedbackResult = new EmployerFeedbackResult { Id = feedbackResultId };
-            var attribute = new Attributes { AttributeId = attributeId, AttributeName = "Test Attribute" };
+            var attribute = new Domain.Entities.Attribute { AttributeId = attributeId, AttributeName = "Test Attribute" };
             var providerAttribute = new ProviderAttribute
             {
                 EmployerFeedbackResultId = feedbackResultId,

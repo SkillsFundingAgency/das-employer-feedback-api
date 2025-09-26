@@ -29,7 +29,7 @@ namespace SFA.DAS.EmployerFeedback.Data
         private readonly ChainedTokenCredential _chainedTokenCredentialProvider;
 
         public virtual DbSet<Account> Accounts { get; set; }
-        public virtual DbSet<Attributes> Attributes { get; set; }
+        public virtual DbSet<Attribute> Attributes { get; set; }
         public virtual DbSet<Domain.Entities.EmployerFeedback> EmployerFeedbacks { get; set; }
         public virtual DbSet<EmployerFeedbackResult> EmployerFeedbackResults { get; set; } = null!;
 
@@ -42,7 +42,7 @@ namespace SFA.DAS.EmployerFeedback.Data
         public virtual DbSet<Settings> Settings { get; set; }
 
         DbSet<Account> IEntityContext<Account>.Entities => Accounts;
-        DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes;
+        DbSet<Attribute> IEntityContext<Attribute>.Entities => Attributes;
         DbSet<Domain.Entities.EmployerFeedback> IEntityContext<Domain.Entities.EmployerFeedback>.Entities => EmployerFeedbacks;
         DbSet<EmployerFeedbackResult> IEntityContext<EmployerFeedbackResult>.Entities => EmployerFeedbackResults;
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummaries;

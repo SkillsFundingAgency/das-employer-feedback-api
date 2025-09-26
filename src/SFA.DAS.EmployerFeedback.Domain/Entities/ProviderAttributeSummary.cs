@@ -10,6 +10,6 @@ namespace SFA.DAS.EmployerFeedback.Domain.Entities
         public int Weakness { get; set; }
         public string TimePeriod { get; set; }
         public DateTime UpdatedOn { get; set; }
-        public Attributes Attribute { get; set; }
+        public Attribute Attribute { get; set; }
     }
 }

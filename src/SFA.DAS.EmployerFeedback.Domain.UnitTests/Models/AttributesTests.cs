@@ -1,8 +1,8 @@
 using FluentAssertions;
 using AutoFixture.NUnit3;
 using NUnit.Framework;
-using ModelAttributes = SFA.DAS.EmployerFeedback.Domain.Models.Attributes;
-using EntityAttributes = SFA.DAS.EmployerFeedback.Domain.Entities.Attributes;
+using ModelAttributes = SFA.DAS.EmployerFeedback.Domain.Models.Attribute;
+using EntityAttributes = SFA.DAS.EmployerFeedback.Domain.Entities.Attribute;
                             
 namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Models
 {

@@ -22,7 +22,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetEmployerFeed
                 new ProviderStarsSummary { Ukprn = ukprn, Stars = 4, ReviewCount = 10, TimePeriod = timePeriod }
             };
             var attributeSummaries = new List<ProviderAttributeSummary> {
-                new ProviderAttributeSummary { Ukprn = ukprn, TimePeriod = timePeriod, Attribute = new Domain.Entities.Attributes { AttributeName = "Quality" }, Strength = 2, Weakness = 1 }
+                new ProviderAttributeSummary { Ukprn = ukprn, TimePeriod = timePeriod, Attribute = new Domain.Entities.Attribute { AttributeName = "Quality" }, Strength = 2, Weakness = 1 }
             };
             var mockStarsContext = new Mock<IProviderStarsSummaryContext>();
             var mockAttrContext = new Mock<IProviderAttributeSummaryContext>();
