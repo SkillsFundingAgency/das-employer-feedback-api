@@ -51,14 +51,15 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
         }
 
         [Test]
-        public async Task GetLatestResultsPerAccount_MultipleUkprns_IncludesTargetsWithNoResults_AndOrdersByUkprn()
+        public async Task GetLatestResultsPerAccount_MultipleUkprns_NotIncludesTargetsWithNoResults_AndOrdersByUkprn()
         {
             // Arrange
             var accountId = 42L;
             var userRef = Guid.NewGuid();
 
-            var ukprnWithResults = 20000000L;
             var ukprnNoResults = 15000000L;
+            var firstUkprnWithResults = 20000000L;
+            var secondUkprnWithResults = 25000000L;
             var dt = new DateTime(2025, 06, 01, 12, 00, 00, DateTimeKind.Utc);
 
             await using var ctx = CreateContext();
@@ -68,6 +69,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
 
             var targetNoResults = new Domain.Entities.EmployerFeedback
             {
+                FeedbackId = 9,
                 AccountId = accountId,
                 UserRef = userRef,
                 Ukprn = ukprnNoResults,
@@ -75,12 +77,12 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
                 FeedbackResults = new List<EmployerFeedbackResult>() // none
             };
 
-            var targetWithResults = new Domain.Entities.EmployerFeedback
+            var firstTargetWithResults = new Domain.Entities.EmployerFeedback
             {
                 FeedbackId = 10,
                 AccountId = accountId,
                 UserRef = userRef,
-                Ukprn = ukprnWithResults,
+                Ukprn = firstUkprnWithResults,
                 Account = account,
                 FeedbackResults = new List<EmployerFeedbackResult>
                 {
@@ -88,7 +90,20 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
                 }
             };
 
-            ctx.Set<Domain.Entities.EmployerFeedback>().AddRange(targetNoResults, targetWithResults);
+            var secondTargetWithResults = new Domain.Entities.EmployerFeedback
+            {
+                FeedbackId = 11,
+                AccountId = accountId,
+                UserRef = userRef,
+                Ukprn = secondUkprnWithResults,
+                Account = account,
+                FeedbackResults = new List<EmployerFeedbackResult>
+                {
+                    new EmployerFeedbackResult { FeedbackId = 11, DateTimeCompleted = dt, ProviderRating = "Excellent", FeedbackSource = 1 }
+                }
+            };
+
+            ctx.Set<Domain.Entities.EmployerFeedback>().AddRange(targetNoResults, firstTargetWithResults, secondTargetWithResults);
             await ctx.SaveChangesAsync();
 
             // Act
@@ -99,18 +114,18 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             results.Should().HaveCount(2);
 
             // Ordered by Ukprn
-            results.Select(r => r.Ukprn).Should().ContainInOrder(ukprnNoResults, ukprnWithResults);
+            results.Select(r => r.Ukprn).Should().ContainInOrder(firstUkprnWithResults, secondUkprnWithResults);
+            results.Select(r => r.Ukprn).Should().NotContain(ukprnNoResults);
 
-            var noRes = results.First(r => r.Ukprn == ukprnNoResults);
-            noRes.AccountName.Should().Be("Widgets Ltd");
-            noRes.DateTimeCompleted.Should().BeNull();     // no results present
-            noRes.ProviderRating.Should().BeNull();
-            noRes.FeedbackSource.Should().BeNull();
+            var firstWithRes = results.First(r => r.Ukprn == firstUkprnWithResults);
+            firstWithRes.DateTimeCompleted.Should().Be(dt);
+            firstWithRes.ProviderRating.Should().Be("Good");
+            firstWithRes.FeedbackSource.Should().Be(1);
 
-            var withRes = results.First(r => r.Ukprn == ukprnWithResults);
-            withRes.DateTimeCompleted.Should().Be(dt);
-            withRes.ProviderRating.Should().Be("Good");
-            withRes.FeedbackSource.Should().Be(1);
+            var secondWithRes = results.First(r => r.Ukprn == secondUkprnWithResults);
+            secondWithRes.DateTimeCompleted.Should().Be(dt);
+            secondWithRes.ProviderRating.Should().Be("Excellent");
+            secondWithRes.FeedbackSource.Should().Be(1);
         }
 
         [Test]

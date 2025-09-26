@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Models;
 using System;
 using System.Collections.Generic;
@@ -17,21 +18,16 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
         public async Task<List<LatestEmployerFeedbackResults>> GetLatestResultsPerAccount(long accountId, Guid userRef, CancellationToken cancellationToken)
         {
             var pre = await Entities
-                .Where(eft => eft.AccountId == accountId && eft.UserRef == userRef)
-                .Select(eft => new
+                .Where(ef => ef.AccountId == accountId && ef.UserRef == userRef)
+                .SelectMany(ef => ef.FeedbackResults, (ef, er) => new
                 {
-                    eft.AccountId,
-                    eft.Ukprn,
-                    eft.Account.AccountName,
-                    Latest = eft.FeedbackResults
-                        .OrderByDescending(r => r.DateTimeCompleted)
-                        .Select(r => new
-                        {
-                            r.DateTimeCompleted,
-                            r.ProviderRating,
-                            r.FeedbackSource
-                        })
-                        .FirstOrDefault()
+                    ef.AccountId,
+                    ef.Account.AccountName,
+                    ef.Ukprn,
+                    er.FeedbackId,
+                    er.DateTimeCompleted,
+                    er.ProviderRating,
+                    er.FeedbackSource
                 })
                 .GroupBy(x => new { x.AccountId, x.Ukprn, x.AccountName })
                 .Select(g => new
@@ -39,8 +35,14 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                     g.Key.AccountId,
                     g.Key.Ukprn,
                     g.Key.AccountName,
-                    Top = g.OrderByDescending(x => x.Latest != null)
-                        .ThenByDescending(x => x.Latest!.DateTimeCompleted)
+                    Latest = g.OrderByDescending(x => x.DateTimeCompleted)
+                        .ThenByDescending(x => x.FeedbackId)
+                        .Select(x => new
+                        {
+                            x.DateTimeCompleted,
+                            x.ProviderRating,
+                            x.FeedbackSource
+                        })
                         .FirstOrDefault()
                 })
                 .ToListAsync(cancellationToken);
@@ -52,9 +54,9 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                     AccountId = x.AccountId,
                     AccountName = x.AccountName,
                     Ukprn = x.Ukprn,
-                    DateTimeCompleted = x.Top?.Latest?.DateTimeCompleted,
-                    ProviderRating = x.Top?.Latest?.ProviderRating,
-                    FeedbackSource = x.Top?.Latest?.FeedbackSource
+                    DateTimeCompleted = x.Latest?.DateTimeCompleted,
+                    ProviderRating = x.Latest?.ProviderRating,
+                    FeedbackSource = x.Latest?.FeedbackSource
                 })
                 .ToList();
 
