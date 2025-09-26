@@ -6,7 +6,7 @@ using EntityAttributes = SFA.DAS.EmployerFeedback.Domain.Entities.Attribute;
                             
 namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Models
 {
-    public class AttributesTests
+    public class AttributeTests
     {
         [Test]
         public void ImplicitOperator_SourceIsNull_ReturnsNull()
