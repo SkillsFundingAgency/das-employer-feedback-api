@@ -5,6 +5,6 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes
 {
     public class GetAttributesQueryResult
     {
-        public List<Attributes> Attributes { get; set; }
+        public List<Attribute> Attributes { get; set; }
     }
 }

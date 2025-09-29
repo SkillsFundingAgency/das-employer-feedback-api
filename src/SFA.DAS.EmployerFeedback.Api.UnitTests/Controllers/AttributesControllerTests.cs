@@ -17,8 +17,8 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
         [Test]
         public async Task GetAttributes_ReturnsOk_WhenMediatorReturnsAttributes()
         {
-            var attributes = new List<SFA.DAS.EmployerFeedback.Domain.Models.Attributes> {
-                new SFA.DAS.EmployerFeedback.Domain.Models.Attributes { AttributeId = 1, AttributeName = "Test" }
+            var attributes = new List<SFA.DAS.EmployerFeedback.Domain.Models.Attribute> {
+                new SFA.DAS.EmployerFeedback.Domain.Models.Attribute { AttributeId = 1, AttributeName = "Test" }
             };
             var mediator = new Mock<IMediator>();
             mediator.Setup(m => m.Send(It.IsAny<GetAttributesQuery>(), It.IsAny<CancellationToken>()))
