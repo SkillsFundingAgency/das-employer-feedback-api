@@ -60,41 +60,5 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
 
             return results;
         }
-        public async Task<List<AllEmployerFeedbackResults>> GetAllEmployerFeedbackAsync(CancellationToken cancellationToken)
-        {
-            var groupedFeedback = await Entities
-                .AsNoTracking()
-                .SelectMany(e => e.FeedbackResults, (feedback, result) => new
-                {
-                    feedback.Ukprn,
-                    result.Id,
-                    result.DateTimeCompleted,
-                    result.ProviderRating,
-                    Attributes = result.ProviderAttributes.Select(pa => new
-                    {
-                        AttributeName = pa.Attribute.AttributeName,
-                        pa.AttributeValue
-                    })
-                })
-                .GroupBy(x => new { x.Id, x.Ukprn, x.DateTimeCompleted, x.ProviderRating })
-                .Select(g => new AllEmployerFeedbackResults
-                {
-                    Ukprn = g.Key.Ukprn,
-                    DateTimeCompleted = g.Key.DateTimeCompleted,
-                    ProviderRating = g.Key.ProviderRating,
-                    ProviderAttributes = g
-                        .SelectMany(x => x.Attributes)
-                        .Where(a => a.AttributeName != null)
-                        .Select(a => new ProviderAttributeResults
-                        {
-                            Name = a.AttributeName,
-                            Value = a.AttributeValue
-                        })
-                        .ToList()
-                })
-                .ToListAsync(cancellationToken);
-
-            return groupedFeedback;
-        }
     }
 }
