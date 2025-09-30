@@ -235,39 +235,6 @@
 			"response": []
 		},
 		{
-			"name": "Feedback-GetAll",
-			"request": {
-				"auth": {
-					"type": "bearer",
-					"bearer": [
-						{
-							"key": "token",
-							"value": "",
-							"type": "string"
-						}
-					]
-				},
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/Feedback",
-					"protocol": "https",
-					"host": [
-						"at-employer-feedback-api",
-						"apprenticeships",
-						"education",
-						"gov",
-						"uk"
-					],
-					"path": [
-						"api",
-						"Feedback"
-					]
-				}
-			},
-			"response": []
-		},
-		{
 			"name": "EmployerFeedbackResult-GetOverallEmployerFeedbackResult",
 			"request": {
 				"auth": {
