@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertAccounts;
 using SFA.DAS.EmployerFeedback.Application.Models;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetAccountsBatch;
 
 namespace SFA.DAS.EmployerFeedback.Api.Controllers
 {
@@ -21,6 +22,27 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         {
             _mediator = mediator;
             _logger = logger;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAccountsBatch([FromQuery] int batchsize)
+        {
+            try
+            {
+                if (batchsize <= 0)
+                {
+                    return BadRequest("Batch size must be greater than zero.");
+                }
+
+                var query = new GetAccountsBatchQuery { BatchSize = batchsize };
+                var result = await _mediator.Send(query);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving next account batch");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
         }
 
         [HttpPost]
