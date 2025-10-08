@@ -16,6 +16,10 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
             builder.HasMany(x => x.EmployerFeedbacks)
                    .WithOne()
                    .HasForeignKey(x => x.AccountId);
+
+            builder.HasMany(x => x.FeedbackTransactions)
+                    .WithOne(x => x.Account)
+                    .HasForeignKey(x => x.AccountId);
         }
     }
 }

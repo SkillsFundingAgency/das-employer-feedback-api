@@ -27,11 +27,12 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddScoped<IAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IEmployerFeedbackContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IEmployerFeedbackResultContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IFeedbackTransactionContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderRatingSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<ISettingsContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IAccountContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
- 
+
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
     }

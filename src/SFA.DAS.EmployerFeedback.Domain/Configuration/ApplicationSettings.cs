@@ -7,5 +7,7 @@
         public string DbConnectionString { get; set; }
         
         public int BatchDays { get; set; } = 30;
+
+        public string DefaultEmployerFeedbackRequestTemplateName { get; set; }
     }
 }
