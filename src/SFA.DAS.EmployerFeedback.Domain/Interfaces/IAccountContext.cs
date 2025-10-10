@@ -14,9 +14,9 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
         public async Task<List<Account>> GetAccountsByIdsAsync(IEnumerable<long> accountIds, CancellationToken cancellationToken)
             => await Entities.Where(a => accountIds.Contains(a.Id)).ToListAsync(cancellationToken);
             
-        public async Task<List<long>> GetAccountsBatchAsync(int batchSize, int batchDays, CancellationToken cancellationToken)
+        public async Task<List<long>> GetEmailNudgeAccountsBatchAsync(int batchSize, int emailNudgeCheckDays, CancellationToken cancellationToken)
         {
-            var cutoffDate = DateTime.UtcNow.AddDays(-batchDays);
+            var cutoffDate = DateTime.UtcNow.AddDays(-emailNudgeCheckDays);
             
             var accountIds = await Entities
                 .Where(a => a.CheckedOn == null || a.CheckedOn < cutoffDate)

@@ -6,6 +6,6 @@
 
         public string DbConnectionString { get; set; }
         
-        public int BatchDays { get; set; } = 30;
+        public int EmailNudgeCheckDays { get; set; } = 30;
     }
 }
