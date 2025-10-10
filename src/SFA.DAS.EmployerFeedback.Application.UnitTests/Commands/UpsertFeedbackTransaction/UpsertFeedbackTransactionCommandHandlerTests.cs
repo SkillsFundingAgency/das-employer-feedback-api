@@ -21,8 +21,10 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
         private Mock<IFeedbackTransactionContext> _mockFeedbackTransactionContext;
         private Mock<IAccountContext> _mockAccountContext;
         private Mock<ILogger<UpsertFeedbackTransactionCommandHandler>> _mockLogger;
+        private Mock<IDateTimeHelper> _mockDateTimeHelper;
         private ApplicationSettings _applicationSettings;
         private UpsertFeedbackTransactionCommandHandler _handler;
+        private DateTime _fixedDateTime;
 
         [SetUp]
         public void SetUp()
@@ -30,13 +32,18 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockFeedbackTransactionContext = new Mock<IFeedbackTransactionContext>();
             _mockAccountContext = new Mock<IAccountContext>();
             _mockLogger = new Mock<ILogger<UpsertFeedbackTransactionCommandHandler>>();
+            _mockDateTimeHelper = new Mock<IDateTimeHelper>();
             _applicationSettings = new ApplicationSettings { BatchDays = 30 };
+            _fixedDateTime = new DateTime(2024, 1, 15, 10, 0, 0);
+
+            _mockDateTimeHelper.Setup(x => x.Now).Returns(_fixedDateTime);
 
             _handler = new UpsertFeedbackTransactionCommandHandler(
                 _mockFeedbackTransactionContext.Object,
                 _mockAccountContext.Object,
                 _applicationSettings,
-                _mockLogger.Object);
+                _mockLogger.Object,
+                _mockDateTimeHelper.Object);
         }
 
         [Test, AutoData]
@@ -50,7 +57,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
                 NewStart = new List<ProviderCourseDto>()
             };
 
-            var account = new Account { Id = accountId, AccountName = "Test Account", CheckedOn = DateTime.UtcNow.AddDays(-10) };
+            var account = new Account { Id = accountId, AccountName = "Test Account", CheckedOn = _fixedDateTime.AddDays(-10) };
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
@@ -59,6 +66,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Never);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+            account.CheckedOn.Should().Be(_fixedDateTime);
             account.CheckedOn.Should().BeAfter(originalCheckedOn.Value);
         }
 
@@ -71,7 +79,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
                 NewStart = new List<ProviderCourseDto> { new ProviderCourseDto { Ukprn = 12345, CourseCode = "123" } }
             };
 
-            var account = new Account { Id = accountId, CheckedOn = DateTime.UtcNow.AddDays(-1) };
+            var account = new Account { Id = accountId, CheckedOn = _fixedDateTime.AddDays(-1) };
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
             _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
@@ -87,7 +95,9 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             addedTransaction.Should().NotBeNull();
             addedTransaction.AccountId.Should().Be(accountId);
-            addedTransaction.SendAfter.Should().BeCloseTo(DateTime.UtcNow, TimeSpan.FromSeconds(5));
+            addedTransaction.SendAfter.Should().Be(_fixedDateTime);
+            addedTransaction.CreatedOn.Should().Be(_fixedDateTime);
+            account.CheckedOn.Should().Be(_fixedDateTime);
             account.CheckedOn.Should().BeAfter(originalCheckedOn.Value);
             _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Once);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
@@ -120,7 +130,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             addedTransaction.Should().NotBeNull();
             addedTransaction.AccountId.Should().Be(accountId);
-            addedTransaction.SendAfter.Should().BeCloseTo(DateTime.UtcNow.AddDays(batchDays), TimeSpan.FromSeconds(10));
+            addedTransaction.SendAfter.Should().Be(_fixedDateTime.AddDays(batchDays));
+            addedTransaction.CreatedOn.Should().Be(_fixedDateTime);
             _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Once);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -134,7 +145,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
                 AccountId = accountId,
                 Active = new List<ProviderCourseDto> { new ProviderCourseDto { Ukprn = 12345, CourseCode = "123" } }
             };
-                    
+
             var account = new Account { Id = accountId };
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
@@ -151,7 +162,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             addedTransaction.Should().NotBeNull();
             addedTransaction.AccountId.Should().Be(accountId);
-            addedTransaction.SendAfter.Should().BeCloseTo(DateTime.UtcNow.AddDays(60), TimeSpan.FromSeconds(10));
+            addedTransaction.SendAfter.Should().Be(_fixedDateTime.AddDays(60));
+            addedTransaction.CreatedOn.Should().Be(_fixedDateTime);
             _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Once);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -159,7 +171,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
         [Test, AutoData]
         public async Task Handle_WhenExistingTransactionNotSent_ShouldUpdateSendAfterIfEarlier(long accountId)
         {
-            var existingSendAfter = DateTime.UtcNow.AddDays(10);
+            var existingSendAfter = _fixedDateTime.AddDays(10);
             var existingTransaction = new FeedbackTransaction
             {
                 Id = 1,
@@ -185,6 +197,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             await _handler.Handle(command, CancellationToken.None);
 
+            existingTransaction.SendAfter.Should().Be(_fixedDateTime.AddDays(5));
             existingTransaction.SendAfter.Should().BeBefore(existingSendAfter);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
         }
@@ -196,8 +209,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             {
                 Id = 1,
                 AccountId = accountId,
-                SendAfter = DateTime.UtcNow.AddDays(-5),
-                SentDate = DateTime.UtcNow.AddDays(-3)
+                SendAfter = _fixedDateTime.AddDays(-5),
+                SentDate = _fixedDateTime.AddDays(-3)
             };
 
             var command = new UpsertFeedbackTransactionCommand
@@ -216,7 +229,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             await _handler.Handle(command, CancellationToken.None);
 
             _mockFeedbackTransactionContext.Verify(x => x.Add(
-                It.Is<FeedbackTransaction>(ft => ft.AccountId == accountId && ft.SentDate == null)), Times.Once);
+                It.Is<FeedbackTransaction>(ft => ft.AccountId == accountId && ft.SentDate == null && ft.CreatedOn == _fixedDateTime)), Times.Once);
         }
 
         [Test, AutoData]
@@ -244,7 +257,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
                 NewStart = new List<ProviderCourseDto> { new ProviderCourseDto { Ukprn = 12345, CourseCode = "123" } }
             };
 
-            var account = new Account { Id = accountId, CheckedOn = DateTime.UtcNow.AddDays(-1) };
+            var account = new Account { Id = accountId, CheckedOn = _fixedDateTime.AddDays(-1) };
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
@@ -255,6 +268,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             await _handler.Handle(command, CancellationToken.None);
 
+            account.CheckedOn.Should().Be(_fixedDateTime);
             account.CheckedOn.Should().BeAfter(originalCheckedOn.Value);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.AtLeastOnce);
         }
