@@ -104,7 +104,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
         }
 
         [Test, AutoData]
-        public async Task Handle_WhenCompletedHasData_ShouldCreateTransactionWithSendAfterBatchDays(long accountId)
+        public async Task Handle_WhenCompletedHasData_ShouldCreateTransactionWithSendAfterEmailNudgeSendAfterDays(long accountId)
         {
             var emailNudgeSendAfterDays = 30;
             _applicationSettings.EmailNudgeSendAfterDays = emailNudgeSendAfterDays;
@@ -137,7 +137,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
         }
 
         [Test, AutoData]
-        public async Task Handle_WhenActiveHasData_ShouldCreateTransactionWithSendAfterTwiceBatchDays(long accountId)
+        public async Task Handle_WhenActiveHasData_ShouldCreateTransactionWithSendAfterTwiceEmailNudgeSendAfterDays(long accountId)
         {
             _applicationSettings.EmailNudgeSendAfterDays = 30;
             var command = new UpsertFeedbackTransactionCommand
