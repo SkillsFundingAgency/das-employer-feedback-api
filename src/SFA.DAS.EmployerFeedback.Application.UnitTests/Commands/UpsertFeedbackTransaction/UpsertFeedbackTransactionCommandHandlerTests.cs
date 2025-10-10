@@ -33,7 +33,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockAccountContext = new Mock<IAccountContext>();
             _mockLogger = new Mock<ILogger<UpsertFeedbackTransactionCommandHandler>>();
             _mockDateTimeHelper = new Mock<IDateTimeHelper>();
-            _applicationSettings = new ApplicationSettings { BatchDays = 30 };
+            _applicationSettings = new ApplicationSettings { EmailNudgeSendAfterDays = 30 };
             _fixedDateTime = new DateTime(2024, 1, 15, 10, 0, 0);
 
             _mockDateTimeHelper.Setup(x => x.Now).Returns(_fixedDateTime);
@@ -106,8 +106,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
         [Test, AutoData]
         public async Task Handle_WhenCompletedHasData_ShouldCreateTransactionWithSendAfterBatchDays(long accountId)
         {
-            var batchDays = 30;
-            _applicationSettings.BatchDays = batchDays;
+            var emailNudgeSendAfterDays = 30;
+            _applicationSettings.EmailNudgeSendAfterDays = emailNudgeSendAfterDays;
             var command = new UpsertFeedbackTransactionCommand
             {
                 AccountId = accountId,
@@ -130,7 +130,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             addedTransaction.Should().NotBeNull();
             addedTransaction.AccountId.Should().Be(accountId);
-            addedTransaction.SendAfter.Should().Be(_fixedDateTime.AddDays(batchDays));
+            addedTransaction.SendAfter.Should().Be(_fixedDateTime.AddDays(emailNudgeSendAfterDays));
             addedTransaction.CreatedOn.Should().Be(_fixedDateTime);
             _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Once);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -139,7 +139,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
         [Test, AutoData]
         public async Task Handle_WhenActiveHasData_ShouldCreateTransactionWithSendAfterTwiceBatchDays(long accountId)
         {
-            _applicationSettings.BatchDays = 30;
+            _applicationSettings.EmailNudgeSendAfterDays = 30;
             var command = new UpsertFeedbackTransactionCommand
             {
                 AccountId = accountId,
@@ -193,7 +193,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingTransaction);
 
-            _applicationSettings.BatchDays = 5;
+            _applicationSettings.EmailNudgeSendAfterDays = 5;
 
             await _handler.Handle(command, CancellationToken.None);
 

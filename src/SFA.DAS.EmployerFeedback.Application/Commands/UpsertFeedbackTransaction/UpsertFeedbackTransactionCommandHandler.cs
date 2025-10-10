@@ -61,11 +61,11 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransactio
         private DateTime? CalculateSendAfter(UpsertFeedbackTransactionCommand request)
         {
             var currentDate = _dateTimeHelper.Now;
-            var batchDays = _applicationSettings.BatchDays;
+            var emailNudgeSendAfterDays = _applicationSettings.EmailNudgeSendAfterDays;
 
             if (request.NewStart?.Any() == true) return currentDate;
-            if (request.Completed?.Any() == true) return currentDate.AddDays(batchDays);
-            if (request.Active?.Any() == true) return currentDate.AddDays(2 * batchDays);
+            if (request.Completed?.Any() == true) return currentDate.AddDays(emailNudgeSendAfterDays);
+            if (request.Active?.Any() == true) return currentDate.AddDays(2 * emailNudgeSendAfterDays);
 
             return null;
         }

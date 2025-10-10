@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertAccounts;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransaction;
 using SFA.DAS.EmployerFeedback.Application.Models;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetAccountsBatch;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmailNudgeAccountsBatch;
 
 namespace SFA.DAS.EmployerFeedback.Api.Controllers
 {
@@ -26,7 +26,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAccountsBatch([FromQuery] int batchsize)
+        public async Task<IActionResult> GetEmailNudgeAccountsBatch([FromQuery] int batchsize)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
                     return BadRequest("Batch size must be greater than zero.");
                 }
 
-                var query = new GetAccountsBatchQuery { BatchSize = batchsize };
+                var query = new GetEmailNudgeAccountsBatchQuery { BatchSize = batchsize };
                 var result = await _mediator.Send(query);
                 return Ok(result);
             }

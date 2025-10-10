@@ -1,17 +1,17 @@
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetAccountsBatch;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmailNudgeAccountsBatch;
 
-namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAccountsBatch
+namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetEmailNudgeAccountsBatch
 {
     [TestFixture]
-    public class GetAccountsBatchQueryTests
+    public class GetEmailNudgeAccountsBatchQueryTests
     {
         [Test]
         public void Properties_SetAndGet_ShouldReturnExpectedValues()
         {
             var batchSize = 10;
-            var query = new GetAccountsBatchQuery
+            var query = new GetEmailNudgeAccountsBatchQuery
             {
                 BatchSize = batchSize
             };
