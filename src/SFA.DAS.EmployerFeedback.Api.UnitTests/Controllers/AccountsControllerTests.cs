@@ -12,6 +12,7 @@ using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Api.Controllers;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertAccounts;
 using SFA.DAS.EmployerFeedback.Application.Models;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmailNudgeAccountsBatch;
 
 namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
 {
@@ -63,6 +64,61 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             _mediator.Setup(m => m.Send(It.IsAny<UpsertAccountsCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
 
             var result = await _controller.UpsertAccounts(request);
+
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.AreEqual("An unexpected error occurred.", objectResult.Value);
+        }
+
+        [Test]
+        public async Task GetEmailNudgeAccountsBatch_ReturnsOk_WhenSuccessful()
+        {
+            var batchSize = 5;
+            var expectedResult = new GetEmailNudgeAccountsBatchQueryResult 
+            { 
+                AccountIds = new List<long> { 1, 2, 3, 4, 5 } 
+            };
+            _mediator.Setup(m => m.Send(It.IsAny<GetEmailNudgeAccountsBatchQuery>(), It.IsAny<CancellationToken>())).ReturnsAsync(expectedResult);
+
+            var result = await _controller.GetEmailNudgeAccountsBatch(batchSize);
+
+            var okResult = result as OkObjectResult;
+            Assert.IsNotNull(okResult);
+            Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
+            Assert.AreEqual(expectedResult, okResult.Value);
+            _mediator.Verify(m => m.Send(It.Is<GetEmailNudgeAccountsBatchQuery>(q => q.BatchSize == batchSize), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetEmailNudgeAccountsBatch_ReturnsBadRequest_WhenBatchSizeIsZero()
+        {
+            var result = await _controller.GetEmailNudgeAccountsBatch(0);
+
+            var badRequest = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequest);
+            Assert.AreEqual(StatusCodes.Status400BadRequest, badRequest.StatusCode);
+            Assert.AreEqual("Batch size must be greater than zero.", badRequest.Value);
+        }
+
+        [Test]
+        public async Task GetEmailNudgeAccountsBatch_ReturnsBadRequest_WhenBatchSizeIsNegative()
+        {
+            var result = await _controller.GetEmailNudgeAccountsBatch(-1);
+
+            var badRequest = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequest);
+            Assert.AreEqual(StatusCodes.Status400BadRequest, badRequest.StatusCode);
+            Assert.AreEqual("Batch size must be greater than zero.", badRequest.Value);
+        }
+
+        [Test]
+        public async Task GetEmailNudgeAccountsBatch_ReturnsInternalServerError_WhenExceptionThrown()
+        {
+            var batchSize = 5;
+            _mediator.Setup(m => m.Send(It.IsAny<GetEmailNudgeAccountsBatchQuery>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
+
+            var result = await _controller.GetEmailNudgeAccountsBatch(batchSize);
 
             var objectResult = result as ObjectResult;
             Assert.IsNotNull(objectResult);
