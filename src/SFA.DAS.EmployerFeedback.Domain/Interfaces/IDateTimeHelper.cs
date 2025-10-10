@@ -11,19 +11,4 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
     {
         public DateTime Now => DateTime.UtcNow;
     }
-
-    public class SpecifiedTimeProvider : IDateTimeHelper
-    {
-        public DateTime Now { get; set; }
-
-        public SpecifiedTimeProvider(DateTime time)
-        {
-            Now = time;
-        }
-
-        public void Advance(TimeSpan timeSpan)
-        {
-            Now = Now.Add(timeSpan);
-        }
-    }
 }
