@@ -1,18 +1,18 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using NUnit.Framework;
-using SFA.DAS.EmployerFeedback.Application.Queries.GetAccountsBatch;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetEmailNudgeAccountsBatch;
 
-namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAccountsBatch
+namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetEmailNudgeAccountsBatch
 {
     [TestFixture]
-    public class GetAccountsBatchQueryResultTests
+    public class GetEmailNudgeAccountsBatchQueryResultTests
     {
         [Test]
         public void Properties_SetAndGet_ShouldReturnExpectedValues()
         {
             var accountIds = new List<long> { 1, 2, 3, 4, 5 };
-            var result = new GetAccountsBatchQueryResult
+            var result = new GetEmailNudgeAccountsBatchQueryResult
             {
                 AccountIds = accountIds
             };
@@ -23,7 +23,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAccountsBatc
         [Test]
         public void Constructor_ShouldInitializeEmptyList()
         {
-            var result = new GetAccountsBatchQueryResult();
+            var result = new GetEmailNudgeAccountsBatchQueryResult();
 
             result.AccountIds.Should().NotBeNull();
             result.AccountIds.Should().BeEmpty();

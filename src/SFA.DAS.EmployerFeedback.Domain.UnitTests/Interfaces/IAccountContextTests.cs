@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
         }
 
         [Test]
-        public async Task GetAccountsBatchAsync_ReturnsAccountsWithNullCheckedOnFirst()
+        public async Task GetEmailNudgeAccountsBatchAsync_ReturnsAccountsWithNullCheckedOnFirst()
         {
             await using var context = CreateContext();
 
@@ -47,7 +47,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             context.Accounts.AddRange(accounts);
             await context.SaveChangesAsync();
 
-            var result = await ((IAccountContext)context).GetAccountsBatchAsync(10, 30, CancellationToken.None);
+            var result = await ((IAccountContext)context).GetEmailNudgeAccountsBatchAsync(10, 30, CancellationToken.None);
 
             result.Should().HaveCount(4);
             result.Take(2).Should().BeEquivalentTo(new[] { 1, 3 });
@@ -55,7 +55,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
         }
 
         [Test]
-        public async Task GetAccountsBatchAsync_FiltersAccountsWithinBatchDays()
+        public async Task GetEmailNudgeAccountsBatchAsync_FiltersAccountsWithinEmailNudgeCheckDays()
         {
             await using var context = CreateContext();
 
@@ -70,14 +70,14 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             context.Accounts.AddRange(accounts);
             await context.SaveChangesAsync();
 
-            var result = await ((IAccountContext)context).GetAccountsBatchAsync(10, 30, CancellationToken.None);
+            var result = await ((IAccountContext)context).GetEmailNudgeAccountsBatchAsync(10, 30, CancellationToken.None);
 
             result.Should().HaveCount(3);
             result.Should().BeEquivalentTo(new[] { 1, 2, 4 });
         }
 
         [Test]
-        public async Task GetAccountsBatchAsync_RespectsPageSize()
+        public async Task GetEmailNudgeAccountsBatchAsync_RespectsPageSize()
         {
             await using var context = CreateContext();
 
@@ -90,14 +90,14 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             context.Accounts.AddRange(accounts);
             await context.SaveChangesAsync();
 
-            var result = await ((IAccountContext)context).GetAccountsBatchAsync(5, 30, CancellationToken.None);
+            var result = await ((IAccountContext)context).GetEmailNudgeAccountsBatchAsync(5, 30, CancellationToken.None);
 
             result.Should().HaveCount(5);
             result.Should().BeEquivalentTo(new[] { 1, 2, 3, 4, 5 });
         }
 
         [Test]
-        public async Task GetAccountsBatchAsync_ReturnsEmptyWhenNoAccountsMatch()
+        public async Task GetEmailNudgeAccountsBatchAsync_ReturnsEmptyWhenNoAccountsMatch()
         {
             await using var context = CreateContext();
 
@@ -110,13 +110,13 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             context.Accounts.AddRange(accounts);
             await context.SaveChangesAsync();
 
-            var result = await ((IAccountContext)context).GetAccountsBatchAsync(10, 30, CancellationToken.None);
+            var result = await ((IAccountContext)context).GetEmailNudgeAccountsBatchAsync(10, 30, CancellationToken.None);
 
             result.Should().BeEmpty();
         }
 
         [Test]
-        public async Task GetAccountsBatchAsync_OrdersByCheckOnThenById()
+        public async Task GetEmailNudgeAccountsBatchAsync_OrdersByCheckOnThenById()
         {
             await using var context = CreateContext();
 
@@ -133,7 +133,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             context.Accounts.AddRange(accounts);
             await context.SaveChangesAsync();
 
-            var result = await ((IAccountContext)context).GetAccountsBatchAsync(10, 30, CancellationToken.None);
+            var result = await ((IAccountContext)context).GetEmailNudgeAccountsBatchAsync(10, 30, CancellationToken.None);
 
             result.Should().HaveCount(5);
             result.Should().BeEquivalentTo(new[] { 1, 3, 4, 2, 5 }, options => options.WithStrictOrdering());

@@ -16,18 +16,20 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransactio
         private readonly IAccountContext _accountContext;
         private readonly ApplicationSettings _applicationSettings;
         private readonly ILogger<UpsertFeedbackTransactionCommandHandler> _logger;
-
+        private readonly IDateTimeHelper _dateTimeHelper;
 
         public UpsertFeedbackTransactionCommandHandler(
             IFeedbackTransactionContext feedbackTransactionContext,
             IAccountContext accountContext,
             ApplicationSettings applicationSettings,
-            ILogger<UpsertFeedbackTransactionCommandHandler> logger)
+            ILogger<UpsertFeedbackTransactionCommandHandler> logger,
+            IDateTimeHelper dateTimeHelper)
         {
             _feedbackTransactionContext = feedbackTransactionContext;
             _accountContext = accountContext;
             _applicationSettings = applicationSettings;
             _logger = logger;
+            _dateTimeHelper = dateTimeHelper;
         }
 
         public async Task<Unit> Handle(UpsertFeedbackTransactionCommand request, CancellationToken cancellationToken)
@@ -58,12 +60,12 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransactio
 
         private DateTime? CalculateSendAfter(UpsertFeedbackTransactionCommand request)
         {
-            var currentDate = DateTime.UtcNow;
-            var batchDays = _applicationSettings.BatchDays;
+            var currentDate = _dateTimeHelper.Now;
+            var emailNudgeSendAfterDays = _applicationSettings.EmailNudgeSendAfterDays;
 
             if (request.NewStart?.Any() == true) return currentDate;
-            if (request.Completed?.Any() == true) return currentDate.AddDays(batchDays);
-            if (request.Active?.Any() == true) return currentDate.AddDays(2 * batchDays);
+            if (request.Completed?.Any() == true) return currentDate.AddDays(emailNudgeSendAfterDays);
+            if (request.Active?.Any() == true) return currentDate.AddDays(2 * emailNudgeSendAfterDays);
 
             return null;
         }
@@ -99,7 +101,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransactio
                 TemplateId = null,
                 SentCount = null,
                 SentDate = null,
-                CreatedOn = DateTime.UtcNow
+                CreatedOn = _dateTimeHelper.Now
             };
 
             _feedbackTransactionContext.Add(feedbackTransaction);
@@ -110,7 +112,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransactio
             var account = await _accountContext.GetByIdAsync(accountId, cancellationToken);
             if (account != null)
             {
-                account.CheckedOn = DateTime.UtcNow;
+                account.CheckedOn = _dateTimeHelper.Now;
             }
         }
     }

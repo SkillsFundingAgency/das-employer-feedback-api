@@ -33,6 +33,8 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddScoped<ISettingsContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IAccountContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
 
+            services.AddScoped<IDateTimeHelper, UtcTimeProvider>();
+
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();
         }
     }
