@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,13 +14,18 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetFeedbackTran
     public class GetFeedbackTransactionsBatchQueryHandlerTests
     {
         private Mock<IFeedbackTransactionContext> _feedbackTransactionContext;
+        private Mock<IDateTimeHelper> _mockDateTimeHelper;
         private GetFeedbackTransactionsBatchQueryHandler _handler;
+        private DateTime _fixedDateTime;
 
         [SetUp]
         public void SetUp()
         {
             _feedbackTransactionContext = new Mock<IFeedbackTransactionContext>();
-            _handler = new GetFeedbackTransactionsBatchQueryHandler(_feedbackTransactionContext.Object);
+            _mockDateTimeHelper = new Mock<IDateTimeHelper>();
+            _fixedDateTime = new DateTime(2025, 1, 15, 10, 30, 0);
+            _mockDateTimeHelper.Setup(x => x.Now).Returns(_fixedDateTime);
+            _handler = new GetFeedbackTransactionsBatchQueryHandler(_feedbackTransactionContext.Object, _mockDateTimeHelper.Object);
         }
 
         [Test]
@@ -29,14 +35,14 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetFeedbackTran
             var expectedFeedbackTransactionIds = new List<long> { 1, 2, 3, 4, 5 };
             var query = new GetFeedbackTransactionsBatchQuery { BatchSize = batchSize };
 
-            _feedbackTransactionContext.Setup(x => x.GetFeedbackTransactionsBatchAsync(batchSize, It.IsAny<CancellationToken>()))
+            _feedbackTransactionContext.Setup(x => x.GetFeedbackTransactionsBatchAsync(batchSize, _fixedDateTime, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedFeedbackTransactionIds);
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
             result.Should().NotBeNull();
             result.FeedbackTransactions.Should().BeEquivalentTo(expectedFeedbackTransactionIds);
-            _feedbackTransactionContext.Verify(x => x.GetFeedbackTransactionsBatchAsync(batchSize, It.IsAny<CancellationToken>()), Times.Once);
+            _feedbackTransactionContext.Verify(x => x.GetFeedbackTransactionsBatchAsync(batchSize, _fixedDateTime, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test]
@@ -45,14 +51,14 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetFeedbackTran
             var batchSize = 5;
             var query = new GetFeedbackTransactionsBatchQuery { BatchSize = batchSize };
 
-            _feedbackTransactionContext.Setup(x => x.GetFeedbackTransactionsBatchAsync(batchSize, It.IsAny<CancellationToken>()))
+            _feedbackTransactionContext.Setup(x => x.GetFeedbackTransactionsBatchAsync(batchSize, _fixedDateTime, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(new List<long>());
 
             var result = await _handler.Handle(query, CancellationToken.None);
 
             result.Should().NotBeNull();
             result.FeedbackTransactions.Should().BeEmpty();
-            _feedbackTransactionContext.Verify(x => x.GetFeedbackTransactionsBatchAsync(batchSize, It.IsAny<CancellationToken>()), Times.Once);
+            _feedbackTransactionContext.Verify(x => x.GetFeedbackTransactionsBatchAsync(batchSize, _fixedDateTime, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

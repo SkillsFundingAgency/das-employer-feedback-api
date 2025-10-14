@@ -18,9 +18,9 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                 .OrderByDescending(ft => ft.CreatedOn)
                 .FirstOrDefaultAsync(cancellationToken);
 
-        public async Task<List<long>> GetFeedbackTransactionsBatchAsync(int batchSize, CancellationToken cancellationToken = default)
+        public async Task<List<long>> GetFeedbackTransactionsBatchAsync(int batchSize, DateTime currentDateTime, CancellationToken cancellationToken = default)
             => await Entities
-                .Where(ft => ft.SendAfter < DateTime.UtcNow && ft.SentDate == null)
+                .Where(ft => ft.SendAfter < currentDateTime && ft.SentDate == null)
                 .OrderBy(ft => ft.Id)
                 .Take(batchSize)
                 .Select(ft => ft.Id)

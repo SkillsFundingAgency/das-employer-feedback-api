@@ -8,15 +8,17 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransactionsBa
     public class GetFeedbackTransactionsBatchQueryHandler : IRequestHandler<GetFeedbackTransactionsBatchQuery, GetFeedbackTransactionsBatchQueryResult>
     {
         private readonly IFeedbackTransactionContext _feedbackTransactionContext;
+        private readonly IDateTimeHelper _dateTimeHelper;
 
-        public GetFeedbackTransactionsBatchQueryHandler(IFeedbackTransactionContext feedbackTransactionContext)
+        public GetFeedbackTransactionsBatchQueryHandler(IFeedbackTransactionContext feedbackTransactionContext, IDateTimeHelper dateTimeHelper)
         {
             _feedbackTransactionContext = feedbackTransactionContext;
+            _dateTimeHelper = dateTimeHelper;
         }
 
         public async Task<GetFeedbackTransactionsBatchQueryResult> Handle(GetFeedbackTransactionsBatchQuery request, CancellationToken cancellationToken)
         {
-            var feedbackTransactionIds = await _feedbackTransactionContext.GetFeedbackTransactionsBatchAsync(request.BatchSize, cancellationToken);
+            var feedbackTransactionIds = await _feedbackTransactionContext.GetFeedbackTransactionsBatchAsync(request.BatchSize, _dateTimeHelper.Now, cancellationToken);
 
             return new GetFeedbackTransactionsBatchQueryResult
             {

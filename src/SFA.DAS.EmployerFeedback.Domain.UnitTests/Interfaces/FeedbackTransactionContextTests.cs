@@ -35,6 +35,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             await using var context = CreateContext();
             var pastDate = DateTime.UtcNow.AddDays(-1);
             var futureDate = DateTime.UtcNow.AddDays(1);
+            var currentDateTime = DateTime.UtcNow;
 
             var accounts = new List<Account>
             {
@@ -59,7 +60,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             context.FeedbackTransactions.AddRange(feedbackTransactions);
             await context.SaveChangesAsync();
 
-            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(3);
+            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(3, currentDateTime);
 
             result.Should().HaveCount(3);
             result.Should().BeInAscendingOrder();
@@ -70,6 +71,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
         {
             await using var context = CreateContext();
             var futureDate = DateTime.UtcNow.AddDays(1);
+            var currentDateTime = DateTime.UtcNow;
 
             var accounts = new List<Account>
             {
@@ -88,7 +90,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             context.FeedbackTransactions.AddRange(feedbackTransactions);
             await context.SaveChangesAsync();
 
-            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(5);
+            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(5, currentDateTime);
 
             result.Should().BeEmpty();
         }
@@ -98,6 +100,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
         {
             await using var context = CreateContext();
             var pastDate = DateTime.UtcNow.AddDays(-1);
+            var currentDateTime = DateTime.UtcNow;
 
             var accounts = new List<Account>();
             for (int i = 1; i <= 10; i++)
@@ -116,7 +119,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             context.FeedbackTransactions.AddRange(feedbackTransactions);
             await context.SaveChangesAsync();
 
-            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(3);
+            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(3, currentDateTime);
 
             result.Should().HaveCount(3);
             result.Should().BeInAscendingOrder();
