@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertAccounts;
+using SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransaction;
 using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetEmailNudgeAccountsBatch;
 
@@ -62,6 +63,29 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error upserting accounts");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+
+        [HttpPost("{id}/feedbacktransaction")]
+        public async Task<IActionResult> UpsertFeedbackTransaction([FromRoute] long id, [FromBody] UpsertFeedbackTransactionRequest request)
+        {
+            try
+            {
+                var command = (UpsertFeedbackTransactionCommand)request;
+                command.AccountId = id;
+
+                await _mediator.Send(command);
+                return NoContent();
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed for feedback transaction upsert for AccountId: {AccountId}", id);
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error upserting feedback transaction for AccountId: {AccountId}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
