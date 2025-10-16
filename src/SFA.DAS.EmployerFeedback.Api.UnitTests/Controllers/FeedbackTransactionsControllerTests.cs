@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.AspNetCore.Http;
@@ -10,7 +6,12 @@ using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Api.Controllers;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransaction;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransactionsBatch;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
 {
@@ -101,6 +102,95 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             Assert.IsNotNull(objectResult);
             Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
             Assert.AreEqual("An unexpected error occurred.", objectResult.Value);
+        }
+
+        [Test]
+        public async Task GetFeedbackTransaction_WhenFeedbackTransactionExists_ShouldReturnOkResult()
+        {
+            var id = 123;
+            var accountId = 456;
+            var accountName = "Test Account";
+            var templateName = "Test Template";
+            var queryResult = new GetFeedbackTransactionQueryResult
+            {
+                Id = id,
+                AccountId = accountId,
+                AccountName = accountName,
+                TemplateName = templateName,
+                CreatedOn = DateTime.UtcNow.AddDays(-10),
+                SendAfter = DateTime.UtcNow.AddDays(30),
+                TemplateId = Guid.NewGuid(),
+                SentCount = 5,
+                SentDate = DateTime.UtcNow.AddDays(-1)
+            };
+
+            _mediator.Setup(x => x.Send(It.Is<GetFeedbackTransactionQuery>(q => q.Id == id), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(queryResult);
+
+            var result = await _controller.GetFeedbackTransaction(id);
+
+            result.Should().BeOfType<OkObjectResult>();
+            var okResult = result as OkObjectResult;
+            okResult.Value.Should().Be(queryResult);
+            _mediator.Verify(m => m.Send(It.Is<GetFeedbackTransactionQuery>(q => q.Id == id), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetFeedbackTransaction_WhenFeedbackTransactionDoesNotExist_ShouldReturnBadRequest()
+        {
+            var id = 123;
+            _mediator.Setup(x => x.Send(It.Is<GetFeedbackTransactionQuery>(q => q.Id == id), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((GetFeedbackTransactionQueryResult)null);
+
+            var result = await _controller.GetFeedbackTransaction(id);
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().Be($"Id {id} unknown");
+            _mediator.Verify(m => m.Send(It.Is<GetFeedbackTransactionQuery>(q => q.Id == id), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task GetFeedbackTransaction_WhenIdIsZero_ShouldReturnBadRequest()
+        {
+            var id = 0;
+
+            var result = await _controller.GetFeedbackTransaction(id);
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().Be($"Id {id} unknown");
+
+            _mediator.Verify(x => x.Send(It.IsAny<GetFeedbackTransactionQuery>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Test]
+        public async Task GetFeedbackTransaction_WhenIdIsNegative_ShouldReturnBadRequest()
+        {
+            var id = -1;
+
+            var result = await _controller.GetFeedbackTransaction(id);
+
+            result.Should().BeOfType<BadRequestObjectResult>();
+            var badRequestResult = result as BadRequestObjectResult;
+            badRequestResult.Value.Should().Be($"Id {id} unknown");
+
+            _mediator.Verify(x => x.Send(It.IsAny<GetFeedbackTransactionQuery>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+
+        [Test]
+        public async Task GetFeedbackTransaction_WhenExceptionOccurs_ShouldReturnInternalServerError()
+        {
+            var id = 123L;
+            _mediator.Setup(x => x.Send(It.Is<GetFeedbackTransactionQuery>(q => q.Id == id), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Database error"));
+
+            var result = await _controller.GetFeedbackTransaction(id);
+
+            result.Should().BeOfType<ObjectResult>();
+            var objectResult = result as ObjectResult;
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().Be("An unexpected error occurred.");
         }
     }
 }

@@ -15,16 +15,16 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
         public static void AddDatabaseRegistration(this IServiceCollection services, IConfiguration configuration)
         {
             var appSettings = configuration.GetSection("ApplicationSettings").Get<ApplicationSettings>();
-            if (configuration.IsLocalAcceptanceOrDev())
-            {
-                services.AddDbContext<EmployerFeedbackDataContext>(options => options.UseSqlServer(appSettings.DbConnectionString).EnableSensitiveDataLogging());
-            }
-            else if (configuration.IsIntegrationTests())
-            {
-                services.AddDbContext<EmployerFeedbackDataContext>(options => options.UseSqlServer("Server=localhost;Database=SFA.DAS.EmployerFeedback.IntegrationTests.Database;Trusted_Connection=True;MultipleActiveResultSets=true").EnableSensitiveDataLogging());
-            }
-            else
-            {
+            //if (configuration.IsLocalAcceptanceOrDev())
+            //{
+            //    services.AddDbContext<EmployerFeedbackDataContext>(options => options.UseSqlServer(appSettings.DbConnectionString).EnableSensitiveDataLogging());
+            //}
+            //else if (configuration.IsIntegrationTests())
+            //{
+            //    services.AddDbContext<EmployerFeedbackDataContext>(options => options.UseSqlServer("Server=localhost;Database=SFA.DAS.EmployerFeedback.IntegrationTests.Database;Trusted_Connection=True;MultipleActiveResultSets=true").EnableSensitiveDataLogging());
+            //}
+            //else
+            //{
                 services.AddSingleton(new ChainedTokenCredential(
                     new ManagedIdentityCredential(),
                     new AzureCliCredential(),
@@ -32,7 +32,7 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
                     new VisualStudioCredential())
                 );
                 services.AddDbContext<EmployerFeedbackDataContext>(ServiceLifetime.Scoped);
-            }
+            //}
 
             services.AddTransient(provider => new Lazy<EmployerFeedbackDataContext>(provider.GetService<EmployerFeedbackDataContext>()));
         }
