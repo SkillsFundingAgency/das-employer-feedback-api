@@ -1,9 +1,12 @@
 using System;
 using System.Threading.Tasks;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerFeedback.Application.Commands.UpdateFeedbackTransaction;
+using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransaction;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransactionsBatch;
 
@@ -42,6 +45,7 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetFeedbackTransaction(long id)
         {
@@ -65,6 +69,34 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving feedback transaction with Id: {Id}", id);
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateFeedbackTransaction([FromRoute] long id, [FromBody] UpdateFeedbackTransactionRequest request)
+        {
+            try
+            {
+                var command = (UpdateFeedbackTransactionCommand)request;
+                command.Id = id;
+
+                await _mediator.Send(command);
+                return NoContent();
+            }
+            catch (ValidationException ex)
+            {
+                _logger.LogWarning(ex, "Validation failed for feedback transaction update for Id: {Id}", id);
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogWarning(ex, "FeedbackTransaction not found for Id: {Id}", id);
+                return BadRequest($"FeedbackTransaction with id {id} not found");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating feedback transaction for Id: {Id}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }
