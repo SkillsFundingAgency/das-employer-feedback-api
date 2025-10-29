@@ -33,232 +33,71 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
         }
 
         [Test]
-        public async Task GetLatestResultsPerAccount_NoData_ReturnsEmptyList()
+        public async Task GetByUserUkprnAccountAsync_ReturnsMatchingEntity_OrNullWhenNotFound()
         {
             // Arrange
-            var accountId = 123L;
+            var accountId = 321L;
             var userRef = Guid.NewGuid();
+            var ukprn = 12345678L;
 
             await using var ctx = CreateContext();
 
-            // Act
-            var results = await ((IEmployerFeedbackContext)ctx)
-                .GetLatestResultsPerAccount(accountId, userRef, CancellationToken.None);
-
-            // Assert
-            results.Should().NotBeNull();
-            results.Should().BeEmpty();
-        }
-
-        [Test]
-        public async Task GetLatestResultsPerAccount_MultipleUkprns_NotIncludesTargetsWithNoResults_AndOrdersByUkprn()
-        {
-            // Arrange
-            var accountId = 42L;
-            var userRef = Guid.NewGuid();
-
-            var ukprnNoResults = 15000000L;
-            var firstUkprnWithResults = 20000000L;
-            var secondUkprnWithResults = 25000000L;
-            var dt = new DateTime(2025, 06, 01, 12, 00, 00, DateTimeKind.Utc);
-
-            await using var ctx = CreateContext();
-
-            var account = new Account { Id = accountId, AccountName = "Widgets Ltd" };
+            var account = new Account { Id = accountId, AccountName = "Acme Ltd" };
             ctx.Set<Account>().Add(account);
 
-            var targetNoResults = new Domain.Entities.EmployerFeedback
+            var matching = new Domain.Entities.EmployerFeedback
             {
-                FeedbackId = 9,
                 AccountId = accountId,
-                UserRef = userRef,
-                Ukprn = ukprnNoResults,
                 Account = account,
-                FeedbackResults = new List<EmployerFeedbackResult>() // none
-            };
-
-            var firstTargetWithResults = new Domain.Entities.EmployerFeedback
-            {
-                FeedbackId = 10,
-                AccountId = accountId,
-                UserRef = userRef,
-                Ukprn = firstUkprnWithResults,
-                Account = account,
-                FeedbackResults = new List<EmployerFeedbackResult>
-                {
-                    new EmployerFeedbackResult { FeedbackId = 10, DateTimeCompleted = dt, ProviderRating = "Good", FeedbackSource = 1 }
-                }
-            };
-
-            var secondTargetWithResults = new Domain.Entities.EmployerFeedback
-            {
-                FeedbackId = 11,
-                AccountId = accountId,
-                UserRef = userRef,
-                Ukprn = secondUkprnWithResults,
-                Account = account,
-                FeedbackResults = new List<EmployerFeedbackResult>
-                {
-                    new EmployerFeedbackResult { FeedbackId = 11, DateTimeCompleted = dt, ProviderRating = "Excellent", FeedbackSource = 1 }
-                }
-            };
-
-            ctx.Set<Domain.Entities.EmployerFeedback>().AddRange(targetNoResults, firstTargetWithResults, secondTargetWithResults);
-            await ctx.SaveChangesAsync();
-
-            // Act
-            var results = await ((IEmployerFeedbackContext)ctx)
-                .GetLatestResultsPerAccount(accountId, userRef, CancellationToken.None);
-
-            // Assert
-            results.Should().HaveCount(2);
-
-            // Ordered by Ukprn
-            results.Select(r => r.Ukprn).Should().ContainInOrder(firstUkprnWithResults, secondUkprnWithResults);
-            results.Select(r => r.Ukprn).Should().NotContain(ukprnNoResults);
-
-            var firstWithRes = results.First(r => r.Ukprn == firstUkprnWithResults);
-            firstWithRes.DateTimeCompleted.Should().Be(dt);
-            firstWithRes.ProviderRating.Should().Be("Good");
-            firstWithRes.FeedbackSource.Should().Be(1);
-
-            var secondWithRes = results.First(r => r.Ukprn == secondUkprnWithResults);
-            secondWithRes.DateTimeCompleted.Should().Be(dt);
-            secondWithRes.ProviderRating.Should().Be("Excellent");
-            secondWithRes.FeedbackSource.Should().Be(1);
-        }
-
-        [Test]
-        public async Task GetLatestResultsPerAccount_FiltersByAccountAndUserRef()
-        {
-            // Arrange
-            var accountA = 100L;
-            var accountB = 200L;
-            var userA = Guid.NewGuid();
-            var userB = Guid.NewGuid();
-
-            var ukprnA = 30000001L;
-            var ukprnB = 30000002L;
-
-            await using var ctx = CreateContext();
-
-            var accA = new Account { Id = accountA, AccountName = "Account A" };
-            var accB = new Account { Id = accountB, AccountName = "Account B" };
-            ctx.Set<Account>().AddRange(accA, accB);
-
-            // Matching pair (should be returned)
-            ctx.Set<Domain.Entities.EmployerFeedback>().Add(new Domain.Entities.EmployerFeedback
-            {
-                FeedbackId = 1,
-                AccountId = accountA,
-                UserRef = userA,
-                Ukprn = ukprnA,
-                Account = accA,
-                FeedbackResults = new List<EmployerFeedbackResult>
-                {
-                    new EmployerFeedbackResult { FeedbackId = 1, DateTimeCompleted = new DateTime(2025, 07, 01, 0, 0, 0, DateTimeKind.Utc), ProviderRating = "Good", FeedbackSource = 2 }
-                }
-            });
-
-            // Different account (should NOT be returned)
-            ctx.Set<Domain.Entities.EmployerFeedback>().Add(new Domain.Entities.EmployerFeedback
-            {
-                FeedbackId = 2,
-                AccountId = accountB,
-                UserRef = userA,
-                Ukprn = ukprnB,
-                Account = accB,
-                FeedbackResults = new List<EmployerFeedbackResult>
-                {
-                    new EmployerFeedbackResult { FeedbackId = 2, DateTimeCompleted = new DateTime(2025, 07, 02, 0, 0, 0, DateTimeKind.Utc), ProviderRating = "Excellent", FeedbackSource = 1 }
-                }
-            });
-
-            // Different user (should NOT be returned)
-            ctx.Set<Domain.Entities.EmployerFeedback>().Add(new Domain.Entities.EmployerFeedback
-            {
-                FeedbackId = 3,
-                AccountId = accountA,
-                UserRef = userB,
-                Ukprn = 39999999L,
-                Account = accA,
-                FeedbackResults = new List<EmployerFeedbackResult>
-                {
-                    new EmployerFeedbackResult { FeedbackId = 3, DateTimeCompleted = new DateTime(2025, 07, 03, 0, 0, 0, DateTimeKind.Utc), ProviderRating = "Poor", FeedbackSource = 2 }
-                }
-            });
-
-            await ctx.SaveChangesAsync();
-
-            // Act
-            var results = await ((IEmployerFeedbackContext)ctx)
-                .GetLatestResultsPerAccount(accountA, userA, CancellationToken.None);
-
-            // Assert
-            results.Should().HaveCount(1);
-            var row = results.Single();
-
-            row.AccountId.Should().Be(accountA);
-            row.AccountName.Should().Be("Account A");
-            row.Ukprn.Should().Be(ukprnA);
-            row.ProviderRating.Should().Be("Good");
-            row.FeedbackSource.Should().Be(2);
-        }
-
-        [Test]
-        public async Task GetLatestResultsPerAccount_MultipleTargetsSameUkprn_SelectsGroupTopByLatestResult()
-        {
-            // Arrange
-            var accountId = 55L;
-            var userRef = Guid.NewGuid();
-            var ukprn = 88888888L;
-
-            var dtEarlier = new DateTime(2025, 01, 10, 9, 0, 0, DateTimeKind.Utc);
-            var dtLater = new DateTime(2025, 02, 15, 9, 0, 0, DateTimeKind.Utc); // later -> should win
-
-            await using var ctx = CreateContext();
-
-            var account = new Account { Id = accountId, AccountName = "Contoso" };
-            ctx.Set<Account>().Add(account);
-
-            var target1 = new Domain.Entities.EmployerFeedback
-            {
-                AccountId = accountId,
                 UserRef = userRef,
                 Ukprn = ukprn,
-                Account = account,
-                FeedbackResults = new List<EmployerFeedbackResult>
-                {
-                    new EmployerFeedbackResult { FeedbackId = 10, DateTimeCompleted = dtEarlier, ProviderRating = "Excellent", FeedbackSource = 1 }
-                }
+                FeedbackResults = new List<EmployerFeedbackResult>()
             };
 
-            var target2 = new Domain.Entities.EmployerFeedback
+            var differentUser = new Domain.Entities.EmployerFeedback
             {
                 AccountId = accountId,
-                UserRef = userRef,
-                Ukprn = ukprn,
                 Account = account,
-                FeedbackResults = new List<EmployerFeedbackResult>
-                {
-                    new EmployerFeedbackResult { FeedbackId = 11, DateTimeCompleted = dtLater, ProviderRating = "Good", FeedbackSource = 2 }
-                }
+                UserRef = Guid.NewGuid(), // not matching
+                Ukprn = ukprn,
+                FeedbackResults = new List<EmployerFeedbackResult>()
             };
 
-            ctx.Set<Domain.Entities.EmployerFeedback>().AddRange(target1, target2);
+            var differentAccount = new Domain.Entities.EmployerFeedback
+            {
+                AccountId = 999L,
+                Account = new Account { Id = 999L, AccountName = "Other Ltd" },
+                UserRef = userRef,
+                Ukprn = ukprn,
+                FeedbackResults = new List<EmployerFeedbackResult>()
+            };
+
+            var differentUkprn = new Domain.Entities.EmployerFeedback
+            {
+                AccountId = accountId,
+                Account = account,
+                UserRef = userRef,
+                Ukprn = 98765432L, // not matching
+                FeedbackResults = new List<EmployerFeedbackResult>()
+            };
+
+            ctx.Set<Domain.Entities.EmployerFeedback>().AddRange(matching, differentUser, differentAccount, differentUkprn);
             await ctx.SaveChangesAsync();
 
             // Act
-            var results = await ((IEmployerFeedbackContext)ctx)
-                .GetLatestResultsPerAccount(accountId, userRef, CancellationToken.None);
+            var result = await ((IEmployerFeedbackContext)ctx)
+                .GetByUserUkprnAccountAsync(userRef, ukprn, accountId, CancellationToken.None);
+
+            var notFound = await ((IEmployerFeedbackContext)ctx)
+                .GetByUserUkprnAccountAsync(Guid.NewGuid(), 99999999L, 888L, CancellationToken.None);
 
             // Assert
-            results.Should().HaveCount(1);
-            var row = results.Single();
-            row.Ukprn.Should().Be(ukprn);
-            row.DateTimeCompleted.Should().Be(dtLater);   // picked from target2 (latest)
-            row.ProviderRating.Should().Be("Good");
-            row.FeedbackSource.Should().Be(2);
+            result.Should().NotBeNull();
+            result!.AccountId.Should().Be(accountId);
+            result.UserRef.Should().Be(userRef);
+            result.Ukprn.Should().Be(ukprn);
+
+            notFound.Should().BeNull();
         }
     }
 }
