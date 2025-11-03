@@ -1,3 +1,4 @@
+using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpdateFeedbackTransaction;
 using SFA.DAS.EmployerFeedback.Application.Models;
@@ -24,10 +25,10 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpdateFeedback
                 SentDate = sentDate
             };
 
-            Assert.That(command.Id, Is.EqualTo(id));
-            Assert.That(command.TemplateId, Is.EqualTo(templateId));
-            Assert.That(command.SentCount, Is.EqualTo(sentCount));
-            Assert.That(command.SentDate, Is.EqualTo(sentDate));
+            command.Id.Should().Be(id);
+            command.TemplateId.Should().Be(templateId);
+            command.SentCount.Should().Be(sentCount);
+            command.SentDate.Should().Be(sentDate);
         }
 
         [Test]
@@ -46,10 +47,10 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpdateFeedback
 
             UpdateFeedbackTransactionCommand command = request;
 
-            Assert.That(command.TemplateId, Is.EqualTo(templateId));
-            Assert.That(command.SentCount, Is.EqualTo(sentCount));
-            Assert.That(command.SentDate, Is.EqualTo(sentDate));
-            Assert.That(command.Id, Is.EqualTo(0));
+            command.TemplateId.Should().Be(templateId);
+            command.SentCount.Should().Be(sentCount);
+            command.SentDate.Should().Be(sentDate);
+            command.Id.Should().Be(0);
         }
     }
 }

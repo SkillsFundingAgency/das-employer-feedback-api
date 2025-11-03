@@ -31,6 +31,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                 .Include(ft => ft.Account)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(ft => ft.Id == id, cancellationToken);
+
         public async Task<FeedbackTransaction> GetByIdAsync(long id, CancellationToken cancellationToken = default)
             => await Entities
                 .FirstOrDefaultAsync(ft => ft.Id == id, cancellationToken);

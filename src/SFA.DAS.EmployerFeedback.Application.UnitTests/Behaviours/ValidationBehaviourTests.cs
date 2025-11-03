@@ -43,7 +43,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Behaviours
         }
 
         [Test]
-        public void Handle_WithValidationFailures_ThrowsValidationException()
+        public async Task Handle_WithValidationFailures_ThrowsValidationException()
         {
             var validator = new Mock<IValidator<DummyRequest>>();
             var failures = new[] { new ValidationFailure("prop", "error") };
@@ -55,10 +55,10 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Behaviours
 
             var tracker = new CallTracker();
 
-            var ex = Assert.ThrowsAsync<ValidationException>(async () =>
-                await behaviour.Handle(new DummyRequest(), MakeDelegate(tracker), CancellationToken.None));
+            var act = async () => await behaviour.Handle(new DummyRequest(), MakeDelegate(tracker), CancellationToken.None);
 
-            ex.Errors.Should().Contain(failures);
+            var ex = await act.Should().ThrowAsync<ValidationException>();
+            ex.Which.Errors.Should().Contain(failures);
             tracker.Called.Should().BeFalse();
         }
 
