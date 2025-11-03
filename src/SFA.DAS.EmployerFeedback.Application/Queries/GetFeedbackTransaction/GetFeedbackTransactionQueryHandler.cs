@@ -47,7 +47,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransaction
                     SentDate = feedbackTransaction.SentDate
                 };
 
-                _logger.LogInformation("Successfully retrieved feedback transaction with Id: {Id}", request.Id);
+                _logger.LogDebug("Successfully retrieved feedback transaction with Id: {Id}", request.Id);
                 return result;
             }
             catch (Exception ex)
