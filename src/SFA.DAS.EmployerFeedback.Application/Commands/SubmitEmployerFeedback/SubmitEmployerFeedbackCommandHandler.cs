@@ -40,15 +40,9 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.SubmitEmployerFeedback
                     {
                         UserRef = request.UserRef,
                         Ukprn = request.Ukprn,
-                        AccountId = request.AccountId,
-                        IsActive = true
+                        AccountId = request.AccountId
                     };
                     _employerFeedbackContext.Add(feedback);
-                }
-                else if (!feedback.IsActive)
-                {
-                    feedback.IsActive = true;
-                    _employerFeedbackContext.Update(feedback);
                 }
 
                 // Insert EmployerFeedbackResult
