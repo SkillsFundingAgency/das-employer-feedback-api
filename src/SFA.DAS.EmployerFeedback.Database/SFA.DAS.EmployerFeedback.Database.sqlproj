@@ -98,6 +98,7 @@
     <Build Include="StoredProcedures\GenerateProviderRatingResults.sql" />
     <Build Include="Tables\Settings.sql" />
     <Build Include="Tables\Account.sql" />
+    <Build Include="Tables\FeedbackTransaction.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\EmployerSurveyCodes.sql" />
