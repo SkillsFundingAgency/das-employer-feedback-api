@@ -42,10 +42,10 @@ BEGIN
         SELECT er1.FeedbackId, pa1.AttributeId, pa1.AttributeValue, eft.Ukprn, TimePeriod
         FROM (
           -- get latest feedback for each feedback target
-            SELECT * FROM (
-                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, *
+            SELECT Id, TimePeriod, FeedbackId FROM (
+                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, Id, FeedbackId, TimePeriod
                 FROM (
-                    SELECT *
+                    SELECT Id, FeedbackId, DateTimeCompleted
                           ,'AY'+RIGHT(YEAR(DATEADD(month,-7,DateTimeCompleted)),2)+RIGHT(YEAR(DATEADD(month,5,DateTimeCompleted)),2) TimePeriod
                     FROM [dbo].[EmployerFeedbackResult]
                     WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
@@ -99,7 +99,7 @@ BEGIN
     WHEN NOT MATCHED BY TARGET THEN 
         INSERT (Ukprn, AttributeId, Strength, Weakness, UpdatedOn, TimePeriod) 
         VALUES (upd.Ukprn, upd.AttributeId, upd.Strength, upd.Weakness, @calcdate, upd.TimePeriod)
-    WHEN NOT MATCHED BY SOURCE AND TimePeriod = 'All' THEN
+    WHEN NOT MATCHED BY SOURCE AND pas.TimePeriod = 'All' THEN
         DELETE;
     
 
@@ -115,10 +115,10 @@ BEGIN
         SELECT er1.FeedbackId, er1.ProviderRating, eft.Ukprn, TimePeriod
         FROM (
           -- get latest feedback for each feedback target
-            SELECT * FROM (
-                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, *
+            SELECT FeedbackId, ProviderRating, TimePeriod FROM (
+                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, FeedbackId, ProviderRating, TimePeriod
                 FROM (
-                    SELECT *
+                    SELECT FeedbackId, ProviderRating, DateTimeCompleted
                           ,'AY'+RIGHT(YEAR(DATEADD(month,-7,DateTimeCompleted)),2)+RIGHT(YEAR(DATEADD(month,5,DateTimeCompleted)),2) TimePeriod
                     FROM [dbo].[EmployerFeedbackResult]
                     WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
