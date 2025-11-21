@@ -63,6 +63,7 @@
     <Folder Include="Views" />
     <Folder Include="Post Deployment" />
     <Folder Include="Types" />
+    <Folder Include="Functions" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.EmployerFeedback.Database.refactorlog" />
@@ -99,6 +100,7 @@
     <Build Include="Tables\Settings.sql" />
     <Build Include="Tables\Account.sql" />
     <Build Include="Tables\FeedbackTransaction.sql" />
+    <Build Include="Functions\WorkOutDates.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\EmployerSurveyCodes.sql" />

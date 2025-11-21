@@ -3,7 +3,7 @@
 
 CREATE PROCEDURE [dbo].[GenerateProviderRatingResults]
 (
-    @calcdate datetime = NULL,
+    @execdate datetime = NULL,
     @reset int = 0  -- set to 1 to do a full reset
  )
 AS
@@ -12,26 +12,11 @@ BEGIN
     @oldTolerance FLOAT = 0.3,  -- Tolerance for years before AY2425
     @newTolerance FLOAT = 0.5;  -- Tolerance for years AY2425 and beyond
 
-
-    IF @calcdate IS NULL
-    -- Default is now, but can be overriden for testing / back dating
-        SET @calcdate = GETUTCDATE();
-        
-    -- Set limit to 5 years
-    DECLARE 
-    @limit5AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-55,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,-43,@calcdate)),2),
-    @limit1AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,5,@calcdate)),2),
-    @timelimit varchar(6),
-    @startdate date = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-7,@calcdate)))+'-Aug-01'),
-    @enddate date =   CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,5,@calcdate)))+'-Aug-01');
+    -- Set date ranges and limit to 5 years from calcdate (default now)
+    DECLARE @limit5AY varchar(6), @limit1AY varchar(6), @timelimit varchar(6), @startdate date, @enddate date, @calcdate date;
     
-    SET @timelimit = @limit1AY;
-    IF @reset = 1
-    -- reset all 5 AYs
-    BEGIN
-        SET @startdate = DATEADD(year,-4,@startdate);
-        SET @timelimit = @limit5AY;
-    END;
+	SELECT @timelimit=timelimit, @startdate=startdate, @enddate=enddate, @limit5AY =limit5AY, @limit1AY =limit1AY, @calcdate = calcdate
+	FROM [dbo].[WorkOutDates] (@execdate, @reset);
 
     WITH LatestRatings 
     AS (
