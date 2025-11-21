@@ -1,159 +1,130 @@
-﻿CREATE PROCEDURE [dbo].[GenerateProviderRatingResults]
+﻿-- Employer Feedback
+-- NOTE only aggregates for the current AY unless is reset, in which case will redo 5 years
+
+CREATE PROCEDURE [dbo].[GenerateProviderRatingResults]
 (
-    @AllUserFeedback INT = 1,        -- Set to 1 (true) to get all user's feedback for each Training provider, or 0 (false) to limit to latest :   The parameter is not being used. It should be removed
-    @ResultsforAllTime INT = 0,      -- Set to 1 (true) to get all feedback for each Training provider, or 0 (false) to limit to time period  : The parameter is not being used. It should be removed
-    @recentFeedbackMonths INT = 12,  -- Set to limit the time in months to look back for data (default 12, but only actioned if @ResultsforAllTime = 0 : The parameter is not being used. It should be removed
-    @tolerance FLOAT = 0.3           -- 0.3 is the current Employer Feedback tolerance, set to 0.5 to match Apprentice feedback : The parameter is not being used. It should be removed
-)
+    @calcdate datetime = NULL,
+    @reset int = 0  -- set to 1 to do a full reset
+ )
 AS
 BEGIN
-DECLARE @CurrentDate DATE = GETDATE();
-DECLARE @CurrentYear INT = YEAR(@CurrentDate);
-DECLARE @StartYear INT = YEAR(DATEADD(YEAR, -5, @CurrentDate));
-DECLARE @EndYear INT = YEAR(@CurrentDate);
-DECLARE @TimePeriods TABLE (ID INT IDENTITY(1,1), TimePeriod VARCHAR(10), StartDate DATETIME, EndDate DATETIME);
-DECLARE @AcademicStartYear INT;
-DECLARE @AcademicEndYear INT;
-DECLARE @TimePeriodTemp VARCHAR(10);
+    DECLARE 
+    @oldTolerance FLOAT = 0.3,  -- Tolerance for years before AY2425
+    @newTolerance FLOAT = 0.5;  -- Tolerance for years AY2425 and beyond
 
-IF @CurrentDate <= DATEFROMPARTS(@CurrentYear, 7, 31)
-BEGIN
-    SET @EndYear = @CurrentYear;
-    SET @StartYear = @EndYear - 5;
-END
-ELSE
-BEGIN
-    SET @EndYear = @CurrentYear + 1;
-    SET @StartYear = @EndYear - 5;
-END
 
-WHILE @StartYear < @EndYear
-BEGIN
+    IF @calcdate IS NULL
+    -- Default is now, but can be overriden for testing / back dating
+        SET @calcdate = GETUTCDATE();
+        
+    -- Set limit to 5 years
+    DECLARE 
+    @limit5AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-55,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,-43,@calcdate)),2),
+    @limit1AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,5,@calcdate)),2),
+    @timelimit varchar(6),
+    @startdate date = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-7,@calcdate)))+'-Aug-01'),
+    @enddate date =   CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,5,@calcdate)))+'-Aug-01');
+    
+    SET @timelimit = @limit1AY;
+    IF @reset = 1
+    -- reset all 5 AYs
+    BEGIN
+        SET @startdate = DATEADD(year,-4,@startdate);
+        SET @timelimit = @limit5AY;
+    END;
 
-    SET @AcademicStartYear = @StartYear;
-    SET @AcademicEndYear = @StartYear + 1;
+    WITH LatestRatings 
+    AS (
+        SELECT er1.FeedbackId, er1.ProviderRating, eft.Ukprn, TimePeriod
+        FROM (
+          -- get latest feedback for each feedback target
+            SELECT * FROM (
+                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, *
+                FROM (
+                    SELECT *
+                          ,'AY'+RIGHT(YEAR(DATEADD(month,-7,DateTimeCompleted)),2)+RIGHT(YEAR(DATEADD(month,5,DateTimeCompleted)),2) TimePeriod
+                    FROM [dbo].[EmployerFeedbackResult]
+                    WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
+                ) er3
+            ) er2 
+            -- handle change of logic from Aug 2024
+            WHERE TimePeriod < 'AY2425' OR seq = 1 
+        ) er1
+        JOIN [dbo].[EmployerFeedback] eft on er1.FeedbackId = eft.FeedbackId
+    )
+        
+    -- Get the ratings for required AY results for each UKPRN (not 'All')
+    MERGE INTO [dbo].[ProviderRatingSummary] prs 
+    USING (  
 
-	    SET @TimePeriodTemp = CONCAT('AY', RIGHT(CAST(@AcademicStartYear AS VARCHAR), 2), RIGHT(CAST(@AcademicEndYear AS VARCHAR), 2));
-        IF NOT EXISTS (SELECT 1 FROM @TimePeriods WHERE TimePeriod = @TimePeriodTemp)
-        BEGIN
-            INSERT INTO @TimePeriods (TimePeriod, StartDate, EndDate) 
-	        VALUES (@TimePeriodTemp,DATETIMEFROMPARTS(@AcademicStartYear, 8, 1, 0, 0, 0, 0), DATETIMEFROMPARTS(@AcademicEndYear, 7, 31, 23, 59, 59, 997));
-        END
-
-      SET @StartYear += 1;
-END
-
-DECLARE @ratingTolerance FLOAT = 0.5; 
-DECLARE @TimePeriod VARCHAR(10);
-DECLARE @StartDate DATETIME;
-DECLARE @EndDate DATETIME;
-DECLARE @RowNum INT = 1;
-DECLARE @TotalRows INT = (SELECT COUNT(*) FROM @TimePeriods);
-
-DELETE FROM [dbo].[ProviderRatingSummary]
-WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods);
-
-WHILE @RowNum <= @TotalRows
-BEGIN
-    SELECT @TimePeriod = TimePeriod, @StartDate = StartDate, @EndDate = EndDate
-    FROM @TimePeriods
-    WHERE ID = @RowNum;
-
-    IF YEAR(@EndDate) >= 2025
-        SET @ratingTolerance = 0.5; -- Tolerance for years starting from 2025
-    ELSE
-        SET @ratingTolerance = 0.3; -- Default tolerance
-
-	;WITH LatestRatings 
-	AS (
-	SELECT er1.FeedbackId, er1.ProviderRating, eft.Ukprn
-	   FROM (
-			SELECT * FROM (
-				SELECT ROW_NUMBER() OVER (PARTITION BY FeedbackId ORDER BY DateTimeCompleted DESC) seq, * FROM [dbo].[EmployerFeedbackResult]
-				WHERE (DateTimeCompleted BETWEEN @StartDate AND @EndDate)
-			) ab1 WHERE (YEAR(@EndDate) < 2025) OR (YEAR(@EndDate) >= 2025 AND seq = 1)
-		) er1
-		JOIN [dbo].[EmployerFeedback] eft on er1.FeedbackId = eft.FeedbackId
-	WHERE (DateTimeCompleted BETWEEN @StartDate AND @EndDate)
-	)
-
-    MERGE INTO [dbo].[ProviderRatingSummary] prs
-    USING (
-        SELECT Ukprn, ProviderRating AS Rating, COUNT(*) AS RatingCount, GETUTCDATE() AS UpdatedOn
+        -- Year-on-Year Results
+        SELECT TimePeriod, Ukprn
+              ,ProviderRating Rating 
+              ,COUNT(*) RatingCount
         FROM LatestRatings
-        GROUP BY Ukprn, ProviderRating
-    ) upd
-    ON prs.Ukprn = upd.Ukprn AND prs.Rating = upd.Rating AND prs.TimePeriod = @TimePeriod
+        GROUP BY TimePeriod, Ukprn, ProviderRating
+     ) upd
+    ON prs.Ukprn = upd.Ukprn AND prs.Rating = upd.Rating AND prs.TimePeriod = upd.TimePeriod
     WHEN MATCHED THEN 
-        UPDATE SET prs.RatingCount = upd.RatingCount, prs.UpdatedOn = upd.UpdatedOn
+        UPDATE SET prs.RatingCount = upd.RatingCount, 
+                   prs.UpdatedOn = @calcdate
     WHEN NOT MATCHED BY TARGET THEN 
         INSERT (Ukprn, Rating, RatingCount, UpdatedOn, TimePeriod)
-        VALUES (upd.Ukprn, upd.Rating, upd.RatingCount, upd.UpdatedOn, @TimePeriod)
-    WHEN NOT MATCHED BY SOURCE AND prs.TimePeriod = @TimePeriod THEN
-        DELETE;    
-
-    MERGE INTO [dbo].[ProviderStarsSummary] pss
-    USING (
-        SELECT Ukprn, ReviewCount,
-            CASE 
-                WHEN AvgRating >= 3.0 + @ratingTolerance THEN 4 
-                WHEN AvgRating >= 2.0 + @ratingTolerance THEN 3 
-                WHEN AvgRating >= 1.0 + @ratingTolerance THEN 2
-                ELSE 1 
-            END  Stars
-        FROM (
-            SELECT Ukprn, SUM(RatingCount) AS ReviewCount,
-                ROUND(CAST(SUM((CASE [Rating] WHEN 'Very Poor' THEN 1 WHEN 'Poor' THEN 2 WHEN 'Good' THEN 3 WHEN 'Excellent' THEN 4 ELSE 1 END) * RatingCount) AS FLOAT) / CAST(SUM(RatingCount) AS FLOAT), 1) AS AvgRating
-            FROM [dbo].[ProviderRatingSummary]
-            WHERE TimePeriod = @TimePeriod
-            GROUP BY Ukprn
-        ) av1
-    ) upd
-    ON pss.Ukprn = upd.Ukprn AND pss.TimePeriod = @TimePeriod
-    WHEN MATCHED THEN 
-        UPDATE SET pss.ReviewCount = upd.ReviewCount, pss.Stars = upd.Stars
-    WHEN NOT MATCHED BY TARGET THEN 
-        INSERT (Ukprn, ReviewCount, Stars, TimePeriod)
-        VALUES (upd.Ukprn, upd.ReviewCount, upd.Stars, @TimePeriod)
-    WHEN NOT MATCHED BY SOURCE AND pss.TimePeriod = @TimePeriod THEN
-        DELETE;    
-
-    SET @RowNum += 1;
-END
-
--- Handle 'All' condition outside the loop
-
-BEGIN
-
-DELETE FROM [dbo].[ProviderStarsSummary]
-WHERE TimePeriod NOT IN (SELECT TimePeriod FROM @TimePeriods) AND TimePeriod != 'All';
-
-    ;WITH ProviderRatingsWithTolerance AS (
-        SELECT
-            Ukprn,
-            SUM(ReviewCount) AS ReviewCount,
-			ROUND(AVG(CAST(Stars AS FLOAT)), 1) AS AvgRating
-        FROM
-            [dbo].[ProviderStarsSummary]
-        WHERE TimePeriod != 'All'
-        GROUP BY
-            Ukprn
-    )
-    MERGE INTO [dbo].[ProviderStarsSummary] pss
-    USING (
-        SELECT 
-            Ukprn,
-            ReviewCount,
-            ROUND(AvgRating, 0) AS Stars
-        FROM ProviderRatingsWithTolerance
-    ) upd
-    ON pss.Ukprn = upd.Ukprn AND pss.TimePeriod = 'All'
-    WHEN MATCHED THEN 
-        UPDATE SET pss.ReviewCount = upd.ReviewCount, pss.Stars = upd.Stars
-    WHEN NOT MATCHED BY TARGET THEN 
-        INSERT (Ukprn, ReviewCount, Stars, TimePeriod)
-        VALUES (upd.Ukprn, upd.ReviewCount, upd.Stars, 'All')
-    WHEN NOT MATCHED BY SOURCE AND pss.TimePeriod = 'All' THEN
+        VALUES (upd.Ukprn, upd.Rating, upd.RatingCount, @calcdate, upd.TimePeriod)
+    WHEN NOT MATCHED BY SOURCE AND prs.TimePeriod BETWEEN @limit1AY AND @timelimit THEN
         DELETE;
+
+
+    -- Get the Stars for all eligible 5 Year results for each UKPRN
+    WITH av1 
+    AS(
+        SELECT TimePeriod, Ukprn, ReviewCount,
+            CASE
+            -- handle change of logic from Aug 2024
+            WHEN TimePeriod < 'AY2425'
+            THEN
+              (CASE
+               WHEN AvgRating >= 3.0 + @oldTolerance THEN 4
+               WHEN AvgRating >= 2.0 + @oldTolerance THEN 3
+               WHEN AvgRating >= 1.0 + @oldTolerance THEN 2
+               ELSE 1 END)
+            ELSE
+              (CASE
+               WHEN AvgRating >= 3.0 + @newTolerance THEN 4
+               WHEN AvgRating >= 2.0 + @newTolerance THEN 3
+               WHEN AvgRating >= 1.0 + @newTolerance THEN 2
+               ELSE 1 END) 
+            END Stars
+        FROM (
+            SELECT TimePeriod, Ukprn, SUM(RatingCount) ReviewCount,
+                ROUND(CAST(SUM((CASE [Rating] WHEN 'VeryPoor' THEN 1 WHEN 'Poor' THEN 2 WHEN 'Good' THEN 3 WHEN 'Excellent' THEN 4 ELSE 1 END) * RatingCount) AS FLOAT) / CAST(SUM(RatingCount) AS FLOAT), 1) AvgRating
+            FROM [dbo].[ProviderRatingSummary]
+            GROUP BY TimePeriod, Ukprn
+        ) ab2
+    )
+
+    MERGE INTO [dbo].[ProviderStarsSummary] pss
+    USING (
+        SELECT TimePeriod, Ukprn, ReviewCount, Stars
+        FROM av1
+        UNION ALL
+        -- All, adding each year's results
+        SELECT 'All' TimePeriod, Ukprn
+               ,SUM(ReviewCount) ReviewCount 
+               ,ROUND(AVG(CAST(Stars AS FLOAT)), 0) Stars
+        FROM av1 
+        WHERE TimePeriod >= @limit5AY  -- will ignore 'All'
+        GROUP BY Ukprn        
+    ) upd
+    ON pss.Ukprn = upd.Ukprn AND pss.TimePeriod = upd.TimePeriod
+    WHEN MATCHED THEN
+        UPDATE SET pss.ReviewCount = upd.ReviewCount,
+                   pss.Stars = upd.Stars
+    WHEN NOT MATCHED BY TARGET THEN
+        INSERT (Ukprn, ReviewCount, Stars, TimePeriod)
+        VALUES (upd.Ukprn, upd.ReviewCount, upd.Stars, upd.TimePeriod)
+    WHEN NOT MATCHED BY SOURCE THEN
+        DELETE;  
+          
 END
-END
+GO
