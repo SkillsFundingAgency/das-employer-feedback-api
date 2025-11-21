@@ -116,10 +116,8 @@ namespace SFA.DAS.EmployerFeedback.Data
                 Database.SetCommandTimeout(120);
 
                 await Database.ExecuteSqlRawAsync(
-                    "EXEC [dbo].[GenerateProviderAttributeResults]");
+                    "EXEC [dbo].[GenerateFeedbackSummaries]");
 
-                await Database.ExecuteSqlRawAsync(
-                    "EXEC [dbo].[GenerateProviderRatingResults]");
             }
             finally
             {

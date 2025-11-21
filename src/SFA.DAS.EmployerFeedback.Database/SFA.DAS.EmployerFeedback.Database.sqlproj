@@ -63,7 +63,6 @@
     <Folder Include="Views" />
     <Folder Include="Post Deployment" />
     <Folder Include="Types" />
-    <Folder Include="Functions" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.EmployerFeedback.Database.refactorlog" />
@@ -95,12 +94,10 @@
     <Build Include="Tables\ProviderAttributeSummary.sql" />
     <Build Include="Tables\ProviderRatingSummary.sql" />
     <Build Include="Tables\ProviderStarsSummary.sql" />
-    <Build Include="StoredProcedures\GenerateProviderAttributeResults.sql" />
-    <Build Include="StoredProcedures\GenerateProviderRatingResults.sql" />
     <Build Include="Tables\Settings.sql" />
     <Build Include="Tables\Account.sql" />
     <Build Include="Tables\FeedbackTransaction.sql" />
-    <Build Include="Functions\WorkOutDates.sql" />
+    <Build Include="StoredProcedures\GenerateFeedbackSummaries.sql" />
   </ItemGroup>
   <ItemGroup>
     <Build Include="Tables\EmployerSurveyCodes.sql" />
