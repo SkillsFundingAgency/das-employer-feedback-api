@@ -18,6 +18,7 @@ BEGIN
         
     -- Set limit to 5 years
     DECLARE 
+    @changeYear varchar(6) = 'AY2425',
     @limit5AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-55,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,-43,@calcdate)),2),
     @limit1AY varchar(6) = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,5,@calcdate)),2),
     @timelimit varchar(6),
@@ -38,12 +39,10 @@ BEGIN
 
     WITH LatestResults 
     AS (
-        SELECT er1.FeedbackId, pa1.AttributeId, pa1.AttributeValue, eft.Ukprn, TimePeriod
-        FROM (
+        SELECT er1.FeedbackId, pa1.AttributeId, pa1.AttributeValue, eft.Ukprn, TimePeriod FROM (
           -- get latest feedback for each feedback target
             SELECT * FROM (
-                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, *
-                FROM (
+                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, * FROM (
                     SELECT *
                           ,'AY'+RIGHT(YEAR(DATEADD(month,-7,DateTimeCompleted)),2)+RIGHT(YEAR(DATEADD(month,5,DateTimeCompleted)),2) TimePeriod
                     FROM [dbo].[EmployerFeedbackResult]
@@ -51,7 +50,7 @@ BEGIN
                 ) er3
             ) er2 
             -- handle change of logic from Aug 2024
-            WHERE TimePeriod < 'AY2425' OR seq = 1 
+            WHERE TimePeriod < @changeYear OR seq = 1 
         ) er1
         JOIN [dbo].[EmployerFeedback] eft on er1.FeedbackId = eft.FeedbackId
         JOIN [dbo].[ProviderAttributes] pa1 on pa1.EmployerFeedbackResultId = er1.Id
@@ -59,14 +58,12 @@ BEGIN
     -- Get the ratings for required AY results for each UKPRN
     MERGE INTO [dbo].[ProviderAttributeSummary] pas 
     USING (  
-
         -- Year-on-Year Results
         SELECT TimePeriod, Ukprn, AttributeId
               ,SUM(CASE WHEN AttributeValue = 1 THEN 1 ELSE 0 END) Strength 
               ,SUM(CASE WHEN AttributeValue = 1 THEN 0 ELSE 1 END) Weakness
         FROM LatestResults
         GROUP BY TimePeriod, Ukprn, AttributeId
-
      ) upd
     ON pas.Ukprn = upd.Ukprn AND pas.AttributeId = upd.AttributeId AND pas.TimePeriod = upd.TimePeriod
     WHEN MATCHED THEN 
@@ -100,8 +97,6 @@ BEGIN
         VALUES (upd.Ukprn, upd.AttributeId, upd.Strength, upd.Weakness, @calcdate, upd.TimePeriod)
     WHEN NOT MATCHED BY SOURCE AND TimePeriod = 'All' THEN
         DELETE;
-    
-
 -------------------------------------------------------------------------------
 -- Process ProviderRatingSummary
 -------------------------------------------------------------------------------
@@ -111,12 +106,10 @@ BEGIN
 
     WITH LatestRatings 
     AS (
-        SELECT er1.FeedbackId, er1.ProviderRating, eft.Ukprn, TimePeriod
-        FROM (
+        SELECT er1.FeedbackId, er1.ProviderRating, eft.Ukprn, TimePeriod FROM (
           -- get latest feedback for each feedback target
             SELECT * FROM (
-                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, *
-                FROM (
+                SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, * FROM (
                     SELECT *
                           ,'AY'+RIGHT(YEAR(DATEADD(month,-7,DateTimeCompleted)),2)+RIGHT(YEAR(DATEADD(month,5,DateTimeCompleted)),2) TimePeriod
                     FROM [dbo].[EmployerFeedbackResult]
@@ -124,14 +117,13 @@ BEGIN
                 ) er3
             ) er2 
             -- handle change of logic from Aug 2024
-            WHERE TimePeriod < 'AY2425' OR seq = 1 
+            WHERE TimePeriod < @changeYear OR seq = 1 
         ) er1
         JOIN [dbo].[EmployerFeedback] eft on er1.FeedbackId = eft.FeedbackId
     )
     -- Get the ratings for required AY results for each UKPRN (not 'All')
     MERGE INTO [dbo].[ProviderRatingSummary] prs 
     USING (  
-
         -- Year-on-Year Results
         SELECT TimePeriod, Ukprn
               ,ProviderRating Rating 
@@ -148,30 +140,25 @@ BEGIN
         VALUES (upd.Ukprn, upd.Rating, upd.RatingCount, @calcdate, upd.TimePeriod)
     WHEN NOT MATCHED BY SOURCE AND prs.TimePeriod BETWEEN @limit1AY AND @timelimit THEN
         DELETE;
-
 -------------------------------------------------------------------------------
 -- Process ProviderStarsSummary
 -------------------------------------------------------------------------------
-
     -- Get the Stars for all eligible 5 Year results for each UKPRN
     WITH av1 
     AS(
         SELECT TimePeriod, Ukprn, ReviewCount,
             CASE
             -- handle change of logic from Aug 2024
-            WHEN TimePeriod < 'AY2425'
-            THEN
+            WHEN TimePeriod < @changeYear THEN
               (CASE
                WHEN AvgRating >= 3.0 + @oldTolerance THEN 4
                WHEN AvgRating >= 2.0 + @oldTolerance THEN 3
-               WHEN AvgRating >= 1.0 + @oldTolerance THEN 2
-               ELSE 1 END)
+               WHEN AvgRating >= 1.0 + @oldTolerance THEN 2 ELSE 1 END)
             ELSE
               (CASE
                WHEN AvgRating >= 3.0 + @newTolerance THEN 4
                WHEN AvgRating >= 2.0 + @newTolerance THEN 3
-               WHEN AvgRating >= 1.0 + @newTolerance THEN 2
-               ELSE 1 END) 
+               WHEN AvgRating >= 1.0 + @newTolerance THEN 2 ELSE 1 END) 
             END Stars
         FROM (
             SELECT TimePeriod, Ukprn, SUM(RatingCount) ReviewCount,
@@ -182,14 +169,12 @@ BEGIN
     )
     MERGE INTO [dbo].[ProviderStarsSummary] pss
     USING (
-        SELECT TimePeriod, Ukprn, ReviewCount, Stars
-        FROM av1
+        SELECT TimePeriod, Ukprn, ReviewCount, Stars FROM av1
         UNION ALL
         -- All, adding each year's results
         SELECT 'All' TimePeriod, Ukprn
                ,SUM(ReviewCount) ReviewCount 
-               ,ROUND(AVG(CAST(Stars AS FLOAT)), 0) Stars
-        FROM av1 
+               ,ROUND(AVG(CAST(Stars AS FLOAT)), 0) Stars FROM av1 
         WHERE TimePeriod >= @limit5AY  -- will ignore 'All'
         GROUP BY Ukprn        
     ) upd
