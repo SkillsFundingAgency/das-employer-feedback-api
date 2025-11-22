@@ -25,10 +25,11 @@ BEGIN
 
     -- Default is now, but can be overridden for testing / back dating
     SET @calcdate = ISNULL(@rundate,GETUTCDATE());
-    SET @endAY = [dbo].[ConvertAY](@calcdate);
-
+    --SET @endAY = [dbo].[ConvertAY](@calcdate);
+    SET @endAY = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,5,@calcdate)),2);
     -- Set limit to 5 years from calc date for 'All'
-    SET @limit5AY = [dbo].[ConvertAY](DATEADD(YEAR,-4,@calcdate));
+    --SET @limit5AY = [dbo].[ConvertAY](DATEADD(YEAR,-4,@calcdate));
+    SET @limit5AY = 'AY'+RIGHT(YEAR(DATEADD(month,-55,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,-43,@calcdate)),2);
     
     IF @reset = 1
     -- reset all 5 AYs
@@ -45,7 +46,8 @@ BEGIN
     END;
     SET @enddate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,5,@calcdate)))+'-Aug-01');
         
-    SET @startAY = [dbo].[ConvertAY](@startdate);
+    --SET @startAY = [dbo].[ConvertAY](@startdate);
+    SET @startAY = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@startdate)),2)+RIGHT(YEAR(DATEADD(month,5,@startdate)),2);
 
 -------------------------------------------------------------------------------
 -- Process ProviderAttributeSummary
@@ -60,7 +62,8 @@ BEGIN
                 SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, Id, FeedbackId, TimePeriod
                 FROM (
                     SELECT Id, FeedbackId, DateTimeCompleted
-                          ,[dbo].[ConvertAY](DateTimeCompleted) TimePeriod
+                        --,[dbo].[ConvertAY](DateTimeCompleted) TimePeriod                    
+                          ,'AY'+RIGHT(YEAR(DATEADD(month,-7,[DateTimeCompleted])),2)+RIGHT(YEAR(DATEADD(month,5,[DateTimeCompleted])),2)  TimePeriod
                     FROM [dbo].[EmployerFeedbackResult]
                     WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
                 ) er3
@@ -133,7 +136,8 @@ BEGIN
                 SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, FeedbackId, ProviderRating, TimePeriod
                 FROM (
                     SELECT FeedbackId, ProviderRating, DateTimeCompleted
-                          ,[dbo].[ConvertAY](DateTimeCompleted) TimePeriod
+                        --,[dbo].[ConvertAY](DateTimeCompleted) TimePeriod
+                          ,'AY'+RIGHT(YEAR(DATEADD(month,-7,[DateTimeCompleted])),2)+RIGHT(YEAR(DATEADD(month,5,[DateTimeCompleted])),2) TimePeriod
                     FROM [dbo].[EmployerFeedbackResult]
                     WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
                 ) er3
