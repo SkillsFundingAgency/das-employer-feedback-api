@@ -30,9 +30,10 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             services.AddScoped<IFeedbackTransactionContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderAttributeContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IProviderRatingSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IProviderAttributeSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
+            services.AddScoped<IProviderStarsSummaryContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<ISettingsContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
             services.AddScoped<IAccountContext>(sp => sp.GetRequiredService<EmployerFeedbackDataContext>());
-
             services.AddScoped<IDateTimeHelper, UtcTimeProvider>();
 
             services.AddSingleton<IBackgroundTaskQueue, BackgroundTaskQueue>();

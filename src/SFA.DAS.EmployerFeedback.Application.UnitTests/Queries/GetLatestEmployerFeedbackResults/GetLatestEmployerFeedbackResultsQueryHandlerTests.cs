@@ -17,7 +17,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
     {
         [Test, AutoData]
         public async Task And_NoResults_Then_NullReturned(
-         [Frozen] Mock<IEmployerFeedbackContext> context)
+            [Frozen] Mock<IAccountContext> context)
         {
             // Arrange
             var accountId = 123L;
@@ -37,8 +37,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
         }
 
         [Test, AutoData]
-        public async Task And_ResultsExist_Then_MapsToDto_WithResultOnlyWhenCompletedDatePresent(
-            [Frozen] Mock<IEmployerFeedbackContext> context)
+        public async Task And_ResultsExist_Then_MapsToDto_FilteringOutIncompleteResults(
+            [Frozen] Mock<IAccountContext> context)
         {
             // Arrange
             var accountId = 555L;
@@ -65,6 +65,15 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
                     DateTimeCompleted = null,
                     ProviderRating = null,
                     FeedbackSource = null
+                },
+                new LatestEmployerFeedbackResults
+                {
+                    AccountId = accountId,
+                    AccountName = "ACME Ltd",
+                    Ukprn = null,
+                    DateTimeCompleted = null,
+                    ProviderRating = null,
+                    FeedbackSource = null
                 }
             };
 
@@ -82,21 +91,55 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
             result!.AccountId.Should().Be(accountId);
             result.AccountName.Should().Be("ACME Ltd");
 
-            result.EmployerFeedbacks.Should().HaveCount(2);
+            // only 1 valid result should remain
+            result.EmployerFeedbacks.Should().HaveCount(1);
 
-            var first = result.EmployerFeedbacks.Single(x => x.Ukprn == 11111111);
+            var first = result.EmployerFeedbacks.Single();
+            first.Ukprn.Should().Be(11111111);
             first.Result.Should().NotBeNull();
             first.Result!.DateTimeCompleted.Should().Be(dt);
             first.Result.ProviderRating.Should().Be("Good");
             first.Result.FeedbackSource.Should().Be(1);
+        }
 
-            var second = result.EmployerFeedbacks.Single(x => x.Ukprn == 22222222);
-            second.Result.Should().BeNull();
+        [Test, AutoData]
+        public async Task And_AllResultsFilteredOut_Then_EmployerFeedbacksIsNull(
+            [Frozen] Mock<IAccountContext> context)
+        {
+            // Arrange
+            var accountId = 888L;
+            var userRef = Guid.NewGuid();
+
+            var source = new List<LatestEmployerFeedbackResults>
+            {
+                new LatestEmployerFeedbackResults
+                {
+                    AccountId = accountId,
+                    AccountName = "No Feedback Ltd",
+                    Ukprn = 12345678,
+                    DateTimeCompleted = null,
+                    ProviderRating = null,
+                    FeedbackSource = null
+                }
+            };
+
+            context.Setup(c => c.GetLatestResultsPerAccount(accountId, userRef, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(source);
+
+            var handler = new GetLatestEmployerFeedbackResultsQueryHandler(context.Object);
+            var query = new GetLatestEmployerFeedbackResultsQuery { AccountId = accountId, UserRef = userRef };
+
+            // Act
+            var result = await handler.Handle(query, CancellationToken.None);
+
+            // Assert
+            result.Should().NotBeNull();
+            result!.EmployerFeedbacks.Should().BeNull();
         }
 
         [Test, AutoData]
         public async Task And_ContextReturnsOrderedByUkprn_Then_HandlerPreservesOrder(
-            [Frozen] Mock<IEmployerFeedbackContext> context)
+            [Frozen] Mock<IAccountContext> context)
         {
             // Arrange
             var accountId = 77L;
@@ -107,22 +150,23 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
                 new LatestEmployerFeedbackResults
                 {
                     AccountId = accountId, AccountName = "Widgets Ltd",
-                    Ukprn = 10000002, DateTimeCompleted = null
+                    Ukprn = 10000002, DateTimeCompleted = new DateTime(2025, 07, 01, 0, 0, 0, DateTimeKind.Utc),
+                    ProviderRating = "Excellent", FeedbackSource = 1
                 },
                 new LatestEmployerFeedbackResults
                 {
                     AccountId = accountId, AccountName = "Widgets Ltd",
-                    Ukprn = 10000005, DateTimeCompleted = new DateTime(2025, 07, 01, 0, 0, 0, DateTimeKind.Utc),
-                    ProviderRating = "Excellent",
-                    FeedbackSource = 1
+                    Ukprn = 10000005, DateTimeCompleted = new DateTime(2025, 07, 02, 0, 0, 0, DateTimeKind.Utc),
+                    ProviderRating = "Good", FeedbackSource = 1
                 },
                 new LatestEmployerFeedbackResults
                 {
                     AccountId = accountId, AccountName = "Widgets Ltd",
-                    Ukprn = 10000009, DateTimeCompleted = null
+                    Ukprn = 10000009, DateTimeCompleted = new DateTime(2025, 07, 03, 0, 0, 0, DateTimeKind.Utc),
+                    ProviderRating = "Average", FeedbackSource = 1
                 }
             }
-            .OrderBy(x => x.Ukprn) // force order on arrange so it can be checked on assert
+            .OrderBy(x => x.Ukprn)
             .ToList();
 
             context.Setup(c => c.GetLatestResultsPerAccount(accountId, userRef, It.IsAny<CancellationToken>()))
@@ -136,7 +180,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetLatestEmploy
 
             // Assert
             result.Should().NotBeNull();
-            result!.EmployerFeedbacks.Select(x => x.Ukprn)
+            result!.EmployerFeedbacks.Should().HaveCount(3);
+            result.EmployerFeedbacks!.Select(x => x.Ukprn)
                 .Should().ContainInOrder(10000002, 10000005, 10000009);
         }
     }

@@ -15,7 +15,7 @@ namespace SFA.DAS.EmployerFeedback.Data.Configuration
             entity.HasOne(e => e.EmployerFeedbackResult)
                 .WithMany(r => r.ProviderAttributes)
                 .HasForeignKey(e => e.EmployerFeedbackResultId);
-            entity.HasOne<Domain.Entities.Attributes>()
+            entity.HasOne(e => e.Attribute) 
                 .WithMany()
                 .HasForeignKey(e => e.AttributeId);
         }

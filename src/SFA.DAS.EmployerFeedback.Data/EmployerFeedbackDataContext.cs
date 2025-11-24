@@ -21,6 +21,8 @@ namespace SFA.DAS.EmployerFeedback.Data
         IFeedbackTransactionContext,
         IProviderAttributeContext,
         IProviderRatingSummaryContext,
+        IProviderStarsSummaryContext,
+        IProviderAttributeSummaryContext,
         ISettingsContext
     {
         private const string AzureResource = "https://database.windows.net/";
@@ -28,22 +30,25 @@ namespace SFA.DAS.EmployerFeedback.Data
         private readonly ChainedTokenCredential _chainedTokenCredentialProvider;
 
         public virtual DbSet<Account> Accounts { get; set; }
-        public virtual DbSet<Attributes> Attributes { get; set; }
+        public virtual DbSet<Attribute> Attributes { get; set; }
         public virtual DbSet<Domain.Entities.EmployerFeedback> EmployerFeedbacks { get; set; }
         public virtual DbSet<EmployerFeedbackResult> EmployerFeedbackResults { get; set; } = null!;
         public virtual DbSet<FeedbackTransaction> FeedbackTransactions { get; set; }
-
         public virtual DbSet<ProviderAttribute> ProviderAttributes { get; set; }
         public virtual DbSet<ProviderRatingSummary> ProviderRatingSummaries { get; set; } = null!;
+        public virtual DbSet<ProviderStarsSummary> ProviderStarsSummaries { get; set; }
+        public virtual DbSet<ProviderAttributeSummary> ProviderAttributeSummaries { get; set; }
         public virtual DbSet<Settings> Settings { get; set; }
 
         DbSet<Account> IEntityContext<Account>.Entities => Accounts;
-        DbSet<Attributes> IEntityContext<Attributes>.Entities => Attributes;
+        DbSet<Attribute> IEntityContext<Attribute>.Entities => Attributes;
         DbSet<Domain.Entities.EmployerFeedback> IEntityContext<Domain.Entities.EmployerFeedback>.Entities => EmployerFeedbacks;
         DbSet<EmployerFeedbackResult> IEntityContext<EmployerFeedbackResult>.Entities => EmployerFeedbackResults;
         DbSet<FeedbackTransaction> IEntityContext<FeedbackTransaction>.Entities => FeedbackTransactions;
         DbSet<ProviderRatingSummary> IEntityContext<ProviderRatingSummary>.Entities => ProviderRatingSummaries;
         DbSet<ProviderAttribute> IEntityContext<ProviderAttribute>.Entities => ProviderAttributes;
+        DbSet<ProviderStarsSummary> IEntityContext<ProviderStarsSummary>.Entities => ProviderStarsSummaries;
+        DbSet<ProviderAttributeSummary> IEntityContext<ProviderAttributeSummary>.Entities => ProviderAttributeSummaries;
         DbSet<Settings> IEntityContext<Settings>.Entities => Settings;
 
 
@@ -93,6 +98,10 @@ namespace SFA.DAS.EmployerFeedback.Data
             modelBuilder.ApplyConfiguration(new FeedbackTransactionConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderAttributeConfiguration());
             modelBuilder.ApplyConfiguration(new ProviderRatingSummaryConfiguration());
+
+            modelBuilder.ApplyConfiguration(new ProviderAttributeSummaryConfiguration());
+            modelBuilder.ApplyConfiguration(new ProviderStarsSummaryConfiguration());
+
             modelBuilder.ApplyConfiguration(new SettingsConfiguration());
 
             base.OnModelCreating(modelBuilder);
