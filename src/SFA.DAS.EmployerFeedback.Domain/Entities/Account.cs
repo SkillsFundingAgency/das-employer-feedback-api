@@ -10,5 +10,6 @@ namespace SFA.DAS.EmployerFeedback.Domain.Entities
         public DateTime? CheckedOn { get; set; }
 
         public ICollection<EmployerFeedback> EmployerFeedbacks { get; set; }
+        public ICollection<FeedbackTransaction> FeedbackTransactions { get; set; }
     }
 }

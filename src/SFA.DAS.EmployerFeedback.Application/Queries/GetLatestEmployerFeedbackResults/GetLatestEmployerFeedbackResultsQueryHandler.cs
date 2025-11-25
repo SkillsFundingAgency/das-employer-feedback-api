@@ -8,36 +8,41 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetLatestEmployerFeedback
 {
     public class GetLatestEmployerFeedbackResultsQueryHandler : IRequestHandler<GetLatestEmployerFeedbackResultsQuery, GetLatestEmployerFeedbackResultsQueryResult>
     {
-        private readonly IEmployerFeedbackContext _entityContext;
+        private readonly IAccountContext _accountContext;
 
-        public GetLatestEmployerFeedbackResultsQueryHandler(IEmployerFeedbackContext entityContext)
+        public GetLatestEmployerFeedbackResultsQueryHandler(IAccountContext accountContext)
         {
-            _entityContext = entityContext;
+            _accountContext = accountContext;
         }
 
         public async Task<GetLatestEmployerFeedbackResultsQueryResult> Handle(GetLatestEmployerFeedbackResultsQuery request, CancellationToken cancellationToken)
         {
-            var results = await _entityContext.GetLatestResultsPerAccount(request.AccountId, request.UserRef, cancellationToken);
-            
+            var results = await _accountContext.GetLatestResultsPerAccount(
+                request.AccountId, request.UserRef, cancellationToken);
+
             var first = results.FirstOrDefault();
             if (first == null)
                 return null;
+
+            var items = results
+                .Where(x => x.Ukprn.HasValue && x.DateTimeCompleted != null)
+                .Select(x => new EmployerFeedbackItem
+                {
+                    Ukprn = x.Ukprn.Value,
+                    Result = new FeedbackResultItem
+                    {
+                        DateTimeCompleted = x.DateTimeCompleted!.Value,
+                        ProviderRating = x.ProviderRating,
+                        FeedbackSource = x.FeedbackSource!.Value
+                    }
+                })
+                .ToList();
 
             return new GetLatestEmployerFeedbackResultsQueryResult
             {
                 AccountId = first.AccountId,
                 AccountName = first.AccountName,
-                EmployerFeedbacks = results.Select(x => 
-                    new EmployerFeedbackItem
-                    { 
-                        Ukprn = x.Ukprn, 
-                        Result = x.DateTimeCompleted != null ? new FeedbackResultItem 
-                        { 
-                            DateTimeCompleted = x.DateTimeCompleted.Value, 
-                            ProviderRating = x.ProviderRating, 
-                            FeedbackSource = x.FeedbackSource.Value 
-                        } : null
-                    }).ToList()
+                EmployerFeedbacks = items.Count == 0 ? null : items
             };
         }
     }

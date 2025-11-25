@@ -8,7 +8,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Extensions
     {
         public static void VerifyLogErrorContains<TLogger>(this Mock<ILogger<TLogger>> logger,
             string messageSubstring,
-            Exception? exception = null,
+            Exception exception = null,
             Times? times = null)
         {
             logger.Verify(x => x.Log(

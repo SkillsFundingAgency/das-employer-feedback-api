@@ -15,20 +15,20 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAttributes
     public class GetAttributesQueryHandlerTests
     {
         [Test, AutoData]
-        public async Task Handle_ReturnsMappedAttributes(List<Attributes> entities)
+        public async Task Handle_ReturnsMappedAttributes(List<Attribute> entities)
         {
             var mockContext = new Mock<IAttributeContext>();
             mockContext.Setup(x => x.GetAll()).ReturnsAsync(entities);
             var handler = new GetAttributesQueryHandler(mockContext.Object);
             var result = await handler.Handle(new GetAttributesQuery(), CancellationToken.None);
-            result.Attributes.Should().BeEquivalentTo(entities.Select(e => (Domain.Models.Attributes)e));
+            result.Attributes.Should().BeEquivalentTo(entities.Select(e => (Domain.Models.Attribute)e));
         }
 
         [Test]
         public async Task Handle_ReturnsEmptyList_WhenNoEntitiesExist()
         {
             var mockContext = new Mock<IAttributeContext>();
-            mockContext.Setup(x => x.GetAll()).ReturnsAsync(new List<Attributes>());
+            mockContext.Setup(x => x.GetAll()).ReturnsAsync(new List<Attribute>());
             var handler = new GetAttributesQueryHandler(mockContext.Object);
             var result = await handler.Handle(new GetAttributesQuery(), CancellationToken.None);
             result.Attributes.Should().BeEmpty();
@@ -37,10 +37,10 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAttributes
         [Test]
         public async Task Handle_MapsAllPropertiesCorrectly()
         {
-            var entities = new List<Attributes>
+            var entities = new List<Attribute>
             {
-                new Attributes { AttributeId = 1, AttributeName = "Name1" },
-                new Attributes { AttributeId = 2, AttributeName = "Name2" }
+                new Attribute { AttributeId = 1, AttributeName = "Name1" },
+                new Attribute { AttributeId = 2, AttributeName = "Name2" }
             };
             var mockContext = new Mock<IAttributeContext>();
             mockContext.Setup(x => x.GetAll()).ReturnsAsync(entities);

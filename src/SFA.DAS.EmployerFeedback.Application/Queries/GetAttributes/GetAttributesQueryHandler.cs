@@ -21,7 +21,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes
 
             return new GetAttributesQueryResult
             {
-                Attributes = attributes.Select(entity => (Domain.Models.Attributes)entity).ToList()
+                Attributes = attributes.Select(entity => (Domain.Models.Attribute)entity).ToList()
             };
         }
     }

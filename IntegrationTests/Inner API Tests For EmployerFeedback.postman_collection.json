@@ -1,0 +1,426 @@
+{
+	"info": {
+		"_postman_id": "9b90607b-e1ee-44ee-9f2a-ae903d03b9e9",
+		"name": "Inner API Tests For EmployerFeedback",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "21174429"
+	},
+	"item": [
+		{
+			"name": "Attributes-GetAttributes",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/attributes",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"attributes"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "DataLoad-GenerateFeedbackSummaries",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/DataLoad/generate-feedback-summaries",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"DataLoad",
+						"generate-feedback-summaries"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EmployerFeedbackResult-SubmitEmployerFeedback",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"userRef\": \"3fa85f64-5717-4562-b3fc-2c963f66afa6\",\r\n  \"ukprn\": 10005310,\r\n  \"accountId\": 1,\r\n  \"providerRating\": \"VeryPoor\",\r\n  \"feedbackSource\": 1,\r\n  \"providerAttributes\": [\r\n    {\r\n      \"attributeId\": 1,\r\n      \"attributeValue\": 1\r\n    }a\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/EmployerFeedbackResult",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"EmployerFeedbackResult"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Settings-UpsertRefreshALELastRunDateSetting",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"value\": \"2023-11-11 17:08:08.3143180\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/settings/RefreshALELastRunDate",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"settings",
+						"RefreshALELastRunDate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Settings-GetRefreshALELastRunDateSetting",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/settings/RefreshALELastRunDate",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"settings",
+						"RefreshALELastRunDate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accounts-UpsertAccounts",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"accounts\": [\r\n    {\r\n      \"accountId\": 1,\r\n      \"accountName\": \"string\"\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/accounts",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EmployerFeedbackResult-GetOverallEmployerFeedbackResult",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/EmployerFeedbackResult/10000028",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"EmployerFeedbackResult",
+						"10000028"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EmployerFeedbackResult-GetYearlyEmployerFeedbackResult",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/EmployerFeedbackResult/10000028/annual",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"EmployerFeedbackResult",
+						"10000028",
+						"annual"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EmployerFeedbackResult-GetEmployerFeedbackResultForAcademicYear",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/EmployerFeedbackResult/10000028/annual/AY2425",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"EmployerFeedbackResult",
+						"10000028",
+						"annual",
+						"AY2425"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EmployerFeedbackResult-GetEmployerFeedbackRatingsResult",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/EmployerFeedbackResult/reviews?timePeriod=All",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"EmployerFeedbackResult",
+						"reviews"
+					],
+					"query": [
+						{
+							"key": "timePeriod",
+							"value": "All"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "EmployerFeedback-GetLatestResults",
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "https://at-employer-feedback-api.apprenticeships.education.gov.uk/api/employerfeedback?accountId=1&userRef=af597ef9-081c-4f05-ac3d-6a7046933554",
+					"protocol": "https",
+					"host": [
+						"at-employer-feedback-api",
+						"apprenticeships",
+						"education",
+						"gov",
+						"uk"
+					],
+					"path": [
+						"api",
+						"employerfeedback"
+					],
+					"query": [
+						{
+							"key": "accountId",
+							"value": "1"
+						},
+						{
+							"key": "userRef",
+							"value": "af597ef9-081c-4f05-ac3d-6a7046933554"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

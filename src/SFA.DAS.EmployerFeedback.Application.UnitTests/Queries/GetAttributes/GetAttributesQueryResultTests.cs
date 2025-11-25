@@ -10,7 +10,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetAttributes
     public class GetAttributesQueryResultTests
     {
         [Test, AutoData]
-        public void Properties_SetAndGet_ShouldReturnExpectedValues(List<Attributes> attributes)
+        public void Properties_SetAndGet_ShouldReturnExpectedValues(List<Attribute> attributes)
         {
             var result = new GetAttributesQueryResult { Attributes = attributes };
             result.Attributes.Should().BeEquivalentTo(attributes);
