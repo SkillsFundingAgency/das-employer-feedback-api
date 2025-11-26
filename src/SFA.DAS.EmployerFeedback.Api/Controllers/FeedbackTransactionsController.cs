@@ -4,6 +4,7 @@ using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransaction;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransactionsBatch;
 
 namespace SFA.DAS.EmployerFeedback.Api.Controllers
@@ -38,6 +39,32 @@ namespace SFA.DAS.EmployerFeedback.Api.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving feedback transactions batch");
+                return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
+            }
+        }
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetFeedbackTransaction(long id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest($"Id {id} unknown");
+                }
+
+                var query = new GetFeedbackTransactionQuery { Id = id };
+                var result = await _mediator.Send(query);
+
+                if (result == null)
+                {
+                    return BadRequest($"Id {id} unknown");
+                }
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving feedback transaction with Id: {Id}", id);
                 return StatusCode(StatusCodes.Status500InternalServerError, "An unexpected error occurred.");
             }
         }

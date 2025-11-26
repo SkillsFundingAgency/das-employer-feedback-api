@@ -25,5 +25,11 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                 .Take(batchSize)
                 .Select(ft => ft.Id)
                 .ToListAsync(cancellationToken);
+
+        public async Task<FeedbackTransaction> GetByIdWithAccountAsync(long id, CancellationToken cancellationToken = default)
+            => await Entities
+                .Include(ft => ft.Account)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(ft => ft.Id == id, cancellationToken);
     }
 }
