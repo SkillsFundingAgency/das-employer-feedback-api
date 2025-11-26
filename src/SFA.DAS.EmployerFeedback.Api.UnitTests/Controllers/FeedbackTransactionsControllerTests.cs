@@ -10,8 +10,11 @@ using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransaction;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransactionsBatch;
 using System;
 using System.Collections.Generic;
+using SFA.DAS.EmployerFeedback.Application.Commands.UpdateFeedbackTransaction;
+using SFA.DAS.EmployerFeedback.Application.Models;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentValidation;
 
 namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
 {
@@ -191,6 +194,100 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             var objectResult = result as ObjectResult;
             objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
             objectResult.Value.Should().Be("An unexpected error occurred.");
+        }
+
+        [Test]
+        public async Task UpdateFeedbackTransaction_ReturnsNoContent_WhenSuccessful()
+        {
+            var id = 123L;
+            var request = new UpdateFeedbackTransactionRequest
+            {
+                TemplateId = Guid.NewGuid(),
+                SentCount = 1,
+                SentDate = DateTime.UtcNow
+            };
+
+            _mediator.Setup(m => m.Send(It.IsAny<UpdateFeedbackTransactionCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Unit.Value);
+
+            var result = await _controller.UpdateFeedbackTransaction(id, request);
+
+            var noContentResult = result as NoContentResult;
+            Assert.IsNotNull(noContentResult);
+            Assert.AreEqual(204, noContentResult.StatusCode);
+
+            _mediator.Verify(m => m.Send(It.Is<UpdateFeedbackTransactionCommand>(c =>
+                c.Id == id &&
+                c.TemplateId == request.TemplateId &&
+                c.SentCount == request.SentCount &&
+                c.SentDate == request.SentDate),
+                It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Test]
+        public async Task UpdateFeedbackTransaction_ReturnsBadRequest_WhenValidationExceptionThrown()
+        {
+            var id = 123L;
+            var request = new UpdateFeedbackTransactionRequest
+            {
+                TemplateId = Guid.NewGuid(),
+                SentCount = 1,
+                SentDate = DateTime.UtcNow
+            };
+
+            _mediator.Setup(m => m.Send(It.IsAny<UpdateFeedbackTransactionCommand>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new ValidationException("Validation failed"));
+
+            var result = await _controller.UpdateFeedbackTransaction(id, request);
+
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult);
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual("Validation failed", badRequestResult.Value);
+        }
+
+        [Test]
+        public async Task UpdateFeedbackTransaction_ReturnsBadRequest_WhenTransactionNotFound()
+        {
+            var id = 123L;
+            var request = new UpdateFeedbackTransactionRequest
+            {
+                TemplateId = Guid.NewGuid(),
+                SentCount = 1,
+                SentDate = DateTime.UtcNow
+            };
+
+            _mediator.Setup(m => m.Send(It.IsAny<UpdateFeedbackTransactionCommand>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new InvalidOperationException("FeedbackTransaction with Id 123 not found"));
+
+            var result = await _controller.UpdateFeedbackTransaction(id, request);
+
+            var badRequestResult = result as BadRequestObjectResult;
+            Assert.IsNotNull(badRequestResult);
+            Assert.AreEqual(400, badRequestResult.StatusCode);
+            Assert.AreEqual("FeedbackTransaction with id 123 not found", badRequestResult.Value);
+        }
+
+        [Test]
+        public async Task UpdateFeedbackTransaction_ReturnsInternalServerError_WhenUnexpectedExceptionThrown()
+        {
+            var id = 123L;
+            var request = new UpdateFeedbackTransactionRequest
+            {
+                TemplateId = Guid.NewGuid(),
+                SentCount = 1,
+                SentDate = DateTime.UtcNow
+            };
+
+            _mediator.Setup(m => m.Send(It.IsAny<UpdateFeedbackTransactionCommand>(), It.IsAny<CancellationToken>()))
+                .ThrowsAsync(new Exception("Unexpected error"));
+
+            var result = await _controller.UpdateFeedbackTransaction(id, request);
+
+            var objectResult = result as ObjectResult;
+            Assert.IsNotNull(objectResult);
+            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            Assert.AreEqual("An unexpected error occurred.", objectResult.Value);
         }
     }
 }

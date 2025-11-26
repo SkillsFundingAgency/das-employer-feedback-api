@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using FluentAssertions;
 using SFA.DAS.EmployerFeedback.Api.Controllers;
 using SFA.DAS.EmployerFeedback.Application.Commands.UpsertRefreshALELastRunDateSetting;
 using SFA.DAS.EmployerFeedback.Application.Models;
@@ -40,12 +41,13 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
                 .ReturnsAsync(setting);
 
             var result = await _controller.GetRefreshALELastRunDateSetting();
+            
+            result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
+            okResult.StatusCode.Should().Be(StatusCodes.Status200OK);
             var returned = okResult.Value as GetRefreshALELastRunDateSettingQueryResult;
-            Assert.IsNotNull(returned);
-            Assert.AreEqual(nowString, returned.Value);
+            returned.Should().NotBeNull();
+            returned.Value.Should().Be(nowString);
             _mediator.Verify(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -56,12 +58,13 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(setting);
             var result = await _controller.GetRefreshALELastRunDateSetting();
+            
+            result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.AreEqual(StatusCodes.Status200OK, okResult.StatusCode);
+            okResult.StatusCode.Should().Be(StatusCodes.Status200OK);
             var returned = okResult.Value as GetRefreshALELastRunDateSettingQueryResult;
-            Assert.IsNotNull(returned);
-            Assert.IsNull(returned.Value);
+            returned.Should().NotBeNull();
+            returned.Value.Should().BeNull();
         }
 
         [Test]
@@ -70,10 +73,11 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             _mediator.Setup(x => x.Send(It.IsAny<GetRefreshALELastRunDateSettingQuery>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("fail"));
             var result = await _controller.GetRefreshALELastRunDateSetting();
+            
+            result.Should().BeOfType<ObjectResult>();
             var objectResult = result as ObjectResult;
-            Assert.IsNotNull(objectResult);
-            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
-            Assert.AreEqual("An unexpected error occurred.", objectResult.Value);
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+            objectResult.Value.Should().Be("An unexpected error occurred.");
         }
 
         [Test]
@@ -83,7 +87,8 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             _mediator.Setup(x => x.Send(It.Is<UpsertRefreshALELastRunDateSettingCommand>(c => c.Value == req.Value), It.IsAny<CancellationToken>())).ReturnsAsync(Unit.Value);
 
             var result = await _controller.UpsertRefreshALELastRunDateSetting(req);
-            Assert.IsInstanceOf<NoContentResult>(result);
+            
+            result.Should().BeOfType<NoContentResult>();
             _mediator.Verify(x => x.Send(It.IsAny<UpsertRefreshALELastRunDateSettingCommand>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -93,10 +98,11 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             var req = new SettingRequest { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertRefreshALELastRunDateSettingCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new ValidationException("validation failed"));
             var result = await _controller.UpsertRefreshALELastRunDateSetting(req);
+            
+            result.Should().BeOfType<BadRequestObjectResult>();
             var badRequest = result as BadRequestObjectResult;
-            Assert.IsNotNull(badRequest);
-            Assert.AreEqual(StatusCodes.Status400BadRequest, badRequest.StatusCode);
-            Assert.AreEqual("validation failed", badRequest.Value);
+            badRequest.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+            badRequest.Value.Should().Be("validation failed");
         }
 
         [Test]
@@ -105,9 +111,10 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             var req = new SettingRequest { Value = DateTime.UtcNow.ToString(CultureInfo.InvariantCulture) };
             _mediator.Setup(x => x.Send(It.IsAny<UpsertRefreshALELastRunDateSettingCommand>(), It.IsAny<CancellationToken>())).ThrowsAsync(new Exception("fail"));
             var result = await _controller.UpsertRefreshALELastRunDateSetting(req);
+            
+            result.Should().BeOfType<ObjectResult>();
             var objectResult = result as ObjectResult;
-            Assert.IsNotNull(objectResult);
-            Assert.AreEqual(StatusCodes.Status500InternalServerError, objectResult.StatusCode);
+            objectResult.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
         }
     }
 }
