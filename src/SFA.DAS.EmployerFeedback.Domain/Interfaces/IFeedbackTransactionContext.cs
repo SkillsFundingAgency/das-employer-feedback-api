@@ -1,4 +1,6 @@
 using SFA.DAS.EmployerFeedback.Domain.Entities;
+using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -15,5 +17,13 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
                 .Where(ft => ft.AccountId == accountId)
                 .OrderByDescending(ft => ft.CreatedOn)
                 .FirstOrDefaultAsync(cancellationToken);
+
+        public async Task<List<long>> GetFeedbackTransactionsBatchAsync(int batchSize, DateTime currentDateTime, CancellationToken cancellationToken = default)
+            => await Entities
+                .Where(ft => ft.SendAfter < currentDateTime && ft.SentDate == null)
+                .OrderBy(ft => ft.Id)
+                .Take(batchSize)
+                .Select(ft => ft.Id)
+                .ToListAsync(cancellationToken);
     }
 }
