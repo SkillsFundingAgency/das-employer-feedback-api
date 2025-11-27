@@ -1,8 +1,8 @@
 -- Database Cleanup: Remove Legacy Tables
 
-IF EXISTS (SELECT 1 FROM sys.foreign_keys WHERE name = 'FK_EmployerFeedbackFeedbackId')
+IF OBJECT_ID('[dbo].[EmployerSurveyHistory]', 'U') IS NOT NULL
 BEGIN
-    ALTER TABLE [dbo].[EmployerSurveyCodes] DROP CONSTRAINT [FK_EmployerFeedbackFeedbackId]
+    DROP TABLE [dbo].[EmployerSurveyHistory]
 END
 
 GO
@@ -12,10 +12,6 @@ BEGIN
     DROP TABLE [dbo].[EmployerSurveyCodes]
 END
 
-IF OBJECT_ID('[dbo].[EmployerSurveyHistory]', 'U') IS NOT NULL
-BEGIN
-    DROP TABLE [dbo].[EmployerSurveyHistory]
-END
 
 IF OBJECT_ID('[dbo].[Users]', 'U') IS NOT NULL
 BEGIN
