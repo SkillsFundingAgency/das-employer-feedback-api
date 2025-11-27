@@ -3,8 +3,8 @@
 
 CREATE PROCEDURE [dbo].[GenerateFeedbackSummaries]
 (
-    @rundate datetime = NULL,
-    @reset int = 0  -- set to 1 to do a full reset
+    @reset int = 0,            -- set to 1 to do a full reset of the past 5 years
+    @rundate datetime = NULL   -- set this for TESTING only
 )
 AS
 
@@ -25,10 +25,8 @@ BEGIN
 
     -- Default is now, but can be overridden for testing / back dating
     SET @calcdate = ISNULL(@rundate,GETUTCDATE());
-    --SET @endAY = [dbo].[ConvertAY](@calcdate);
     SET @endAY = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,5,@calcdate)),2);
     -- Set limit to 5 years from calc date for 'All'
-    --SET @limit5AY = [dbo].[ConvertAY](DATEADD(YEAR,-4,@calcdate));
     SET @limit5AY = 'AY'+RIGHT(YEAR(DATEADD(month,-55,@calcdate)),2)+RIGHT(YEAR(DATEADD(month,-43,@calcdate)),2);
     
     IF @reset = 1
@@ -36,17 +34,15 @@ BEGIN
         SET @startdate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-55,@calcdate)))+'-Aug-01');
     ELSE
     BEGIN
-    -- complication if calcdate is in a new AY, but last update was in previous AY
-    -- in which case need to process current and previous AYs
         SELECT @lastupdate = MAX(UpdatedOn) FROM [dbo].[ProviderAttributeSummary];
         IF @lastupdate IS NOT NULL
+        -- last update may be in the previous AY, in which case will process current AY and previous AY
             SET @startdate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-7,@lastupdate)))+'-Aug-01');
         ELSE
             SET @startdate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,-7,@calcdate)))+'-Aug-01');
     END;
     SET @enddate = CONVERT(date,CONVERT(varchar,YEAR(DATEADD(month,5,@calcdate)))+'-Aug-01');
         
-    --SET @startAY = [dbo].[ConvertAY](@startdate);
     SET @startAY = 'AY'+RIGHT(YEAR(DATEADD(month,-7,@startdate)),2)+RIGHT(YEAR(DATEADD(month,5,@startdate)),2);
 
 -------------------------------------------------------------------------------
@@ -62,7 +58,6 @@ BEGIN
                 SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, Id, FeedbackId, TimePeriod
                 FROM (
                     SELECT Id, FeedbackId, DateTimeCompleted
-                        --,[dbo].[ConvertAY](DateTimeCompleted) TimePeriod                    
                           ,'AY'+RIGHT(YEAR(DATEADD(month,-7,[DateTimeCompleted])),2)+RIGHT(YEAR(DATEADD(month,5,[DateTimeCompleted])),2)  TimePeriod
                     FROM [dbo].[EmployerFeedbackResult]
                     WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
@@ -136,7 +131,6 @@ BEGIN
                 SELECT ROW_NUMBER() OVER (PARTITION BY TimePeriod,FeedbackId ORDER BY DateTimeCompleted DESC) seq, FeedbackId, ProviderRating, TimePeriod
                 FROM (
                     SELECT FeedbackId, ProviderRating, DateTimeCompleted
-                        --,[dbo].[ConvertAY](DateTimeCompleted) TimePeriod
                           ,'AY'+RIGHT(YEAR(DATEADD(month,-7,[DateTimeCompleted])),2)+RIGHT(YEAR(DATEADD(month,5,[DateTimeCompleted])),2) TimePeriod
                     FROM [dbo].[EmployerFeedbackResult]
                     WHERE (@reset =1 OR (DateTimeCompleted >= @startdate AND DateTimeCompleted < @enddate))
