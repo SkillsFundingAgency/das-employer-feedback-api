@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -60,37 +60,16 @@
     <Folder Include="Properties" />
     <Folder Include="Tables" />
     <Folder Include="StoredProcedures" />
-    <Folder Include="Views" />
-    <Folder Include="Post Deployment" />
-    <Folder Include="Types" />
+    <Folder Include="Post-Deployment" />
   </ItemGroup>
   <ItemGroup>
     <RefactorLog Include="SFA.DAS.EmployerFeedback.Database.refactorlog" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\Providers.sql" />
-    <Build Include="Tables\Users.sql" />
     <Build Include="Tables\EmployerFeedback.sql" />
-    <Build Include="StoredProcedures\UpsertProviders.sql" />
-    <Build Include="StoredProcedures\UpsertFeedback.sql" />
-    <Build Include="StoredProcedures\ResetFeedback.sql" />
-    <Build Include="StoredProcedures\UpsertUsers.sql" />
-    <Build Include="Views\vw_EmployerSurveyInvites.sql" />
-    <Build Include="Views\vw_FeedbackToSend.sql" />
-    <Build Include="Tables\EmployerSurveyHistory.sql" />
-    <Build Include="Views\vw_EmployerSurveyHistoryComplete.sql" />
-    <Build Include="StoredProcedures\GetEmployerSurveyHistory.sql" />
-    <Build Include="StoredProcedures\GetSurveyInvitesToSend.sql" />
-    <Build Include="StoredProcedures\GetSurveyRemindersToSend.sql" />
-    <Build Include="Types\ProviderTemplate.sql" />
-    <PostDeploy Include="Post Deployment\PostDeployment.sql" />
-    <None Include="Post Deployment\DropUserTemplateTableType.sql" />
-    <Build Include="StoredProcedures\GetLatestFeedbackInviteSentDate.sql" />
     <Build Include="Tables\EmployerFeedbackResult.sql" />
     <Build Include="Tables\ProviderAttributes.sql" />
     <Build Include="Tables\Attributes.sql" />
-    <Build Include="StoredProcedures\CreateEmployerFeedbackResult.sql" />
-    <Build Include="Types\ProviderAttributesTemplate.sql" />
     <Build Include="Tables\ProviderAttributeSummary.sql" />
     <Build Include="Tables\ProviderRatingSummary.sql" />
     <Build Include="Tables\ProviderStarsSummary.sql" />
@@ -101,11 +80,10 @@
     <Build Include="Tables\FeedbackTransaction.sql" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Tables\EmployerSurveyCodes.sql" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Post Deployment\TranslateCurrentDataIntoNew.sql" />
-    <None Include="Post Deployment\LoadAttributes.sql" />
-    <None Include="Post Deployment\SetExistingFeedbackSources.sql" />
+    <PostDeploy Include="Post-Deployment\PostDeployment.sql" />
+    <None Include="Post-Deployment\LoadAttributes.sql" />
+    <None Include="Post-Deployment\StoredProceduresCleanup.sql" />
+    <None Include="Post-Deployment\TablesCleanup.sql" />
+    <None Include="Post-Deployment\EmployerFeedbackCleanup.sql" />
   </ItemGroup>
 </Project>

@@ -47,7 +47,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.SubmitEmployer
                 FeedbackSource = 1,
                 ProviderAttributes = new List<ProviderAttributeDto>()
             };
-            var feedback = new Domain.Entities.EmployerFeedback { FeedbackId = 123, UserRef = command.UserRef, Ukprn = command.Ukprn, AccountId = command.AccountId, IsActive = true };
+            var feedback = new Domain.Entities.EmployerFeedback { FeedbackId = 123, UserRef = command.UserRef, Ukprn = command.Ukprn, AccountId = command.AccountId };
             _employerFeedbackContext.Setup(x => x.GetByUserUkprnAccountAsync(command.UserRef, command.Ukprn, command.AccountId, It.IsAny<CancellationToken>())).ReturnsAsync((Domain.Entities.EmployerFeedback)null);
             _employerFeedbackContext.Setup(x => x.Add(It.IsAny<Domain.Entities.EmployerFeedback>())).Callback<Domain.Entities.EmployerFeedback>(f => f.FeedbackId = feedback.FeedbackId);
             _employerFeedbackContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
@@ -62,7 +62,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.SubmitEmployer
         }
 
         [Test]
-        public async Task Handle_Should_Update_EmployerFeedback_If_Inactive()
+        public async Task Handle_Should_Use_Existing_EmployerFeedback_If_Found()
         {
             var command = new SubmitEmployerFeedbackCommand
             {
@@ -73,14 +73,14 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.SubmitEmployer
                 FeedbackSource = 1,
                 ProviderAttributes = new List<ProviderAttributeDto>()
             };
-            var feedback = new Domain.Entities.EmployerFeedback { FeedbackId = 456, UserRef = command.UserRef, Ukprn = command.Ukprn, AccountId = command.AccountId, IsActive = false };
+            var feedback = new Domain.Entities.EmployerFeedback { FeedbackId = 456, UserRef = command.UserRef, Ukprn = command.Ukprn, AccountId = command.AccountId };
             _employerFeedbackContext.Setup(x => x.GetByUserUkprnAccountAsync(command.UserRef, command.Ukprn, command.AccountId, It.IsAny<CancellationToken>())).ReturnsAsync(feedback);
-            _employerFeedbackContext.Setup(x => x.Update(feedback)).Callback(() => feedback.IsActive = true);
             _employerFeedbackContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
             var result = await _handler.Handle(command, CancellationToken.None);
 
-            _employerFeedbackContext.Verify(x => x.Update(It.IsAny<Domain.Entities.EmployerFeedback>()), Times.Once);
+            _employerFeedbackContext.Verify(x => x.Add(It.IsAny<Domain.Entities.EmployerFeedback>()), Times.Never);
+            _employerFeedbackContext.Verify(x => x.Update(It.IsAny<Domain.Entities.EmployerFeedback>()), Times.Never);
             _employerFeedbackResultContext.Verify(x => x.Add(It.IsAny<EmployerFeedbackResult>()), Times.Once);
             _employerFeedbackContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             Assert.That(result, Is.Not.Null);
@@ -103,7 +103,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.SubmitEmployer
                     new ProviderAttributeDto { AttributeId = 2, AttributeValue = -1 }
                 }
             };
-            var feedback = new Domain.Entities.EmployerFeedback { FeedbackId = 789, UserRef = command.UserRef, Ukprn = command.Ukprn, AccountId = command.AccountId, IsActive = true };
+            var feedback = new Domain.Entities.EmployerFeedback { FeedbackId = 789, UserRef = command.UserRef, Ukprn = command.Ukprn, AccountId = command.AccountId };
             _employerFeedbackContext.Setup(x => x.GetByUserUkprnAccountAsync(command.UserRef, command.Ukprn, command.AccountId, It.IsAny<CancellationToken>())).ReturnsAsync(feedback);
             _employerFeedbackContext.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>())).ReturnsAsync(1);
 
