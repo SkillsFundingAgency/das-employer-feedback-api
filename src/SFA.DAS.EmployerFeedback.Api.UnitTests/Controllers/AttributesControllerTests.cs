@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Moq;
 using NUnit.Framework;
+using FluentAssertions;
 using SFA.DAS.EmployerFeedback.Api.Controllers;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes;
 using System;
@@ -27,10 +28,11 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             var controller = new AttributesController(mediator.Object, logger.Object);
 
             var result = await controller.GetAttributes();
+            
+            result.Should().BeOfType<OkObjectResult>();
             var okResult = result as OkObjectResult;
-            Assert.IsNotNull(okResult);
-            Assert.AreEqual(200, okResult.StatusCode);
-            Assert.AreEqual(attributes, okResult.Value);
+            okResult.StatusCode.Should().Be(200);
+            okResult.Value.Should().Be(attributes);
         }
 
         [Test]
@@ -43,10 +45,11 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.Controllers
             var controller = new AttributesController(mediator.Object, logger.Object);
 
             var result = await controller.GetAttributes();
+            
+            result.Should().BeOfType<ObjectResult>();
             var objectResult = result as ObjectResult;
-            Assert.IsNotNull(objectResult);
-            Assert.AreEqual(500, objectResult.StatusCode);
-            Assert.AreEqual("An unexpected error occurred.", objectResult.Value);
+            objectResult.StatusCode.Should().Be(500);
+            objectResult.Value.Should().Be("An unexpected error occurred.");
         }
     }
 }

@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using FluentAssertions;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using System;
 
@@ -17,9 +18,10 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Entities
                 AccountName = "TestAccount",
                 CheckedOn = checkedOn
             };
-            Assert.That(account.Id, Is.EqualTo(42));
-            Assert.That(account.AccountName, Is.EqualTo("TestAccount"));
-            Assert.That(account.CheckedOn, Is.EqualTo(checkedOn));
+            
+            account.Id.Should().Be(42);
+            account.AccountName.Should().Be("TestAccount");
+            account.CheckedOn.Should().Be(checkedOn);
         }
     }
 }
