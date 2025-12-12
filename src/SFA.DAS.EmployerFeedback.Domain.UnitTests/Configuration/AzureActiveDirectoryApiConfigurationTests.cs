@@ -15,6 +15,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Configuration
                 Tenant = tenant,
                 Audiences = audiences
             };
+
             config.Tenant.Should().Be(tenant);
             config.Audiences.Should().Be(audiences);
         }
