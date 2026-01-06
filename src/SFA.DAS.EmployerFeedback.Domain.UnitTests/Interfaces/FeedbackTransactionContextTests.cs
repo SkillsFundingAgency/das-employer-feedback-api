@@ -8,6 +8,7 @@ using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Data;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
+using SFA.DAS.EmployerFeedback.Domain.Models;
 
 namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
 {
@@ -123,6 +124,74 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
 
             result.Should().HaveCount(3);
             result.Should().BeInAscendingOrder();
+        }
+
+        private static async Task<FeedbackTransactionSummary> GetMostRecentSummaryByAccountIdAsync(EmployerFeedbackDataContext context, long accountId)
+        {
+            return await ((IFeedbackTransactionContext)context).GetMostRecentSummaryByAccountIdAsync(accountId);
+        }
+
+        [Test]
+        public async Task GetMostRecentSummaryByAccountIdAsync_WhenNoTransactionsExist_ShouldReturnNull()
+        {
+            await using var context = CreateContext();
+            var accountId = 999L;
+
+            var result = await GetMostRecentSummaryByAccountIdAsync(context, accountId);
+
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetMostRecentSummaryByAccountIdAsync_WhenTransactionsExist_ShouldReturnSummary()
+        {
+            await using var context = CreateContext();
+            var accountId = 222L;
+            var account = new Account { Id = accountId, AccountName = "Summary Account" };
+            var now = DateTime.UtcNow;
+            var transaction = new FeedbackTransaction
+            {
+                Id = 10,
+                AccountId = accountId,
+                TemplateName = "Summary Template",
+                SendAfter = now.AddDays(5),
+                SentDate = null,
+                CreatedOn = now
+            };
+
+            context.Accounts.Add(account);
+            context.FeedbackTransactions.Add(transaction);
+            await context.SaveChangesAsync();
+
+            var result = await GetMostRecentSummaryByAccountIdAsync(context, accountId);
+
+            result.Should().NotBeNull();
+            result.Id.Should().Be(transaction.Id);
+            result.AccountId.Should().Be(accountId);
+            result.SendAfter.Should().Be(transaction.SendAfter);
+            result.SentDate.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetMostRecentSummaryByAccountIdAsync_WhenMultipleTransactionsExist_ShouldReturnMostRecentById()
+        {
+            await using var context = CreateContext();
+            var accountId = 333L;
+            var account = new Account { Id = accountId, AccountName = "Summary Account Multiple" };
+
+            var t1 = new FeedbackTransaction { Id = 5, AccountId = accountId, SendAfter = DateTime.UtcNow.AddDays(10), SentDate = null, CreatedOn = DateTime.UtcNow.AddDays(-3) };
+            var t2 = new FeedbackTransaction { Id = 9, AccountId = accountId, SendAfter = DateTime.UtcNow.AddDays(20), SentDate = DateTime.UtcNow.AddDays(-1), CreatedOn = DateTime.UtcNow.AddDays(-1) };
+
+            context.Accounts.Add(account);
+            context.FeedbackTransactions.AddRange(t1, t2);
+            await context.SaveChangesAsync();
+
+            var result = await GetMostRecentSummaryByAccountIdAsync(context, accountId);
+
+            result.Should().NotBeNull();
+            result.Id.Should().Be(t2.Id);
+            result.SendAfter.Should().Be(t2.SendAfter);
+            result.SentDate.Should().Be(t2.SentDate);
         }
     }
 }
