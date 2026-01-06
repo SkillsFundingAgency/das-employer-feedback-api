@@ -11,3 +11,10 @@
     CONSTRAINT FK_FeedbackTransaction_Account FOREIGN KEY (AccountId)
         REFERENCES Account(Id)
 );
+
+GO
+
+CREATE NONCLUSTERED INDEX IX_FeedbackTransaction_AccountId_Id
+ON [dbo].[FeedbackTransaction] ([AccountId] ASC, [Id] DESC)
+INCLUDE (SendAfter, SentDate);
+GO
