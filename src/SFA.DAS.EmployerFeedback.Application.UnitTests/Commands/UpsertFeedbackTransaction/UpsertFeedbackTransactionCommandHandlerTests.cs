@@ -104,7 +104,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
         }
 
         [Test, AutoData]
-        public async Task Handle_WhenCompletedHasData_ShouldCreateTransactionWithSendAfterEmailNudgeSendAfterDays(long accountId)
+        public async Task Handle_WhenCompletedHasData_ShouldCreateTransactionWithSendAfterNow(long accountId)
         {
             var emailNudgeSendAfterDays = 30;
             _applicationSettings.EmailNudgeSendAfterDays = emailNudgeSendAfterDays;
@@ -130,14 +130,14 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             addedTransaction.Should().NotBeNull();
             addedTransaction.AccountId.Should().Be(accountId);
-            addedTransaction.SendAfter.Should().Be(_fixedDateTime.AddDays(emailNudgeSendAfterDays));
+            addedTransaction.SendAfter.Should().Be(_fixedDateTime);
             addedTransaction.CreatedOn.Should().Be(_fixedDateTime);
             _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Once);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Test, AutoData]
-        public async Task Handle_WhenActiveHasData_ShouldCreateTransactionWithSendAfterTwiceEmailNudgeSendAfterDays(long accountId)
+        public async Task Handle_WhenActiveHasData_ShouldCreateTransactionWithSendAfterNow(long accountId)
         {
             _applicationSettings.EmailNudgeSendAfterDays = 30;
             var command = new UpsertFeedbackTransactionCommand
@@ -162,7 +162,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             addedTransaction.Should().NotBeNull();
             addedTransaction.AccountId.Should().Be(accountId);
-            addedTransaction.SendAfter.Should().Be(_fixedDateTime.AddDays(60));
+            addedTransaction.SendAfter.Should().Be(_fixedDateTime);
             addedTransaction.CreatedOn.Should().Be(_fixedDateTime);
             _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Once);
             _mockFeedbackTransactionContext.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -230,6 +230,86 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
 
             _mockFeedbackTransactionContext.Verify(x => x.Add(
                 It.Is<FeedbackTransaction>(ft => ft.AccountId == accountId && ft.SentDate == null && ft.CreatedOn == _fixedDateTime)), Times.Once);
+        }
+
+        [Test, AutoData]
+        public async Task Handle_WhenExistingTransactionAlreadySent_WithNewStart_ShouldCreateNewTransactionWithSendAfterNow(long accountId)
+        {
+            var existingTransaction = new FeedbackTransaction
+            {
+                Id = 1,
+                AccountId = accountId,
+                SendAfter = _fixedDateTime.AddDays(-5),
+                SentDate = _fixedDateTime.AddDays(-3)
+            };
+
+            var command = new UpsertFeedbackTransactionCommand
+            {
+                AccountId = accountId,
+                NewStart = new List<ProviderCourseDto> { new ProviderCourseDto { Ukprn = 12345, CourseCode = "123" } }
+            };
+
+            var account = new Account { Id = accountId };
+            _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(account);
+
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingTransaction);
+
+            FeedbackTransaction addedTransaction = null;
+            _mockFeedbackTransactionContext
+                .Setup(x => x.Add(It.IsAny<FeedbackTransaction>()))
+                .Callback<FeedbackTransaction>(ft => addedTransaction = ft);
+
+            await _handler.Handle(command, CancellationToken.None);
+
+            addedTransaction.Should().NotBeNull();
+            addedTransaction.AccountId.Should().Be(accountId);
+            addedTransaction.SentDate.Should().BeNull();
+            addedTransaction.CreatedOn.Should().Be(_fixedDateTime);
+            addedTransaction.SendAfter.Should().Be(_fixedDateTime);
+            _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Once);
+        }
+
+        [Test, AutoData]
+        public async Task Handle_WhenExistingTransactionAlreadySent_WithActive_ShouldCreateNewTransactionWithSendAfterNowPlusDoubleEmailNudge(long accountId)
+        {
+            var existingTransaction = new FeedbackTransaction
+            {
+                Id = 1,
+                AccountId = accountId,
+                SendAfter = _fixedDateTime.AddDays(-5),
+                SentDate = _fixedDateTime.AddDays(-3)
+            };
+
+            _applicationSettings.EmailNudgeSendAfterDays = 30;
+
+            var command = new UpsertFeedbackTransactionCommand
+            {
+                AccountId = accountId,
+                Active = new List<ProviderCourseDto> { new ProviderCourseDto { Ukprn = 12345, CourseCode = "123" } }
+            };
+
+            var account = new Account { Id = accountId };
+            _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(account);
+
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingTransaction);
+
+            FeedbackTransaction addedTransaction = null;
+            _mockFeedbackTransactionContext
+                .Setup(x => x.Add(It.IsAny<FeedbackTransaction>()))
+                .Callback<FeedbackTransaction>(ft => addedTransaction = ft);
+
+            await _handler.Handle(command, CancellationToken.None);
+
+            addedTransaction.Should().NotBeNull();
+            addedTransaction.AccountId.Should().Be(accountId);
+            addedTransaction.SentDate.Should().BeNull();
+            addedTransaction.CreatedOn.Should().Be(_fixedDateTime);
+            addedTransaction.SendAfter.Should().Be(_fixedDateTime.AddDays(2 * _applicationSettings.EmailNudgeSendAfterDays));
+            _mockFeedbackTransactionContext.Verify(x => x.Add(It.IsAny<FeedbackTransaction>()), Times.Once);
         }
 
         [Test, AutoData]
