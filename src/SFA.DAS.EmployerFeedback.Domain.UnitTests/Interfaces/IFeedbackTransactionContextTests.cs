@@ -1,184 +1,325 @@
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Data;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
+using SFA.DAS.EmployerFeedback.Domain.Interfaces;
+using SFA.DAS.EmployerFeedback.Domain.Models;
 
 namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
 {
     [TestFixture]
     public class IFeedbackTransactionContextTests
     {
-        private EmployerFeedbackDataContext _context;
-        private SqliteConnection _connection;
-
-        [SetUp]
-        public void Setup()
+        private static EmployerFeedbackDataContext CreateContext()
         {
-            _connection = new SqliteConnection("DataSource=:memory:");
-            _connection.Open();
+            var connection = new SqliteConnection("Filename=:memory:");
+            connection.Open();
 
-            var options = new DbContextOptionsBuilder<EmployerFeedbackDataContext>()
-                .UseSqlite(_connection)
+            var contextOptions = new DbContextOptionsBuilder<EmployerFeedbackDataContext>()
+                .UseSqlite(connection)
                 .Options;
 
-            _context = new EmployerFeedbackDataContext(options);
-            _context.Database.EnsureCreated();
-        }
+            var dbContext = new EmployerFeedbackDataContext(contextOptions);
+            dbContext.Database.EnsureCreated();
 
-        [TearDown]
-        public void TearDown()
-        {
-            _context?.Dispose();
-            _connection?.Dispose();
-        }
-
-        private async Task<FeedbackTransaction> GetMostRecentByAccountIdAsync(long accountId)
-        {
-            return await _context.FeedbackTransactions
-                .AsNoTracking()
-                .Where(ft => ft.AccountId == accountId)
-                .OrderByDescending(ft => ft.CreatedOn)
-                .FirstOrDefaultAsync();
+            return dbContext;
         }
 
         [Test]
-        public async Task GetMostRecentByAccountIdAsync_WhenNoTransactionsExist_ShouldReturnNull()
+        public async Task GetFeedbackTransactionsBatchAsync_ReturnsCorrectTransactions_WhenSendAfterIsInPastAndSentDateIsNull()
         {
-            var accountId = 123L;
+            // Arrange
+            await using var context = CreateContext();
+            var pastDate = DateTime.UtcNow.AddDays(-1);
+            var futureDate = DateTime.UtcNow.AddDays(1);
+            var currentDateTime = DateTime.UtcNow;
 
-            var result = await GetMostRecentByAccountIdAsync(accountId);
+            var accounts = new List<Account>
+            {
+                new Account { Id = 1, AccountName = "Account 1" },
+                new Account { Id = 2, AccountName = "Account 2" },
+                new Account { Id = 3, AccountName = "Account 3" },
+                new Account { Id = 4, AccountName = "Account 4" },
+                new Account { Id = 5, AccountName = "Account 5" }
+            };
+            context.Accounts.AddRange(accounts);
+            await context.SaveChangesAsync();
 
+            var feedbackTransactions = new List<FeedbackTransaction>
+            {
+                new FeedbackTransaction { AccountId = 1, TemplateName = "Test", SendAfter = pastDate, SentDate = null, CreatedOn = DateTime.UtcNow },
+                new FeedbackTransaction { AccountId = 2, TemplateName = "Test", SendAfter = pastDate, SentDate = DateTime.UtcNow, CreatedOn = DateTime.UtcNow },
+                new FeedbackTransaction { AccountId = 3, TemplateName = "Test", SendAfter = futureDate, SentDate = null, CreatedOn = DateTime.UtcNow },
+                new FeedbackTransaction { AccountId = 5, TemplateName = "Test", SendAfter = pastDate, SentDate = null, CreatedOn = DateTime.UtcNow },
+                new FeedbackTransaction { AccountId = 4, TemplateName = "Test", SendAfter = pastDate, SentDate = null, CreatedOn = DateTime.UtcNow },
+            };
+
+            context.FeedbackTransactions.AddRange(feedbackTransactions);
+            await context.SaveChangesAsync();
+
+            // Act
+            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(3, currentDateTime);
+
+            // Assert
+            result.Should().HaveCount(3);
+            result.Should().BeInAscendingOrder();
+        }
+
+        [Test]
+        public async Task GetFeedbackTransactionsBatchAsync_ReturnsEmptyList_WhenNoValidTransactions()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var futureDate = DateTime.UtcNow.AddDays(1);
+            var currentDateTime = DateTime.UtcNow;
+
+            var accounts = new List<Account>
+            {
+                new Account { Id = 1, AccountName = "Account 1" },
+                new Account { Id = 2, AccountName = "Account 2" }
+            };
+            context.Accounts.AddRange(accounts);
+            await context.SaveChangesAsync();
+
+            var feedbackTransactions = new List<FeedbackTransaction>
+            {
+                new FeedbackTransaction { AccountId = 1, TemplateName = "Test", SendAfter = futureDate, SentDate = null, CreatedOn = DateTime.UtcNow },
+                new FeedbackTransaction { AccountId = 2, TemplateName = "Test", SendAfter = DateTime.UtcNow.AddDays(-1), SentDate = DateTime.UtcNow, CreatedOn = DateTime.UtcNow },
+            };
+
+            context.FeedbackTransactions.AddRange(feedbackTransactions);
+            await context.SaveChangesAsync();
+
+            // Act
+            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(5, currentDateTime);
+
+            // Assert
+            result.Should().BeEmpty();
+        }
+
+        [Test]
+        public async Task GetFeedbackTransactionsBatchAsync_RespectsBatchSize()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var pastDate = DateTime.UtcNow.AddDays(-1);
+            var currentDateTime = DateTime.UtcNow;
+
+            var accounts = new List<Account>();
+            for (int i = 1; i <= 10; i++)
+            {
+                accounts.Add(new Account { Id = i, AccountName = $"Account {i}" });
+            }
+            context.Accounts.AddRange(accounts);
+            await context.SaveChangesAsync();
+
+            var feedbackTransactions = new List<FeedbackTransaction>();
+            for (int i = 1; i <= 10; i++)
+            {
+                feedbackTransactions.Add(new FeedbackTransaction { AccountId = i, TemplateName = "Test", SendAfter = pastDate, SentDate = null, CreatedOn = DateTime.UtcNow });
+            }
+
+            context.FeedbackTransactions.AddRange(feedbackTransactions);
+            await context.SaveChangesAsync();
+
+            // Act
+            var result = await ((IFeedbackTransactionContext)context).GetFeedbackTransactionsBatchAsync(3, currentDateTime);
+
+            // Assert
+            result.Should().HaveCount(3);
+            result.Should().BeInAscendingOrder();
+        }
+
+        private static async Task<FeedbackTransactionSummary> GetMostRecentSummaryByAccountIdAsync(EmployerFeedbackDataContext context, long accountId)
+        {
+            return await ((IFeedbackTransactionContext)context).GetMostRecentSummaryByAccountIdAsync(accountId);
+        }
+
+        [Test]
+        public async Task GetMostRecentSummaryByAccountIdAsync_WhenNoTransactionsExist_ShouldReturnNull()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var accountId = 999L;
+
+            // Act
+            var result = await GetMostRecentSummaryByAccountIdAsync(context, accountId);
+
+            // Assert
             result.Should().BeNull();
         }
 
         [Test]
-        public async Task GetMostRecentByAccountIdAsync_WhenSingleTransactionExists_ShouldReturnThatTransaction()
+        public async Task GetMostRecentSummaryByAccountIdAsync_WhenTransactionsExist_ShouldReturnSummary()
         {
-            var accountId = 123L;
-            var account = new Account { Id = accountId, AccountName = "Test Account" };
-            var transaction = new FeedbackTransaction
-            {
-                Id = 1,
-                AccountId = accountId,
-                TemplateName = "Test Template",
-                SendAfter = DateTime.UtcNow.AddDays(30),
-                CreatedOn = DateTime.UtcNow
-            };
-
-            _context.Accounts.Add(account);
-            _context.FeedbackTransactions.Add(transaction);
-            await _context.SaveChangesAsync();
-
-            var result = await GetMostRecentByAccountIdAsync(accountId);
-
-            result.Should().NotBeNull();
-            result.Id.Should().Be(transaction.Id);
-            result.AccountId.Should().Be(accountId);
-            result.TemplateName.Should().Be(transaction.TemplateName);
-        }
-
-        [Test]
-        public async Task GetMostRecentByAccountIdAsync_WhenMultipleTransactionsExist_ShouldReturnMostRecent()
-        {
-            var accountId = 123L;
-            var account = new Account { Id = accountId, AccountName = "Test Account" };
-            var now = DateTime.UtcNow;
-            var oldTransaction = new FeedbackTransaction
-            {
-                Id = 1,
-                AccountId = accountId,
-                TemplateName = "Old Template",
-                SendAfter = now.AddDays(30),
-                CreatedOn = now.AddDays(-10)
-            };
-            var recentTransaction = new FeedbackTransaction
-            {
-                Id = 2,
-                AccountId = accountId,
-                TemplateName = "Recent Template",
-                SendAfter = now.AddDays(30),
-                CreatedOn = now.AddDays(-1)
-            };
-
-            _context.Accounts.Add(account);
-            _context.FeedbackTransactions.AddRange(oldTransaction, recentTransaction);
-            await _context.SaveChangesAsync();
-
-            var result = await GetMostRecentByAccountIdAsync(accountId);
-
-            result.Should().NotBeNull();
-            result.Id.Should().Be(recentTransaction.Id);
-            result.TemplateName.Should().Be("Recent Template");
-            result.CreatedOn.Should().BeCloseTo(recentTransaction.CreatedOn, TimeSpan.FromSeconds(1));
-        }
-
-        [Test]
-        public async Task GetMostRecentByAccountIdAsync_WhenTransactionsForDifferentAccounts_ShouldReturnCorrectOne()
-        {
-            var accountId1 = 123L;
-            var accountId2 = 456L;
-            var now = DateTime.UtcNow;
-            var account1 = new Account { Id = accountId1, AccountName = "Test Account 1" };
-            var account2 = new Account { Id = accountId2, AccountName = "Test Account 2" };
-            var transaction1 = new FeedbackTransaction
-            {
-                Id = 1,
-                AccountId = accountId1,
-                TemplateName = "Template 1",
-                SendAfter = now.AddDays(30),
-                CreatedOn = now.AddDays(-5)
-            };
-            var transaction2 = new FeedbackTransaction
-            {
-                Id = 2,
-                AccountId = accountId2,
-                TemplateName = "Template 2",
-                SendAfter = now.AddDays(30),
-                CreatedOn = now.AddDays(-1)
-            };
-
-            _context.Accounts.AddRange(account1, account2);
-            _context.FeedbackTransactions.AddRange(transaction1, transaction2);
-            await _context.SaveChangesAsync();
-
-            var result = await GetMostRecentByAccountIdAsync(accountId1);
-
-            result.Should().NotBeNull();
-            result.Id.Should().Be(transaction1.Id);
-            result.AccountId.Should().Be(accountId1);
-            result.TemplateName.Should().Be("Template 1");
-        }
-
-        [Test]
-        public async Task AddAsync_ShouldAddFeedbackTransaction()
-        {
-            var accountId = 123L;
-            var account = new Account { Id = accountId, AccountName = "Test Account" };
-            _context.Accounts.Add(account);
-            await _context.SaveChangesAsync();
-
+            // Arrange
+            await using var context = CreateContext();
+            var accountId = 222L;
+            var account = new Account { Id = accountId, AccountName = "Summary Account" };
             var now = DateTime.UtcNow;
             var transaction = new FeedbackTransaction
             {
+                Id = 10,
                 AccountId = accountId,
-                TemplateName = "Test Template",
-                SendAfter = now.AddDays(30),
+                TemplateName = "Summary Template",
+                SendAfter = now.AddDays(5),
+                SentDate = null,
                 CreatedOn = now
             };
 
-            _context.Add(transaction);
-            await _context.SaveChangesAsync();
+            context.Accounts.Add(account);
+            context.FeedbackTransactions.Add(transaction);
+            await context.SaveChangesAsync();
 
-            var savedTransaction = await GetMostRecentByAccountIdAsync(accountId);
-            savedTransaction.Should().NotBeNull();
-            savedTransaction.TemplateName.Should().Be("Test Template");
-            savedTransaction.AccountId.Should().Be(accountId);
-            savedTransaction.CreatedOn.Should().BeCloseTo(now, TimeSpan.FromSeconds(1));
+            // Act
+            var result = await GetMostRecentSummaryByAccountIdAsync(context, accountId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Id.Should().Be(transaction.Id);
+            result.AccountId.Should().Be(accountId);
+            result.SendAfter.Should().Be(transaction.SendAfter);
+            result.SentDate.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetMostRecentSummaryByAccountIdAsync_WhenMultipleTransactionsExist_ShouldReturnMostRecentById()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var accountId = 333L;
+            var account = new Account { Id = accountId, AccountName = "Summary Account Multiple" };
+
+            var t1 = new FeedbackTransaction { Id = 5, AccountId = accountId, SendAfter = DateTime.UtcNow.AddDays(10), SentDate = null, CreatedOn = DateTime.UtcNow.AddDays(-3) };
+            var t2 = new FeedbackTransaction { Id = 9, AccountId = accountId, SendAfter = DateTime.UtcNow.AddDays(20), SentDate = DateTime.UtcNow.AddDays(-1), CreatedOn = DateTime.UtcNow.AddDays(-1) };
+
+            context.Accounts.Add(account);
+            context.FeedbackTransactions.AddRange(t1, t2);
+            await context.SaveChangesAsync();
+
+            // Act
+            var result = await GetMostRecentSummaryByAccountIdAsync(context, accountId);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Id.Should().Be(t2.Id);
+            result.SendAfter.Should().Be(t2.SendAfter);
+            result.SentDate.Should().Be(t2.SentDate);
+        }
+
+        [Test]
+        public async Task GetByIdWithAccountAsync_WhenNoTransactionExists_ShouldReturnNull()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var nonExistentId = 999L;
+
+            // Act
+            var result = await ((IFeedbackTransactionContext)context).GetByIdWithAccountAsync(nonExistentId);
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetByIdWithAccountAsync_WhenTransactionExists_ShouldReturnTransactionWithAccount()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var account = new Account { Id = 777L, AccountName = "AccountName" };
+            var transaction = new FeedbackTransaction
+            {
+                Id = 101,
+                AccountId = account.Id,
+                TemplateName = "TemplateName",
+                SendAfter = DateTime.UtcNow.AddDays(2),
+                SentDate = null,
+                CreatedOn = DateTime.UtcNow
+            };
+
+            context.Accounts.Add(account);
+            context.FeedbackTransactions.Add(transaction);
+            await context.SaveChangesAsync();
+
+            // Act
+            var result = await ((IFeedbackTransactionContext)context).GetByIdWithAccountAsync(transaction.Id);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Id.Should().Be(transaction.Id);
+            result.AccountId.Should().Be(account.Id);
+            result.Account.Should().NotBeNull();
+            result.Account.Id.Should().Be(account.Id);
+            result.Account.AccountName.Should().Be(account.AccountName);
+        }
+
+        [Test]
+        public async Task GetByIdAsync_WhenNoTransactionExists_ShouldReturnNull()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var nonExistentId = 888L;
+
+            // Act
+            var result = await ((IFeedbackTransactionContext)context).GetByIdAsync(nonExistentId);
+
+            // Assert
+            result.Should().BeNull();
+        }
+
+        [Test]
+        public async Task GetByIdAsync_WhenTransactionExists_ShouldReturnTransactionWithoutAccountIncluded()
+        {
+            // Arrange
+            await using var context = CreateContext();
+            var account = new Account { Id = 555L, AccountName = "AccountName" };
+            var transaction = new FeedbackTransaction
+            {
+                Id = 202,
+                AccountId = account.Id,
+                TemplateName = "TemplateName",
+                SendAfter = DateTime.UtcNow.AddDays(3),
+                SentDate = null,
+                CreatedOn = DateTime.UtcNow
+            };
+
+            context.Accounts.Add(account);
+            context.FeedbackTransactions.Add(transaction);
+            await context.SaveChangesAsync();
+
+            // Act
+            var result = await ((IFeedbackTransactionContext)context).GetByIdAsync(transaction.Id);
+
+            // Assert
+            result.Should().NotBeNull();
+            result.Id.Should().Be(transaction.Id);
+            result.AccountId.Should().Be(account.Id);
+            result.Account.Should().BeNull();
+        }
+
+        [Test]
+        public async Task SaveChangesAsync_WhenCalled_ReturnsNumberOfAffectedRowsAndPersistsChanges()
+        {
+            // Arrange
+            await using var context = CreateContext();
+
+            var account = new Account { Id = 4242, AccountName = "SaveChanges Account" };
+            context.Accounts.Add(account);
+
+            // Act
+            var result = await ((IFeedbackTransactionContext)context).SaveChangesAsync();
+
+            // Assert
+            result.Should().BeGreaterThan(0);
+
+            var fetched = await context.Accounts.FindAsync(account.Id);
+            fetched.Should().NotBeNull();
+            fetched.AccountName.Should().Be(account.AccountName);
         }
     }
 }
