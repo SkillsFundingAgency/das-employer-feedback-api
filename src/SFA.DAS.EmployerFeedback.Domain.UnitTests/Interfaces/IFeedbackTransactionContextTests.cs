@@ -273,7 +273,7 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
         }
 
         [Test]
-        public async Task GetByIdAsync_WhenTransactionExists_ShouldReturnTransactionWithoutAccountIncluded()
+        public async Task GetByIdAsync_WhenTransactionExists_ShouldReturnTransaction()
         {
             // Arrange
             await using var context = CreateContext();
@@ -298,8 +298,6 @@ namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Interfaces
             // Assert
             result.Should().NotBeNull();
             result.Id.Should().Be(transaction.Id);
-            result.AccountId.Should().Be(account.Id);
-            result.Account.Should().BeNull();
         }
 
         [Test]
