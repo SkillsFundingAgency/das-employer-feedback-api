@@ -73,11 +73,10 @@
     <Build Include="Tables\ProviderAttributeSummary.sql" />
     <Build Include="Tables\ProviderRatingSummary.sql" />
     <Build Include="Tables\ProviderStarsSummary.sql" />
-    <Build Include="StoredProcedures\GenerateProviderAttributeResults.sql" />
-    <Build Include="StoredProcedures\GenerateProviderRatingResults.sql" />
     <Build Include="Tables\Settings.sql" />
     <Build Include="Tables\Account.sql" />
     <Build Include="Tables\FeedbackTransaction.sql" />
+    <Build Include="StoredProcedures\GenerateFeedbackSummaries.sql" />
   </ItemGroup>
   <ItemGroup>
     <PostDeploy Include="Post-Deployment\PostDeployment.sql" />
