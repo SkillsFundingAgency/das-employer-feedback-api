@@ -8,6 +8,7 @@ using SFA.DAS.EmployerFeedback.Application.Models;
 using SFA.DAS.EmployerFeedback.Domain.Configuration;
 using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
+using SFA.DAS.EmployerFeedback.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -82,8 +83,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             var account = new Account { Id = accountId, CheckedOn = _fixedDateTime.AddDays(-1) };
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((FeedbackTransaction)null);
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((FeedbackTransactionSummary)null);
 
             var originalCheckedOn = account.CheckedOn;
             FeedbackTransaction addedTransaction = null;
@@ -118,8 +119,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((FeedbackTransaction)null);
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((FeedbackTransactionSummary)null);
 
             FeedbackTransaction addedTransaction = null;
             _mockFeedbackTransactionContext
@@ -150,8 +151,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((FeedbackTransaction)null);
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((FeedbackTransactionSummary)null);
 
             FeedbackTransaction addedTransaction = null;
             _mockFeedbackTransactionContext
@@ -190,7 +191,10 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+            var summary = new FeedbackTransactionSummary { Id = existingTransaction.Id, AccountId = accountId, SendAfter = existingTransaction.SendAfter, SentDate = existingTransaction.SentDate };
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(summary);
+            _mockFeedbackTransactionContext.Setup(x => x.GetByIdAsync(existingTransaction.Id, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingTransaction);
 
             _applicationSettings.EmailNudgeSendAfterDays = 5;
@@ -223,8 +227,9 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingTransaction);
+            var summary = new FeedbackTransactionSummary { Id = existingTransaction.Id, AccountId = accountId, SendAfter = existingTransaction.SendAfter, SentDate = existingTransaction.SentDate };
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(summary);
 
             await _handler.Handle(command, CancellationToken.None);
 
@@ -253,8 +258,9 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingTransaction);
+            var summary = new FeedbackTransactionSummary { Id = existingTransaction.Id, AccountId = accountId, SendAfter = existingTransaction.SendAfter, SentDate = existingTransaction.SentDate };
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(summary);
 
             FeedbackTransaction addedTransaction = null;
             _mockFeedbackTransactionContext
@@ -294,8 +300,9 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingTransaction);
+            var summary = new FeedbackTransactionSummary { Id = existingTransaction.Id, AccountId = accountId, SendAfter = existingTransaction.SendAfter, SentDate = existingTransaction.SentDate };
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(summary);
 
             FeedbackTransaction addedTransaction = null;
             _mockFeedbackTransactionContext
@@ -321,7 +328,7 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
                 NewStart = new List<ProviderCourseDto> { new ProviderCourseDto { Ukprn = 12345, CourseCode = "123" } }
             };
 
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(It.IsAny<long>(), It.IsAny<CancellationToken>()))
                 .ThrowsAsync(new Exception("Database error"));
 
             Func<Task> act = () => _handler.Handle(command, CancellationToken.None);
@@ -341,8 +348,8 @@ namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Commands.UpsertFeedback
             _mockAccountContext.Setup(x => x.GetByIdAsync(accountId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(account);
 
-            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((FeedbackTransaction)null);
+            _mockFeedbackTransactionContext.Setup(x => x.GetMostRecentSummaryByAccountIdAsync(accountId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((FeedbackTransactionSummary)null);
 
             var originalCheckedOn = account.CheckedOn;
 

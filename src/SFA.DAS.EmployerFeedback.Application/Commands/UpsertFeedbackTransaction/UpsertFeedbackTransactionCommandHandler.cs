@@ -72,17 +72,21 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransactio
 
         private async Task ProcessFeedbackTransaction(long accountId, DateTime sendAfter, CancellationToken cancellationToken)
         {
-            var existingTransaction = await _feedbackTransactionContext.GetMostRecentByAccountIdAsync(accountId, cancellationToken);
+            var existingSummary = await _feedbackTransactionContext.GetMostRecentSummaryByAccountIdAsync(accountId, cancellationToken);
 
-            if (existingTransaction == null)
+            if (existingSummary == null)
             {
                 CreateFeedbackTransaction(accountId, _dateTimeHelper.Now);
             }
-            else if (existingTransaction.SentDate == null)
+            else if (existingSummary.SentDate == null)
             {
-                if (sendAfter < existingTransaction.SendAfter)
+                if (sendAfter < existingSummary.SendAfter)
                 {
-                    existingTransaction.SendAfter = sendAfter;
+                    var existingTransaction = await _feedbackTransactionContext.GetByIdAsync(existingSummary.Id, cancellationToken);
+                    if (existingTransaction != null)
+                    {
+                        existingTransaction.SendAfter = sendAfter;
+                    }
                 }
             }
             else

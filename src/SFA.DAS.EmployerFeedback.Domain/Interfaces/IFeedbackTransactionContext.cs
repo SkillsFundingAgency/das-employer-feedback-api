@@ -1,4 +1,5 @@
 using SFA.DAS.EmployerFeedback.Domain.Entities;
+using SFA.DAS.EmployerFeedback.Domain.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -12,10 +13,18 @@ namespace SFA.DAS.EmployerFeedback.Domain.Interfaces
     {
         Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 
-        public async Task<FeedbackTransaction> GetMostRecentByAccountIdAsync(long accountId, CancellationToken cancellationToken = default)
+        public async Task<FeedbackTransactionSummary> GetMostRecentSummaryByAccountIdAsync(long accountId, CancellationToken cancellationToken = default)
             => await Entities
+                .AsNoTracking()
                 .Where(ft => ft.AccountId == accountId)
-                .OrderByDescending(ft => ft.CreatedOn)
+                .OrderByDescending(ft => ft.Id)
+                .Select(ft => new FeedbackTransactionSummary
+                {
+                    Id = ft.Id,
+                    AccountId = ft.AccountId,
+                    SendAfter = ft.SendAfter,
+                    SentDate = ft.SentDate
+                })
                 .FirstOrDefaultAsync(cancellationToken);
 
         public async Task<List<long>> GetFeedbackTransactionsBatchAsync(int batchSize, DateTime currentDateTime, CancellationToken cancellationToken = default)
