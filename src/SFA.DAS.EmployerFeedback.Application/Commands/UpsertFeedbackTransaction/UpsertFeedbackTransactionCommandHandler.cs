@@ -76,7 +76,7 @@ namespace SFA.DAS.EmployerFeedback.Application.Commands.UpsertFeedbackTransactio
 
             if (existingTransaction == null)
             {
-                CreateFeedbackTransaction(accountId, sendAfter);
+                CreateFeedbackTransaction(accountId, _dateTimeHelper.Now);
             }
             else if (existingTransaction.SentDate == null)
             {
