@@ -78,6 +78,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: TEST DevTest Shared Resources
+  - group: TEST das-employer-feedback-api
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
@@ -93,6 +94,7 @@ stages:
   variables:
   - group: DevTest Management Resources
   - group: TEST2 DevTest Shared Resources
+  - group: TEST2 das-employer-feedback-api
   jobs:
   - template: pipeline-templates/job/deploy.yml
     parameters:
