@@ -1,7 +1,7 @@
 using FluentAssertions;
 using NUnit.Framework;
 using SFA.DAS.EmployerFeedback.Application.Queries.GetFeedbackTransaction;
-using AutoFixture.NUnit3;
+using AutoFixture.NUnit4;
 
 namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetFeedbackTransaction
 {

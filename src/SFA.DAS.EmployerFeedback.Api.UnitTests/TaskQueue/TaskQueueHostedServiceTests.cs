@@ -64,13 +64,20 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.TaskQueue
             using var cancellationTokenSource = new CancellationTokenSource();
             var mockRequest = new Mock<IBaseRequest>().Object;
 
+            var taskCompletionSource = new TaskCompletionSource<object>();
+
             _backgroundTaskQueueMock
                 .Setup(x => x.DequeueAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync((mockRequest, "TestRequest", (response, duration, logger) => { }
-            ))
+                .ReturnsAsync((mockRequest, "TestRequest", (response, duration, logger) =>
+                {
+                    taskCompletionSource.SetResult(response);
+                }
+                ))
                 .Callback(() => cancellationTokenSource.Cancel());
 
             await _service.StartAsync(cancellationTokenSource.Token);
+
+            await taskCompletionSource.Task;
 
             _mediatorMock.Verify(x => x.Send(It.IsAny<IBaseRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             _serviceScopeFactoryMock.Verify(x => x.CreateScope(), Times.Once);

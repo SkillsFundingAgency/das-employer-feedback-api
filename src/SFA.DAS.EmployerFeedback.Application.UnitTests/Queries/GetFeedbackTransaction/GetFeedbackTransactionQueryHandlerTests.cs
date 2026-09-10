@@ -8,7 +8,7 @@ using SFA.DAS.EmployerFeedback.Domain.Interfaces;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using AutoFixture.NUnit3;
+using AutoFixture.NUnit4;
 
 namespace SFA.DAS.EmployerFeedback.Application.UnitTests.Queries.GetFeedbackTransaction
 {
