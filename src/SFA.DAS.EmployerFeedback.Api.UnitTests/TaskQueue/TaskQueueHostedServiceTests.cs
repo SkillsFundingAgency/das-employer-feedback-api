@@ -77,7 +77,7 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.TaskQueue
 
             await _service.StartAsync(cancellationTokenSource.Token);
 
-            await taskCompletionSource.Task;
+            await taskCompletionSource.Task.WaitAsync(TimeSpan.FromSeconds(5));
 
             _mediatorMock.Verify(x => x.Send(It.IsAny<IBaseRequest>(), It.IsAny<CancellationToken>()), Times.Once);
             _serviceScopeFactoryMock.Verify(x => x.CreateScope(), Times.Once);
@@ -92,7 +92,11 @@ namespace SFA.DAS.EmployerFeedback.Api.UnitTests.TaskQueue
                 .ReturnsAsync((null, "FailingRequest", (response, duration, logger) => throw new Exception("Simulated failure")))
                 .Callback(() => cancellationTokenSource.Cancel()); // Simulate a task that fails
 
-            Func<Task> act = async () => await _service.StartAsync(cancellationTokenSource.Token);
+            Func<Task> act = async () =>
+            {
+                await _service.StartAsync(cancellationTokenSource.Token);
+                await _service.ExecuteTask!.WaitAsync(TimeSpan.FromSeconds(5));
+            };
 
             await act.Should().NotThrowAsync();
         }
