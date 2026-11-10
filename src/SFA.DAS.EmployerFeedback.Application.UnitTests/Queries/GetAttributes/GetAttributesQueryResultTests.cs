@@ -1,7 +1,7 @@
 using SFA.DAS.EmployerFeedback.Application.Queries.GetAttributes;
 using SFA.DAS.EmployerFeedback.Domain.Models;
 using FluentAssertions;
-using AutoFixture.NUnit3;
+using AutoFixture.NUnit4;
 using NUnit.Framework;
 using System.Collections.Generic;
 

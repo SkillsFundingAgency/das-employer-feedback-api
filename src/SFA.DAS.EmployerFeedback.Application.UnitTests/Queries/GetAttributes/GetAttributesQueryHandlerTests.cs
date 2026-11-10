@@ -3,7 +3,7 @@ using SFA.DAS.EmployerFeedback.Domain.Entities;
 using SFA.DAS.EmployerFeedback.Domain.Interfaces;
 using Moq;
 using FluentAssertions;
-using AutoFixture.NUnit3;
+using AutoFixture.NUnit4;
 using NUnit.Framework;
 using System.Collections.Generic;
 using System.Threading;

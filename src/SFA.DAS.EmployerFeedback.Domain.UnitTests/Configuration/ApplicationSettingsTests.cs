@@ -1,6 +1,6 @@
 using SFA.DAS.EmployerFeedback.Domain.Configuration;
 using FluentAssertions;
-using AutoFixture.NUnit3;
+using AutoFixture.NUnit4;
 using NUnit.Framework;
 
 namespace SFA.DAS.EmployerFeedback.Domain.UnitTests.Configuration

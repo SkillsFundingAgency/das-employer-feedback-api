@@ -26,7 +26,7 @@ namespace SFA.DAS.EmployerFeedback.Api.AppStart
             else
             {
                 services.AddSingleton(new ChainedTokenCredential(
-                    new ManagedIdentityCredential(),
+                    new ManagedIdentityCredential(new ManagedIdentityCredentialOptions()),
                     new AzureCliCredential(),
                     new VisualStudioCodeCredential(),
                     new VisualStudioCredential())

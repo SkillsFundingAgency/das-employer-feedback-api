@@ -17,8 +17,8 @@ This repository represents the Employer Feedback API code base. Employer Feedbac
 In order to run this solution locally you will need the following:
 
 * A clone of this repository
-* **.NET 8.0 SDK** - [Download here](https://dotnet.microsoft.com/download/dotnet/8.0)
-* A code editor that supports .NET 8.0 (e.g., Visual Studio 2022, VS Code with C# Dev Kit)
+* **.NET 10.0 SDK** - [Download here](https://dotnet.microsoft.com/en-us/download/dotnet/10.0)
+* A code editor that supports .NET 10.0 (e.g., Visual Studio 2026, VS Code with C# Dev Kit)
 * **SQL Server** - Local SQL Server instance (e.g., SQL Server 2022 Developer Edition, SQL Server Express LocalDB)
 * **Azurite** - For local Azure Storage emulation ([Installation guide](https://learn.microsoft.com/en-us/azure/storage/common/storage-use-azurite))
 
